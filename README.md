@@ -64,7 +64,14 @@ Après avoir fait quelques projets simples (todo list, blog basique), j'ai voulu
 
 ## 🚀 Démarrage Rapide
 
-### Développement Local (Recommandé)
+### Installation automatique (Recommandé)
+
+```bash
+# Installation complète en une commande
+./start.sh
+```
+
+### Installation manuelle
 
 ```bash
 # Backend
@@ -76,7 +83,7 @@ npm run prisma:migrate
 npm run prisma:seed
 npm run start:dev
 
-# Frontend
+# Frontend (dans un autre terminal)
 cd frontend
 npm install
 npm run dev
