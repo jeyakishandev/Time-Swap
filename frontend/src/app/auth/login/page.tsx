@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+import { authApi } from '@/lib/api';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -19,88 +21,107 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Stocker le token (dans un vrai projet, on utiliserait des cookies HTTP-only)
-        localStorage.setItem('token', data.token);
-        router.push('/dashboard');
-      } else {
-        setError(data.message || 'Erreur lors de la connexion');
-      }
-    } catch (err) {
-      setError('Erreur de connexion au serveur');
+      const response = await authApi.login(formData.email, formData.password);
+      
+      // Stocker le token et les infos utilisateur
+      Cookies.set('token', response.token, { expires: 1 });
+      Cookies.set('user', JSON.stringify(response.user), { expires: 1 });
+      
+      // Rediriger vers le dashboard
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erreur lors de la connexion');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Connexion</h2>
-        
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-              required
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Mot de passe
-            </label>
-            <input
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50"
-          >
-            {isLoading ? 'Connexion...' : 'Se connecter'}
-          </button>
-        </form>
-
-        <p className="text-center mt-4">
-          Pas de compte ?{' '}
-          <Link href="/auth/register" className="text-blue-600 hover:underline">
-            S'inscrire
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center space-x-2 text-white">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">TS</span>
+            </div>
+            <span className="text-2xl font-bold">Time-Swap</span>
           </Link>
-        </p>
+        </div>
 
-        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-          <p className="text-sm text-gray-600 mb-2">Comptes de test :</p>
-          <p className="text-sm">Email: alice@example.com</p>
-          <p className="text-sm">Mot de passe: password123</p>
+        {/* Card */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">Connexion</h1>
+            <p className="text-gray-300">Accédez à votre compte sécurisé</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/30 text-red-200 px-4 py-3 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="votre@email.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Mot de passe
+              </label>
+              <input
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold"
+            >
+              {isLoading ? 'Connexion...' : 'Se connecter'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-300">
+              Pas encore de compte ?{' '}
+              <Link href="/auth/register" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold">
+                S'inscrire
+              </Link>
+            </p>
+          </div>
+
+          {/* Test accounts */}
+          <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+            <p className="text-sm text-gray-300 mb-2">Comptes de test :</p>
+            <p className="text-sm text-gray-400">Email: alice@example.com</p>
+            <p className="text-sm text-gray-400">Mot de passe: password123</p>
+          </div>
+        </div>
+
+        {/* Back to home */}
+        <div className="text-center mt-6">
+          <Link href="/" className="text-gray-400 hover:text-white transition-colors">
+            ← Retour à l'accueil
+          </Link>
         </div>
       </div>
     </div>

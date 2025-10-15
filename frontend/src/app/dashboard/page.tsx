@@ -154,14 +154,23 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Time-Swap Network</h1>
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">TS</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Time-Swap</h1>
+          </div>
+          
           <div className="flex items-center space-x-4">
-            <span>Bonjour, {user.username} !</span>
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Bonjour,</p>
+              <p className="font-semibold text-gray-900">{user?.username}</p>
+            </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 font-medium"
             >
               Déconnexion
             </button>
@@ -171,13 +180,24 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profil utilisateur */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">Bienvenue, {user.username} !</h2>
-          <div className="flex items-center space-x-4">
-            <div className="text-4xl">💰</div>
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-8 mb-8 text-white">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600">Vos crédits</p>
-              <p className="text-3xl font-bold text-blue-600">{user.credits} crédits</p>
+              <h2 className="text-3xl font-bold mb-2">Bienvenue, {user?.username} !</h2>
+              <p className="text-blue-100 mb-4">Gérez vos échanges de crédits en toute sécurité</p>
+              <div className="flex items-center space-x-4">
+                <div className="text-5xl">💰</div>
+                <div>
+                  <p className="text-blue-100">Vos crédits disponibles</p>
+                  <p className="text-4xl font-bold">{user?.credits} crédits</p>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                <p className="text-blue-100 text-sm">Statut du compte</p>
+                <p className="text-green-300 font-semibold">✓ Actif</p>
+              </div>
             </div>
           </div>
         </div>
