@@ -107,11 +107,8 @@ export const usersApi = {
     return data;
   },
 
-  getTransactions: async (): Promise<{
-    sent: Transaction[];
-    received: Transaction[];
-  }> => {
-    const { data } = await api.get('/users/me/transactions');
+  getTransactions: async (): Promise<Transaction[]> => {
+    const { data } = await api.get<Transaction[]>('/users/me/transactions');
     return data;
   },
 };
@@ -119,11 +116,13 @@ export const usersApi = {
 // API Transactions
 export const transactionsApi = {
   transfer: async (
+    senderId: string,
     receiverId: string,
     amount: number,
     description?: string,
   ): Promise<Transaction> => {
     const { data } = await api.post<Transaction>('/transactions/transfer', {
+      senderId,
       receiverId,
       amount,
       description,

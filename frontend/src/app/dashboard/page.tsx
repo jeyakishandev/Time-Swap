@@ -15,6 +15,8 @@ interface Transaction {
   amount: number;
   description?: string;
   status: string;
+  senderId: string;
+  receiverId: string;
   sender: { username: string };
   receiver: { username: string };
   createdAt: string;
@@ -47,7 +49,20 @@ export default function DashboardPage() {
     const token = localStorage.getItem('token');
     
     try {
-      // Récupérer les utilisateurs
+      // Récupérer le profil de l'utilisateur connecté
+      const profileResponse = await fetch('http://localhost:3001/users/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        setUser(profileData);
+        localStorage.setItem('currentUser', profileData.id);
+      }
+
+      // Récupérer tous les utilisateurs
       const usersResponse = await fetch('http://localhost:3001/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -57,16 +72,10 @@ export default function DashboardPage() {
       if (usersResponse.ok) {
         const usersData = await usersResponse.json();
         setUsers(usersData);
-        
-        // Trouver l'utilisateur actuel (simplifié - dans un vrai projet on aurait un endpoint /me)
-        const currentUser = usersData.find((u: User) => 
-          localStorage.getItem('currentUser') === u.id
-        );
-        setUser(currentUser || usersData[0]);
       }
 
-      // Récupérer les transactions
-      const transactionsResponse = await fetch('http://localhost:3001/transactions', {
+      // Récupérer les transactions de l'utilisateur connecté
+      const transactionsResponse = await fetch('http://localhost:3001/users/me/transactions', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -128,56 +137,65 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl">Chargement...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-2xl font-semibold text-gray-700">Chargement...</div>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl">Erreur: Utilisateur non trouvé</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-2xl font-semibold text-gray-700">Erreur: Utilisateur non trouvé</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Time-Swap Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">Time-Swap Network</h1>
           <div className="flex items-center space-x-4">
             <span>Bonjour, {user.username} !</span>
             <button
               onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               Déconnexion
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Solde et Transfert */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Mon Solde</h2>
-            <div className="text-3xl font-bold text-blue-600 mb-6">
-              {user.credits} crédits
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Profil utilisateur */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-bold mb-4">Bienvenue, {user.username} !</h2>
+          <div className="flex items-center space-x-4">
+            <div className="text-4xl">💰</div>
+            <div>
+              <p className="text-gray-600">Vos crédits</p>
+              <p className="text-3xl font-bold text-blue-600">{user.credits} crédits</p>
             </div>
+          </div>
+        </div>
 
-            <h3 className="text-lg font-semibold mb-4">Effectuer un transfert</h3>
-            <form onSubmit={handleTransfer}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Formulaire de transfert */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-bold mb-4">Transférer des crédits</h3>
+            
+            <form onSubmit={handleTransfer} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Destinataire
                 </label>
                 <select
                   value={transferForm.receiverId}
                   onChange={(e) => setTransferForm({ ...transferForm, receiverId: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   required
                 >
                   <option value="">Sélectionner un utilisateur</option>
@@ -191,8 +209,8 @@ export default function DashboardPage() {
                 </select>
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Montant
                 </label>
                 <input
@@ -202,64 +220,79 @@ export default function DashboardPage() {
                   max={user.credits}
                   value={transferForm.amount}
                   onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="50"
                   required
                 />
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Description (optionnel)
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description (optionnelle)
                 </label>
                 <input
                   type="text"
                   value={transferForm.description}
                   onChange={(e) => setTransferForm({ ...transferForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                  placeholder="Pourquoi ce transfert ?"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Aide pour déménagement..."
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isTransferring}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg disabled:opacity-50"
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
-                {isTransferring ? 'Transfert en cours...' : 'Effectuer le transfert'}
+                {isTransferring ? 'Transfert en cours...' : 'Envoyer'}
               </button>
             </form>
           </div>
 
           {/* Historique des transactions */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Historique des transactions</h2>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-bold mb-4">Historique des transactions</h3>
+            
+            <div className="space-y-4 max-h-96 overflow-y-auto">
               {transactions.length === 0 ? (
-                <p className="text-gray-500">Aucune transaction pour le moment</p>
+                <p className="text-center text-gray-500 py-8">Aucune transaction</p>
               ) : (
-                transactions.map((transaction) => (
-                  <div key={transaction.id} className="border-l-4 border-blue-500 pl-4 py-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">
-                        {transaction.sender.username} → {transaction.receiver.username}
-                      </span>
-                      <span className="font-bold text-blue-600">
-                        {transaction.amount} crédits
-                      </span>
-                    </div>
-                    {transaction.description && (
-                      <p className="text-sm text-gray-600">{transaction.description}</p>
-                    )}
-                    <p className="text-xs text-gray-500">
-                      {new Date(transaction.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                ))
+                transactions
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .map((transaction) => {
+                    const isSent = transaction.senderId === user.id;
+                    return (
+                      <div
+                        key={transaction.id}
+                        className={`p-4 rounded-lg border ${
+                          isSent ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold">
+                              {isSent ? '→' : '←'} {isSent ? transaction.receiver.username : transaction.sender.username}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {transaction.description || 'Aucune description'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(transaction.createdAt).toLocaleDateString('fr-FR')} à{' '}
+                              {new Date(transaction.createdAt).toLocaleTimeString('fr-FR')}
+                            </p>
+                          </div>
+                          <div className={`text-lg font-bold ${isSent ? 'text-red-600' : 'text-green-600'}`}>
+                            {isSent ? '-' : '+'}{transaction.amount} crédits
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
               )}
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

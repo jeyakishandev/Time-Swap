@@ -54,8 +54,17 @@ Après avoir fait quelques projets simples (todo list, blog basique), j'ai voulu
 - Docker ne marchait pas sur mon PC au début
 - J'ai appris à utiliser SQLite en local pour développer plus facilement
 - Les variables d'environnement, c'est important !
+- J'ai créé des Dockerfiles simples pour le déploiement
+
+### **Tests**
+- J'ai découvert Jest et les tests unitaires
+- C'est super important pour éviter les régressions
+- J'ai testé les services critiques (Auth et Transactions)
+- Couverture à 33% pour l'instant, je vais l'améliorer !
 
 ## 🚀 Démarrage Rapide
+
+### Développement Local (Recommandé)
 
 ```bash
 # Backend
@@ -63,6 +72,8 @@ cd backend
 export DATABASE_URL="file:./dev.db"
 export JWT_SECRET="your-secret-key"
 npm install
+npm run prisma:migrate
+npm run prisma:seed
 npm run start:dev
 
 # Frontend
@@ -70,6 +81,34 @@ cd frontend
 npm install
 npm run dev
 ```
+
+### Avec Docker (Production)
+
+```bash
+# Lancer toute l'application
+docker-compose up --build
+
+# Accéder à l'application
+# Frontend: http://localhost:3000
+# Backend: http://localhost:3001
+# API Docs: http://localhost:3001/api/docs
+```
+
+## 🧪 Tests
+
+```bash
+# Lancer les tests
+cd backend
+npm test
+
+# Tests avec couverture
+npm run test:cov
+
+# Tests en mode watch
+npm run test:watch
+```
+
+**Couverture actuelle :** 33% (Services critiques : Auth 100%, Transactions 89%)
 
 ## 📄 Licence
 

@@ -117,6 +117,36 @@ export class TransactionsService {
     });
   }
 
+  async findByUser(userId: string) {
+    return this.prisma.creditTransaction.findMany({
+      where: {
+        OR: [
+          { senderId: userId },
+          { receiverId: userId },
+        ],
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
   async findOne(id: string) {
     return this.prisma.creditTransaction.findUnique({
       where: { id },

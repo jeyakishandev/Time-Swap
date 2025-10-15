@@ -1,41 +1,63 @@
+# Docker Compose pour Time-Swap Network
+# J'ai appris Docker récemment, c'est pratique pour le déploiement !
+
 version: '3.8'
 
 services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
+  # Base de données PostgreSQL
+  database:
+    image: postgres:15-alpine
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3001
-    depends_on:
-      - backend
+      POSTGRES_DB: timeswap
+      POSTGRES_USER: timeswap
+      POSTGRES_PASSWORD: timeswap123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - timeswap-network
 
+  # Backend NestJS
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "3001:3001"
     environment:
-      - DATABASE_URL=postgresql://user:password@postgres:5432/timeswap
-      - JWT_SECRET=your-super-secret-jwt-key
+      DATABASE_URL: "postgresql://timeswap:timeswap123@database:5432/timeswap"
+      JWT_SECRET: "your-super-secret-jwt-key-for-production"
     depends_on:
-      - postgres
-      - redis
-
-  postgres:
-    image: postgres:16
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=timeswap
+      - database
+    networks:
+      - timeswap-network
+    # Pour le développement, on peut monter le code
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - ./backend:/app
+      - /app/node_modules
 
-  redis:
-    image: redis:7-alpine
+  # Frontend Next.js
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "6379:6379"
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:3001"
+    depends_on:
+      - backend
+    networks:
+      - timeswap-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
 
 volumes:
   postgres_data:
+
+networks:
+  timeswap-network:
+    driver: bridge
