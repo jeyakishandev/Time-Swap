@@ -201,62 +201,75 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       {/* Header */}
-      <header className="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <header className="bg-white/5 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center space-x-2 group">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-white font-bold text-sm">TS</span>
+            {/* Logo et Navigation */}
+            <div className="flex items-center space-x-8">
+              <Link href="/" className="flex items-center space-x-3 group">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg group-hover:shadow-blue-500/25">
+                  <span className="text-white font-bold text-lg">TS</span>
                 </div>
-                <span className="text-white font-bold group-hover:text-blue-300 transition-colors">Time-Swap</span>
+                <div>
+                  <span className="text-white text-xl font-bold group-hover:text-blue-300 transition-colors">Time-Swap</span>
+                  <p className="text-gray-400 text-xs">Tableau de bord</p>
+                </div>
               </Link>
             </div>
 
-            <div className="flex items-center space-x-6">
+            {/* Actions et Profil */}
+            <div className="flex items-center space-x-4">
               {/* Notifications */}
               <div className="relative">
-                <button className="relative p-2 text-white hover:text-blue-300 transition-colors">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button className="relative p-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                   {notifications.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
                       {notifications.length}
                     </span>
                   )}
                 </button>
-                
-                {/* Dropdown Notifications */}
-                {notifications.length > 0 && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-4">
-                    <h3 className="text-white font-semibold mb-3">Notifications</h3>
-                    <div className="space-y-2">
-                      {notifications.map((notification, index) => (
-                        <div key={index} className="text-gray-300 text-sm p-2 bg-white/5 rounded">
-                          {notification}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* User Menu */}
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-white font-semibold">{user?.username}</p>
-                  <p className="text-gray-300 text-sm">{user?.email}</p>
-                </div>
+              {/* Profil utilisateur */}
+              <div className="flex items-center space-x-3 bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-all duration-300">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold">{user?.username?.[0]?.toUpperCase()}</span>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 text-gray-300 hover:text-white transition-colors hover:bg-white/10 rounded-lg"
-                >
-                  Déconnexion
+                <div className="text-left">
+                  <p className="text-white font-semibold text-sm">{user?.username}</p>
+                  <p className="text-gray-400 text-xs">{user?.credits?.toFixed(2)} crédits</p>
+                </div>
+              </div>
+
+              {/* Menu déroulant utilisateur */}
+              <div className="relative">
+                <button className="p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
+                
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-2 shadow-xl">
+                  <div className="space-y-1">
+                    <button className="w-full text-left px-3 py-2 text-white hover:bg-white/10 rounded-lg transition-colors text-sm">
+                      Mon profil
+                    </button>
+                    <button className="w-full text-left px-3 py-2 text-white hover:bg-white/10 rounded-lg transition-colors text-sm">
+                      Paramètres
+                    </button>
+                    <hr className="border-white/10 my-2" />
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm"
+                    >
+                      Déconnexion
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -269,10 +282,10 @@ export default function DashboardPage() {
           <nav className="p-6">
             <div className="space-y-2">
               {[
-                { id: 'overview', label: 'Vue d\'ensemble', icon: '📊' },
-                { id: 'transfer', label: 'Transfert', icon: '💸' },
-                { id: 'history', label: 'Historique', icon: '📋' },
-                { id: 'profile', label: 'Profil', icon: '👤' }
+                { id: 'overview', label: 'Vue d\'ensemble' },
+                { id: 'transfer', label: 'Transfert' },
+                { id: 'history', label: 'Historique' },
+                { id: 'profile', label: 'Profil' }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -283,7 +296,29 @@ export default function DashboardPage() {
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <span className="text-xl">{tab.icon}</span>
+                  <div className="w-5 h-5">
+                    {tab.id === 'overview' && (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                      </svg>
+                    )}
+                    {tab.id === 'transfer' && (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M8 5a1 1 0 011 1v1h1a1 1 0 110 2H9v1a1 1 0 11-2 0V9H6a1 1 0 110-2h1V6a1 1 0 011-1z" />
+                        <path d="M2 2a2 2 0 00-2 2v8a2 2 0 002 2V4h10a2 2 0 00-2-2H2zm12.5 5.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                      </svg>
+                    )}
+                    {tab.id === 'history' && (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                    {tab.id === 'profile' && (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
                   <span className="font-medium">{tab.label}</span>
                 </button>
               ))}
@@ -297,21 +332,27 @@ export default function DashboardPage() {
                   onClick={() => setShowTransferModal(true)}
                   className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
                 >
-                  <span>⚡</span>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
                   <span>Transfert rapide</span>
                 </button>
                 <button
                   onClick={() => setShowUserSearch(true)}
                   className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
                 >
-                  <span>🔍</span>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                  </svg>
                   <span>Rechercher utilisateur</span>
                 </button>
                 <Link
                   href="/contact"
                   className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
                 >
-                  <span>💬</span>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+                  </svg>
                   <span>Support</span>
                 </Link>
               </div>
@@ -339,7 +380,10 @@ export default function DashboardPage() {
                       <p className="text-blue-400 text-sm">crédits</p>
                     </div>
                     <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-xl">💰</span>
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                        <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   </div>
                 </div>
@@ -352,7 +396,9 @@ export default function DashboardPage() {
                       <p className="text-green-400 text-sm">total</p>
                     </div>
                     <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-xl">📈</span>
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   </div>
                 </div>
@@ -365,7 +411,9 @@ export default function DashboardPage() {
                       <p className="text-purple-400 text-sm">actifs</p>
                     </div>
                     <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-xl">👥</span>
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                      </svg>
                     </div>
                   </div>
                 </div>
@@ -394,7 +442,15 @@ export default function DashboardPage() {
                             ? 'bg-green-500/20 text-green-400'
                             : 'bg-red-500/20 text-red-400'
                         }`}>
-                          {transaction.receiverId === user?.id ? '⬇️' : '⬆️'}
+                          {transaction.receiverId === user?.id ? (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.707 7.707a1 1 0 000-1.414l-3-3a1 1 0 00-1.414 1.414L6.586 9H3a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3z" clipRule="evenodd" />
+                            </svg>
+                          )}
                         </div>
                         <div>
                           <p className="text-white font-medium">
