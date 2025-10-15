@@ -108,7 +108,7 @@ npm run test:cov
 npm run test:watch
 ```
 
-**Couverture actuelle :** 33% (Services critiques : Auth 100%, Transactions 89%)
+**Couverture actuelle :** 71% (Services critiques : Auth 100%, Transactions 89%, Users 100%)
 
 ## 📄 Licence
 
