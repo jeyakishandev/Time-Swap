@@ -152,167 +152,282 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">TS</span>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header Bancaire */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">TS</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">Time-Swap</h1>
+                <p className="text-sm text-slate-600">Plateforme d'échange sécurisée</p>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Time-Swap</h1>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Bonjour,</p>
-              <p className="font-semibold text-gray-900">{user?.username}</p>
+            
+            <div className="flex items-center space-x-6">
+              <div className="text-right">
+                <p className="text-sm text-slate-600">Bonjour,</p>
+                <p className="font-semibold text-slate-900">{user?.username}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200 font-medium"
+              >
+                Déconnexion
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 font-medium"
-            >
-              Déconnexion
-            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Profil utilisateur */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-8 mb-8 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Bienvenue, {user?.username} !</h2>
-              <p className="text-blue-100 mb-4">Gérez vos échanges de crédits en toute sécurité</p>
-              <div className="flex items-center space-x-4">
-                <div className="text-5xl">💰</div>
-                <div>
-                  <p className="text-blue-100">Vos crédits disponibles</p>
-                  <p className="text-4xl font-bold">{user?.credits} crédits</p>
+      <div className="flex">
+        {/* Sidebar Navigation */}
+        <aside className="w-64 bg-white shadow-sm min-h-screen border-r border-gray-200">
+          <nav className="p-6">
+            <div className="space-y-2">
+              <a href="#" className="flex items-center space-x-3 px-4 py-3 bg-slate-100 text-slate-900 rounded-lg font-medium">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                </svg>
+                <span>Tableau de bord</span>
+              </a>
+              <a href="#" className="flex items-center space-x-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <span>Transférer</span>
+              </a>
+              <a href="#" className="flex items-center space-x-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span>Historique</span>
+              </a>
+              <a href="#" className="flex items-center space-x-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>Profil</span>
+              </a>
+            </div>
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-8">
+          {/* Welcome Section */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">Bonjour, {user?.username}</h2>
+            <p className="text-slate-600">Gérez vos échanges de crédits en toute sécurité</p>
+          </div>
+
+          {/* Account Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* Solde Principal */}
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
                 </div>
+                <span className="text-green-400 text-sm font-medium">Actif</span>
               </div>
+              <h3 className="text-2xl font-bold mb-1">{user?.credits}</h3>
+              <p className="text-slate-300 text-sm">Crédits disponibles</p>
             </div>
-            <div className="text-right">
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                <p className="text-blue-100 text-sm">Statut du compte</p>
-                <p className="text-green-300 font-semibold">✓ Actif</p>
+
+            {/* Transactions du mois */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <span className="text-green-600 text-sm font-medium">+12%</span>
               </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-1">{transactions.length}</h3>
+              <p className="text-slate-600 text-sm">Transactions ce mois</p>
+            </div>
+
+            {/* Utilisateurs actifs */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <span className="text-blue-600 text-sm font-medium">Actif</span>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-1">{users.length}</h3>
+              <p className="text-slate-600 text-sm">Utilisateurs connectés</p>
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Formulaire de transfert */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold mb-4">Transférer des crédits</h3>
-            
-            <form onSubmit={handleTransfer} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Destinataire
-                </label>
-                <select
-                  value={transferForm.receiverId}
-                  onChange={(e) => setTransferForm({ ...transferForm, receiverId: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  required
+          {/* Actions Rapides */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Formulaire de transfert moderne */}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Transfert de crédits</h3>
+              </div>
+              
+              <form onSubmit={handleTransfer} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-3">
+                    Destinataire
+                  </label>
+                  <select
+                    value={transferForm.receiverId}
+                    onChange={(e) => setTransferForm({ ...transferForm, receiverId: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                    required
+                  >
+                    <option value="">Sélectionner un utilisateur</option>
+                    {users
+                      .filter(u => u.id !== user.id)
+                      .map(u => (
+                        <option key={u.id} value={u.id}>
+                          {u.username} ({u.credits} crédits)
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-3">
+                    Montant
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      max={user.credits}
+                      value={transferForm.amount}
+                      onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0.00"
+                      required
+                    />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm font-medium">
+                      crédits
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-3">
+                    Description (optionnelle)
+                  </label>
+                  <input
+                    type="text"
+                    value={transferForm.description}
+                    onChange={(e) => setTransferForm({ ...transferForm, description: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ex: Aide pour déménagement, Service de garde..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isTransferring}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
-                  <option value="">Sélectionner un utilisateur</option>
-                  {users
-                    .filter(u => u.id !== user.id)
-                    .map(u => (
-                      <option key={u.id} value={u.id}>
-                        {u.username} ({u.credits} crédits)
-                      </option>
-                    ))}
-                </select>
+                  {isTransferring ? 'Transfert en cours...' : 'Effectuer le transfert'}
+                </button>
+              </form>
+            </div>
+
+            {/* Historique des transactions moderne */}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Historique récent</h3>
+                </div>
+                <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  Voir tout
+                </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Montant
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  max={user.credits}
-                  value={transferForm.amount}
-                  onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="50"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description (optionnelle)
-                </label>
-                <input
-                  type="text"
-                  value={transferForm.description}
-                  onChange={(e) => setTransferForm({ ...transferForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Aide pour déménagement..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isTransferring}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-              >
-                {isTransferring ? 'Transfert en cours...' : 'Envoyer'}
-              </button>
-            </form>
-          </div>
-
-          {/* Historique des transactions */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold mb-4">Historique des transactions</h3>
-            
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              {transactions.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">Aucune transaction</p>
-              ) : (
-                transactions
-                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                  .map((transaction) => {
-                    const isSent = transaction.senderId === user.id;
-                    return (
-                      <div
-                        key={transaction.id}
-                        className={`p-4 rounded-lg border ${
-                          isSent ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'
-                        }`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold">
-                              {isSent ? '→' : '←'} {isSent ? transaction.receiver.username : transaction.sender.username}
+              
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {transactions.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <p className="text-slate-500 font-medium">Aucune transaction</p>
+                    <p className="text-slate-400 text-sm">Vos transactions apparaîtront ici</p>
+                  </div>
+                ) : (
+                  transactions
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 5)
+                    .map((transaction) => {
+                      const isSent = transaction.senderId === user.id;
+                      return (
+                        <div
+                          key={transaction.id}
+                          className="flex items-center space-x-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                        >
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            isSent ? 'bg-red-100' : 'bg-green-100'
+                          }`}>
+                            {isSent ? (
+                              <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
+                              </svg>
+                            )}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-slate-900 truncate">
+                              {isSent ? transaction.receiver.username : transaction.sender.username}
                             </p>
-                            <p className="text-sm text-gray-600">
-                              {transaction.description || 'Aucune description'}
+                            <p className="text-sm text-slate-600 truncate">
+                              {transaction.description || 'Transaction'}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-slate-400 mt-1">
                               {new Date(transaction.createdAt).toLocaleDateString('fr-FR')} à{' '}
-                              {new Date(transaction.createdAt).toLocaleTimeString('fr-FR')}
+                              {new Date(transaction.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                             </p>
                           </div>
-                          <div className={`text-lg font-bold ${isSent ? 'text-red-600' : 'text-green-600'}`}>
-                            {isSent ? '-' : '+'}{transaction.amount} crédits
+                          
+                          <div className={`text-lg font-bold ${
+                            isSent ? 'text-red-600' : 'text-green-600'
+                          }`}>
+                            {isSent ? '-' : '+'}{transaction.amount}
                           </div>
                         </div>
-                      </div>
-                    );
-                  })
-              )}
+                      );
+                    })
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
