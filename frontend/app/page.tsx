@@ -403,9 +403,10 @@ export default function Home() {
             <div>
               <h4 className="text-white font-semibold mb-4">Légal</h4>
               <ul className="space-y-2">
-                <li><a href="mailto:contact@timeswap.network" className="text-gray-400 hover:text-white transition-colors hover:underline">Contact</a></li>
-                <li><a href="mailto:privacy@timeswap.network" className="text-gray-400 hover:text-white transition-colors hover:underline">Confidentialité</a></li>
-                <li><a href="mailto:legal@timeswap.network" className="text-gray-400 hover:text-white transition-colors hover:underline">Mentions légales</a></li>
+                <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors hover:underline">Contact</Link></li>
+                <li><Link href="/legal/confidentialite" className="text-gray-400 hover:text-white transition-colors hover:underline">Confidentialité</Link></li>
+                <li><Link href="/legal/mentions-legales" className="text-gray-400 hover:text-white transition-colors hover:underline">Mentions légales</Link></li>
+                <li><Link href="/legal/cgu" className="text-gray-400 hover:text-white transition-colors hover:underline">CGU</Link></li>
               </ul>
             </div>
           </div>
