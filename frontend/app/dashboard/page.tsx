@@ -7,6 +7,7 @@ import { BiTransfer } from 'react-icons/bi';
 import { TbSend } from 'react-icons/tb';
 import { GiReceiveMoney } from 'react-icons/gi';
 import { MdWork } from 'react-icons/md';
+import NotificationCenter from '../../components/NotificationCenter';
 
 interface User {
   id: string;
@@ -31,6 +32,8 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [transferForm, setTransferForm] = useState({
     receiverId: '',
@@ -38,7 +41,7 @@ export default function DashboardPage() {
     description: '',
   });
   const [isTransferring, setIsTransferring] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'history' | 'profile'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile'>('overview');
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,45 +60,20 @@ export default function DashboardPage() {
     message: '',
     preferredDate: ''
   });
-  const [notifications, setNotifications] = useState<Array<{
-    id: string;
-    type: 'success' | 'info' | 'warning' | 'error';
-    title: string;
-    message: string;
-    timestamp: Date;
-    read: boolean;
-  }>>([]);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    username: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    bio: '',
+    phone: '',
+    location: ''
+  });
+  const [avatarSeed, setAvatarSeed] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
-
-  // Fonction pour ajouter des notifications
-  const addNotification = (type: 'success' | 'info' | 'warning' | 'error', title: string, message: string) => {
-    const newNotification = {
-      id: Date.now().toString(),
-      type,
-      title,
-      message,
-      timestamp: new Date(),
-      read: false,
-    };
-    setNotifications(prev => [newNotification, ...prev.slice(0, 9)]); // Garder max 10 notifications
-  };
-
-  // Fonction pour marquer une notification comme lue
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === id ? { ...notif, read: true } : notif
-      )
-    );
-  };
-
-  // Fonction pour supprimer une notification
-  const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
-  };
 
   useEffect(() => {
     // Vérification d'authentification renforcée
@@ -129,10 +107,9 @@ export default function DashboardPage() {
         // Token valide, continuer avec le chargement des données
         await fetchData();
 
-        // Ajouter une notification de bienvenue seulement si c'est la première visite
+        // Marquer la première visite
         const hasVisited = localStorage.getItem('hasVisitedDashboard');
         if (!hasVisited) {
-          addNotification('info', 'Bienvenue !', 'Vous êtes connecté à Time-Swap Network');
           localStorage.setItem('hasVisitedDashboard', 'true');
         }
       } catch (error) {
@@ -211,6 +188,31 @@ export default function DashboardPage() {
         const transactionsData = await transactionsResponse.json();
         setTransactions(transactionsData);
       }
+
+      // Récupérer les réservations
+      const bookingsResponse = await fetch('http://localhost:3001/bookings/my-bookings', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (bookingsResponse.ok) {
+        const bookingsData = await bookingsResponse.json();
+        setBookings(bookingsData);
+      }
+
+      // Récupérer les services disponibles
+      const servicesResponse = await fetch('http://localhost:3001/services', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (servicesResponse.ok) {
+        const servicesData = await servicesResponse.json();
+        // Stocker les services dans un état pour les utiliser dans les réservations
+        setServices(servicesData);
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
     } finally {
@@ -255,21 +257,21 @@ export default function DashboardPage() {
         
         // Notification de succès
         const receiver = users.find(u => u.id === transferForm.receiverId);
-        addNotification('success', 'Transfert réussi !', `${transferForm.amount} crédits envoyés à ${receiver?.username}`);
+        // Transfert réussi - notification automatique via WebSocket
       } else {
         const error = await response.json();
-        addNotification('error', 'Erreur de transfert', error.message || 'Erreur lors du transfert');
+
       }
     } catch (error) {
       console.error('Erreur:', error);
-      addNotification('error', 'Erreur de connexion', 'Impossible de contacter le serveur');
+
     } finally {
       setIsTransferring(false);
     }
   };
 
   const handleLogout = () => {
-    addNotification('info', 'Déconnexion', 'Vous avez été déconnecté avec succès');
+
     setTimeout(() => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -300,17 +302,17 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
-        addNotification('success', 'Service créé !', 'Votre service a été ajouté avec succès');
+
         setServiceForm({ title: '', description: '', price: '', category: '', duration: '' });
         setShowServiceModal(false);
         fetchData(); // Recharger les données
       } else {
         const error = await response.json();
-        addNotification('error', 'Erreur', error.message || 'Erreur lors de la création du service');
+
       }
     } catch (error) {
       console.error('Erreur:', error);
-      addNotification('error', 'Erreur de connexion', 'Impossible de contacter le serveur');
+
     }
   };
 
@@ -319,15 +321,39 @@ export default function DashboardPage() {
     e.preventDefault();
     const token = localStorage.getItem('token');
     
+    if (!selectedService) {
+
+      return;
+    }
+    
     try {
-      // Simulation de réservation (à adapter selon votre API)
-      addNotification('success', 'Réservation envoyée !', `Votre demande de réservation pour "${selectedService?.title}" a été envoyée`);
-      setBookingForm({ serviceId: '', message: '', preferredDate: '' });
-      setShowBookingModal(false);
-      setSelectedService(null);
+      const response = await fetch('http://localhost:3001/bookings', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serviceId: selectedService.id,
+          hours: 1, // Par défaut 1 heure
+          notes: bookingForm.message,
+          scheduledAt: bookingForm.preferredDate ? new Date(bookingForm.preferredDate).toISOString() : null
+        }),
+      });
+
+      if (response.ok) {
+
+        setBookingForm({ serviceId: '', message: '', preferredDate: '' });
+        setShowBookingModal(false);
+        setSelectedService(null);
+        fetchData(); // Recharger les données
+      } else {
+        const error = await response.json();
+
+      }
     } catch (error) {
       console.error('Erreur:', error);
-      addNotification('error', 'Erreur de connexion', 'Impossible de contacter le serveur');
+
     }
   };
 
@@ -340,6 +366,137 @@ export default function DashboardPage() {
       preferredDate: '' 
     });
     setShowBookingModal(true);
+  };
+
+  // Fonction pour ouvrir le modal de modification de profil
+  const openProfileModal = () => {
+    if (user) {
+      setProfileForm({
+        username: user.username || '',
+        email: user.email || '',
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        bio: user.bio || '',
+        phone: user.phone || '',
+        location: user.location || ''
+      });
+      setAvatarSeed(user.username || '');
+    }
+    setShowProfileModal(true);
+  };
+
+  // Fonction pour sauvegarder les modifications de profil
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    
+    try {
+      const response = await fetch('http://localhost:3001/users/me', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileForm),
+      });
+
+      if (response.ok) {
+
+        setShowProfileModal(false);
+        fetchData(); // Recharger les données
+      } else {
+        const error = await response.json();
+
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+
+    }
+  };
+
+  // Fonction pour générer un nouvel avatar
+  const generateNewAvatar = () => {
+    const newSeed = Math.random().toString(36).substring(7);
+    setAvatarSeed(newSeed);
+    setProfileForm({ ...profileForm, username: newSeed });
+  };
+
+  // Fonction pour confirmer une réservation
+  const handleConfirmBooking = async (bookingId: string) => {
+    const token = localStorage.getItem('token');
+    
+    try {
+      const response = await fetch(`http://localhost:3001/bookings/${bookingId}/confirm`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+
+        fetchData(); // Recharger les données
+      } else {
+        const error = await response.json();
+
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+
+    }
+  };
+
+  // Fonction pour annuler une réservation
+  const handleCancelBooking = async (bookingId: string) => {
+    const token = localStorage.getItem('token');
+    
+    try {
+      const response = await fetch(`http://localhost:3001/bookings/${bookingId}/cancel`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+
+        fetchData(); // Recharger les données
+      } else {
+        const error = await response.json();
+
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+
+    }
+  };
+
+  // Fonction pour marquer une réservation comme terminée
+  const handleCompleteBooking = async (bookingId: string) => {
+    const token = localStorage.getItem('token');
+    
+    try {
+      const response = await fetch(`http://localhost:3001/bookings/${bookingId}/complete`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+
+        fetchData(); // Recharger les données
+      } else {
+        const error = await response.json();
+
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+
+    }
   };
 
   const filteredUsers = users.filter(u => 
@@ -449,84 +606,7 @@ export default function DashboardPage() {
             {/* Actions et Profil - Responsive */}
             <div className="flex items-center space-x-3 md:space-x-6">
               {/* Notifications */}
-              <div className="relative dropdown-menu">
-                <button 
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300 dropdown-trigger"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                          {notifications.filter(n => !n.read).length > 0 && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                              {notifications.filter(n => !n.read).length}
-                            </span>
-                          )}
-                </button>
-                
-                {/* Dropdown Notifications */}
-                {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-4 shadow-xl dropdown-menu">
-                    <div className="flex justify-between items-center mb-3">
-                      <h3 className="text-white font-semibold">Notifications</h3>
-                      <button 
-                        onClick={() => setShowNotifications(false)}
-                        className="text-gray-400 hover:text-white"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {notifications.length > 0 ? (
-                        notifications.map((notification) => (
-                          <div 
-                            key={notification.id} 
-                            className={`text-sm p-3 rounded-lg transition-colors cursor-pointer ${
-                              notification.read 
-                                ? 'bg-white/5 text-gray-400' 
-                                : 'bg-white/10 text-gray-300 hover:bg-white/15'
-                            }`}
-                            onClick={() => markAsRead(notification.id)}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-2 mb-1">
-                                  <div className={`w-2 h-2 rounded-full ${
-                                    notification.type === 'success' ? 'bg-green-500' :
-                                    notification.type === 'error' ? 'bg-red-500' :
-                                    notification.type === 'warning' ? 'bg-yellow-500' :
-                                    'bg-[#4A5C6A]'
-                                  }`}></div>
-                                  <p className={`font-medium ${notification.read ? 'text-gray-400' : 'text-white'}`}>
-                                    {notification.title}
-                                  </p>
-                                </div>
-                                <p className="text-xs">{notification.message}</p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {notification.timestamp.toLocaleTimeString()}
-                                </p>
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removeNotification(notification.id);
-                                }}
-                                className="text-gray-400 hover:text-white ml-2"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-gray-400 text-sm text-center py-4">
-                          Aucune notification
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <NotificationCenter />
 
               {/* Profil utilisateur avec menu déroulant */}
               <div className="relative dropdown-menu">
@@ -609,6 +689,7 @@ export default function DashboardPage() {
                 { id: 'overview', label: 'Vue d\'ensemble' },
                 { id: 'transfer', label: 'Transfert' },
                 { id: 'services', label: 'Services' },
+                { id: 'bookings', label: 'Réservations' },
                 { id: 'history', label: 'Historique' },
                 { id: 'profile', label: 'Profil' }
               ].map((tab) => (
@@ -628,10 +709,20 @@ export default function DashboardPage() {
                       </svg>
                     )}
                     {tab.id === 'transfer' && (
-                      <BiTransfer className="w-5 h-5" />
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
                     )}
                     {tab.id === 'services' && (
-                      <MdWork className="w-5 h-5" />
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                        <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                      </svg>
+                    )}
+                    {tab.id === 'bookings' && (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                      </svg>
                     )}
                     {tab.id === 'history' && (
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -719,6 +810,7 @@ export default function DashboardPage() {
                 { id: 'overview', label: 'Vue d\'ensemble' },
                 { id: 'transfer', label: 'Transfert' },
                 { id: 'services', label: 'Services' },
+                { id: 'bookings', label: 'Réservations' },
                 { id: 'history', label: 'Historique' },
                 { id: 'profile', label: 'Profil' }
               ].map((tab) => (
@@ -741,10 +833,20 @@ export default function DashboardPage() {
                       </svg>
                     )}
                     {tab.id === 'transfer' && (
-                      <BiTransfer className="w-5 h-5" />
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
                     )}
                     {tab.id === 'services' && (
-                      <MdWork className="w-5 h-5" />
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                        <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                      </svg>
+                    )}
+                    {tab.id === 'bookings' && (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                      </svg>
                     )}
                     {tab.id === 'history' && (
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -1104,34 +1206,27 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Services d'autres utilisateurs */}
-                  {users.filter(u => u.id !== user?.id).slice(0, 6).map((serviceUser, index) => (
-                    <div key={serviceUser.id} className="bg-white/5 rounded-lg p-4 border border-white/10 hover:border-[#4A5C6A]/50 transition-all duration-300 cursor-pointer">
+                  {services.filter(service => service.providerId !== user?.id).slice(0, 6).map((service) => (
+                    <div key={service.id} className="bg-white/5 rounded-lg p-4 border border-white/10 hover:border-[#4A5C6A]/50 transition-all duration-300 cursor-pointer">
                       <div className="flex items-center space-x-3 mb-3">
                         <div className="w-10 h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
                           <img 
-                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${serviceUser.username}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
-                            alt={serviceUser.username}
+                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${service.provider?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                            alt={service.provider?.username || 'Utilisateur'}
                             className="w-full h-full object-cover"
                           />
                         </div>
                         <div>
-                          <h3 className="text-white font-semibold">{serviceUser.username}</h3>
-                          <p className="text-gray-400 text-sm">{['Développement', 'Design', 'Musique', 'Langues', 'Sport', 'Cuisine'][index % 6]}</p>
+                          <h3 className="text-white font-semibold">{service.provider?.username || 'Utilisateur'}</h3>
+                          <p className="text-gray-400 text-sm">{service.category}</p>
                         </div>
                       </div>
-                      <p className="text-gray-300 text-sm mb-3">
-                        {['Création d\'applications web', 'Design de logos', 'Cours de piano', 'Traduction FR/EN', 'Yoga & Méditation', 'Cours de cuisine'][index % 6]}
-                      </p>
+                      <h4 className="text-white font-bold mb-2">{service.title}</h4>
+                      <p className="text-gray-300 text-sm mb-3">{service.description}</p>
                       <div className="flex justify-between items-center">
-                        <span className="text-[#4A5C6A] font-bold">{15 + index * 5} crédits/heure</span>
+                        <span className="text-[#4A5C6A] font-bold">{service.pricePerHour} crédits/heure</span>
                         <button 
-                          onClick={() => openBookingModal({
-                            id: serviceUser.id,
-                            title: ['Création d\'applications web', 'Design de logos', 'Cours de piano', 'Traduction FR/EN', 'Yoga & Méditation', 'Cours de cuisine'][index % 6],
-                            description: ['Création d\'applications web', 'Design de logos', 'Cours de piano', 'Traduction FR/EN', 'Yoga & Méditation', 'Cours de cuisine'][index % 6],
-                            price: 15 + index * 5,
-                            duration: 1
-                          })}
+                          onClick={() => openBookingModal(service)}
                           className="bg-[#4A5C6A] hover:bg-[#253745] text-white px-3 py-1 rounded text-sm transition-colors transform hover:scale-105"
                         >
                           Réserver
@@ -1178,6 +1273,110 @@ export default function DashboardPage() {
                       <span className="text-yellow-400 text-xl">💰</span>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bookings Tab */}
+          {activeTab === 'bookings' && (
+            <div className="space-y-8">
+              <div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Mes Réservations</h1>
+                <p className="text-gray-300 text-sm md:text-base">Gérez vos réservations de services</p>
+              </div>
+
+              {/* Réservations en tant que client */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h2 className="text-xl font-bold text-white mb-6">Réservations reçues</h2>
+                <div className="space-y-4">
+                  {bookings.filter(booking => booking.clientId === user?.id).length > 0 ? (
+                    bookings.filter(booking => booking.clientId === user?.id).map((booking) => (
+                      <div key={booking.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-white font-semibold">{booking.service.title}</h3>
+                            <p className="text-gray-300 text-sm">Prestataire: {booking.provider.username}</p>
+                            <p className="text-gray-300 text-sm">Durée: {booking.hours}h - Prix: {booking.totalPrice} crédits</p>
+                            <p className="text-gray-300 text-sm">Statut: <span className={`font-semibold ${
+                              booking.status === 'PENDING' ? 'text-yellow-400' :
+                              booking.status === 'CONFIRMED' ? 'text-green-400' :
+                              booking.status === 'COMPLETED' ? 'text-blue-400' :
+                              'text-red-400'
+                            }`}>{booking.status}</span></p>
+                            {booking.notes && <p className="text-gray-300 text-sm mt-2">Note: {booking.notes}</p>}
+                          </div>
+                          <div className="flex space-x-2">
+                            {booking.status === 'PENDING' && (
+                              <button 
+                                onClick={() => handleCancelBooking(booking.id)}
+                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                              >
+                                Annuler
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-300 text-center py-8">Aucune réservation reçue</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Réservations en tant que prestataire */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h2 className="text-xl font-bold text-white mb-6">Réservations de mes services</h2>
+                <div className="space-y-4">
+                  {bookings.filter(booking => booking.providerId === user?.id).length > 0 ? (
+                    bookings.filter(booking => booking.providerId === user?.id).map((booking) => (
+                      <div key={booking.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-white font-semibold">{booking.service.title}</h3>
+                            <p className="text-gray-300 text-sm">Client: {booking.client.username}</p>
+                            <p className="text-gray-300 text-sm">Durée: {booking.hours}h - Prix: {booking.totalPrice} crédits</p>
+                            <p className="text-gray-300 text-sm">Statut: <span className={`font-semibold ${
+                              booking.status === 'PENDING' ? 'text-yellow-400' :
+                              booking.status === 'CONFIRMED' ? 'text-green-400' :
+                              booking.status === 'COMPLETED' ? 'text-blue-400' :
+                              'text-red-400'
+                            }`}>{booking.status}</span></p>
+                            {booking.notes && <p className="text-gray-300 text-sm mt-2">Note: {booking.notes}</p>}
+                          </div>
+                          <div className="flex space-x-2">
+                            {booking.status === 'PENDING' && (
+                              <>
+                                <button 
+                                  onClick={() => handleConfirmBooking(booking.id)}
+                                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                                >
+                                  Confirmer
+                                </button>
+                                <button 
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                                >
+                                  Refuser
+                                </button>
+                              </>
+                            )}
+                            {booking.status === 'CONFIRMED' && (
+                              <button 
+                                onClick={() => handleCompleteBooking(booking.id)}
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                              >
+                                Marquer terminé
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-300 text-center py-8">Aucune réservation de vos services</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -1266,9 +1465,50 @@ export default function DashboardPage() {
           {/* Profile Tab */}
           {activeTab === 'profile' && (
             <div className="space-y-8">
-              <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Mon profil</h1>
-                <p className="text-gray-300 text-sm md:text-base">Gérez vos informations personnelles</p>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Mon profil</h1>
+                  <p className="text-gray-300 text-sm md:text-base">Gérez vos informations personnelles</p>
+                </div>
+                <button
+                  onClick={openProfileModal}
+                  className="px-6 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25 flex items-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span>Modifier le profil</span>
+                </button>
+              </div>
+
+              {/* Section Avatar */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h2 className="text-xl font-bold text-white mb-6">Avatar</h2>
+                <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                  <div className="relative">
+                    <div className="w-24 h-24 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden shadow-lg">
+                      <img 
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                        alt={user?.username}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <button
+                      onClick={generateNewAvatar}
+                      className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#4A5C6A] hover:bg-[#253745] text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                      title="Générer un nouvel avatar"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <h3 className="text-white font-bold text-lg">{user?.username}</h3>
+                    <p className="text-gray-300 text-sm">{user?.email}</p>
+                    <p className="text-[#4A5C6A] text-xs mt-1">Membre depuis {new Date(user?.createdAt || '').toLocaleDateString('fr-FR')}</p>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -1282,6 +1522,26 @@ export default function DashboardPage() {
                     <div>
                       <label className="block text-gray-300 text-sm mb-1">Email</label>
                       <p className="text-white font-medium">{user?.email}</p>
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-1">Prénom</label>
+                      <p className="text-white font-medium">{user?.firstName || 'Non renseigné'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-1">Nom</label>
+                      <p className="text-white font-medium">{user?.lastName || 'Non renseigné'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-1">Bio</label>
+                      <p className="text-white font-medium">{user?.bio || 'Aucune bio'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-1">Téléphone</label>
+                      <p className="text-white font-medium">{user?.phone || 'Non renseigné'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-1">Localisation</label>
+                      <p className="text-white font-medium">{user?.location || 'Non renseigné'}</p>
                     </div>
                     <div>
                       <label className="block text-gray-300 text-sm mb-1">ID utilisateur</label>
@@ -1633,6 +1893,171 @@ export default function DashboardPage() {
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300"
                 >
                   Envoyer la demande
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de modification de profil */}
+      {showProfileModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Modifier le profil</h2>
+              <button
+                onClick={() => setShowProfileModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateProfile} className="space-y-6">
+              {/* Section Avatar */}
+              <div className="text-center">
+                <div className="relative inline-block">
+                  <div className="w-20 h-20 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden shadow-lg mx-auto">
+                    <img 
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={generateNewAvatar}
+                    className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#4A5C6A] hover:bg-[#253745] text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                    title="Générer un nouvel avatar"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                </div>
+                <p className="text-gray-300 text-sm mt-2">Cliquez sur l'icône pour générer un nouvel avatar</p>
+              </div>
+
+              {/* Informations de base */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Nom d'utilisateur
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.username}
+                    onChange={(e) => {
+                      setProfileForm({ ...profileForm, username: e.target.value });
+                      setAvatarSeed(e.target.value);
+                    }}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="Nom d'utilisateur"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={profileForm.email}
+                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="Email"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Nom et prénom */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Prénom
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.firstName}
+                    onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="Prénom"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Nom
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.lastName}
+                    onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="Nom"
+                  />
+                </div>
+              </div>
+
+              {/* Téléphone et localisation */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Téléphone
+                  </label>
+                  <input
+                    type="tel"
+                    value={profileForm.phone}
+                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="Téléphone"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Localisation
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.location}
+                    onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="Ville, Pays"
+                  />
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Bio
+                </label>
+                <textarea
+                  value={profileForm.bio}
+                  onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
+                  rows={3}
+                  placeholder="Parlez-nous de vous..."
+                />
+              </div>
+              
+              <div className="flex space-x-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowProfileModal(false)}
+                  className="flex-1 px-4 py-3 text-gray-300 hover:text-white transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300"
+                >
+                  Sauvegarder
                 </button>
               </div>
             </form>

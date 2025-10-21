@@ -24,6 +24,7 @@ model User {
   services             Service[]
   bookings             Booking[] @relation("ClientBookings")
   serviceBookings      Booking[] @relation("ServiceProviderBookings")
+  notifications        Notification[]
 
   @@map("users")
 }
@@ -79,4 +80,19 @@ model Booking {
   provider User    @relation("ServiceProviderBookings", fields: [providerId], references: [id])
 
   @@map("bookings")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String   // BOOKING_REQUEST, BOOKING_CONFIRMED, BOOKING_CANCELLED, PAYMENT_RECEIVED, etc.
+  isRead    Boolean  @default(false)
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
 }

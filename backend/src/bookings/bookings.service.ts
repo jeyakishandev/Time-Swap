@@ -2,10 +2,16 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class BookingsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+    private notificationsGateway: NotificationsGateway,
+  ) {}
 
   async create(createBookingDto: CreateBookingDto, clientId: string) {
     const { serviceId, hours, notes, scheduledAt } = createBookingDto;
@@ -61,6 +67,16 @@ export class BookingsService {
         provider: { select: { id: true, username: true, email: true } }
       }
     });
+
+    // Envoyer une notification au prestataire
+    const notification = await this.notificationsService.createBookingRequestNotification(
+      booking.providerId,
+      booking.client.username,
+      booking.service.title,
+    );
+
+    // Envoyer la notification en temps réel via WebSocket
+    await this.notificationsGateway.sendNotificationToUser(booking.providerId, notification);
 
     return booking;
   }
@@ -181,7 +197,7 @@ export class BookingsService {
       });
 
       // Mettre à jour le statut de la réservation
-      return tx.booking.update({
+      const confirmedBooking = await tx.booking.update({
         where: { id },
         data: { status: 'CONFIRMED' },
         include: {
@@ -190,6 +206,24 @@ export class BookingsService {
           provider: { select: { id: true, username: true, email: true } }
         }
       });
+
+      // Envoyer des notifications après la transaction
+      const clientNotification = await this.notificationsService.createBookingConfirmedNotification(
+        confirmedBooking.clientId,
+        confirmedBooking.service.title,
+      );
+
+      const providerNotification = await this.notificationsService.createPaymentReceivedNotification(
+        confirmedBooking.providerId,
+        confirmedBooking.totalPrice,
+        confirmedBooking.service.title,
+      );
+
+      // Envoyer les notifications en temps réel
+      await this.notificationsGateway.sendNotificationToUser(confirmedBooking.clientId, clientNotification);
+      await this.notificationsGateway.sendNotificationToUser(confirmedBooking.providerId, providerNotification);
+
+      return confirmedBooking;
     });
   }
 
