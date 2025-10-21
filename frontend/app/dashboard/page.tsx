@@ -557,7 +557,7 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('❌ Erreur de connexion:', error);
-      console.error('❌ Erreur de connexion. Veuillez réessayer.');
+      showToast('❌ Erreur de connexion. Veuillez réessayer.', 'error');
     } finally {
       // Retirer cette réservation de la liste des réservations en cours
       setProcessingBookings(prev => {
@@ -593,7 +593,7 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Erreur:', error);
-      console.error('❌ Erreur de connexion. Veuillez réessayer.');
+      showToast('❌ Erreur de connexion. Veuillez réessayer.', 'error');
     } finally {
       // Retirer cette réservation de la liste des réservations en cours
       setProcessingBookings(prev => {
@@ -629,7 +629,7 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Erreur:', error);
-      console.error('❌ Erreur de connexion. Veuillez réessayer.');
+      showToast('❌ Erreur de connexion. Veuillez réessayer.', 'error');
     } finally {
       // Retirer cette réservation de la liste des réservations en cours
       setProcessingBookings(prev => {
