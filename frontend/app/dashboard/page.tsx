@@ -73,6 +73,10 @@ export default function DashboardPage() {
   const [avatarSeed, setAvatarSeed] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [processingBookings, setProcessingBookings] = useState<Set<string>>(new Set());
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | null}>({message: '', type: null});
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedAvailableCategory, setSelectedAvailableCategory] = useState<string>('all');
   const router = useRouter();
 
   useEffect(() => {
@@ -129,7 +133,6 @@ export default function DashboardPage() {
       const target = event.target as Element;
       if (!target.closest('.dropdown-menu') && !target.closest('.dropdown-trigger')) {
         setShowUserMenu(false);
-        setShowNotifications(false);
       }
     };
 
@@ -210,6 +213,8 @@ export default function DashboardPage() {
 
       if (servicesResponse.ok) {
         const servicesData = await servicesResponse.json();
+        console.log('🔍 Services chargés:', servicesData.length);
+        console.log('🔍 Catégories trouvées:', [...new Set(servicesData.map(s => s.category))]);
         // Stocker les services dans un état pour les utiliser dans les réservations
         setServices(servicesData);
       }
@@ -295,7 +300,7 @@ export default function DashboardPage() {
         body: JSON.stringify({
           title: serviceForm.title,
           description: serviceForm.description,
-          price: parseInt(serviceForm.price),
+          pricePerHour: parseInt(serviceForm.price),
           category: serviceForm.category,
           duration: parseInt(serviceForm.duration)
         }),
@@ -421,11 +426,48 @@ export default function DashboardPage() {
     setProfileForm({ ...profileForm, username: newSeed });
   };
 
+  // Fonction pour afficher des toasts
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast({ message: '', type: null });
+    }, 3000);
+  };
+
+  // Liste des catégories disponibles (basée sur les vraies catégories de la DB)
+  const categories = [
+    { value: 'all', label: 'Toutes catégories' },
+    { value: 'Développement', label: 'Développement' },
+    { value: 'Design', label: 'Design' },
+    { value: 'Musique', label: 'Musique' },
+    { value: 'Langues', label: 'Langues' },
+    { value: 'Sport', label: 'Sport' },
+    { value: 'Cuisine', label: 'Cuisine' },
+    { value: 'Technologie', label: 'Technologie' },
+    { value: 'Éducation', label: 'Éducation' },
+    { value: 'Bien-être', label: 'Bien-être' }
+  ];
+
+  // Filtrer les services par catégorie
+  const filteredServices = selectedCategory === 'all' 
+    ? services 
+    : services.filter(service => service.category === selectedCategory);
+
+  // Filtrer les services disponibles par catégorie
+  const filteredAvailableServices = selectedAvailableCategory === 'all' 
+    ? services 
+    : services.filter(service => service.category === selectedAvailableCategory);
+
   // Fonction pour confirmer une réservation
   const handleConfirmBooking = async (bookingId: string) => {
     const token = localStorage.getItem('token');
     
+    // Marquer cette réservation comme en cours de traitement
+    setProcessingBookings(prev => new Set(prev).add(bookingId));
+    
     try {
+      console.log('🔄 Confirmation de la réservation:', bookingId);
+      
       const response = await fetch(`http://localhost:3001/bookings/${bookingId}/confirm`, {
         method: 'PATCH',
         headers: {
@@ -434,22 +476,38 @@ export default function DashboardPage() {
         },
       });
 
-      if (response.ok) {
+      console.log('📡 Réponse du serveur:', response.status, response.statusText);
 
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Réservation confirmée:', result);
+        // Notification de succès plus élégante
+        showToast('✅ Réservation confirmée avec succès !', 'success');
         fetchData(); // Recharger les données
       } else {
         const error = await response.json();
-
+        console.error('❌ Erreur serveur:', error);
+        showToast(`❌ Erreur: ${error.message || 'Impossible de confirmer la réservation'}`, 'error');
       }
     } catch (error) {
-      console.error('Erreur:', error);
-
+      console.error('❌ Erreur de connexion:', error);
+      console.error('❌ Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      // Retirer cette réservation de la liste des réservations en cours
+      setProcessingBookings(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(bookingId);
+        return newSet;
+      });
     }
   };
 
   // Fonction pour annuler une réservation
   const handleCancelBooking = async (bookingId: string) => {
     const token = localStorage.getItem('token');
+    
+    // Marquer cette réservation comme en cours de traitement
+    setProcessingBookings(prev => new Set(prev).add(bookingId));
     
     try {
       const response = await fetch(`http://localhost:3001/bookings/${bookingId}/cancel`, {
@@ -461,21 +519,31 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
-
+        showToast('❌ Réservation refusée avec succès !', 'success');
         fetchData(); // Recharger les données
       } else {
         const error = await response.json();
-
+        showToast(`❌ Erreur: ${error.message || 'Impossible de refuser la réservation'}`, 'error');
       }
     } catch (error) {
       console.error('Erreur:', error);
-
+      console.error('❌ Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      // Retirer cette réservation de la liste des réservations en cours
+      setProcessingBookings(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(bookingId);
+        return newSet;
+      });
     }
   };
 
   // Fonction pour marquer une réservation comme terminée
   const handleCompleteBooking = async (bookingId: string) => {
     const token = localStorage.getItem('token');
+    
+    // Marquer cette réservation comme en cours de traitement
+    setProcessingBookings(prev => new Set(prev).add(bookingId));
     
     try {
       const response = await fetch(`http://localhost:3001/bookings/${bookingId}/complete`, {
@@ -487,15 +555,22 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
-
+        showToast('🎉 Réservation terminée avec succès !', 'success');
         fetchData(); // Recharger les données
       } else {
         const error = await response.json();
-
+        showToast(`❌ Erreur: ${error.message || 'Impossible de terminer la réservation'}`, 'error');
       }
     } catch (error) {
       console.error('Erreur:', error);
-
+      console.error('❌ Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      // Retirer cette réservation de la liste des réservations en cours
+      setProcessingBookings(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(bookingId);
+        return newSet;
+      });
     }
   };
 
@@ -1129,59 +1204,77 @@ export default function DashboardPage() {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold text-white">Mes Services</h2>
+                  <div className="flex space-x-2">
+                    <select 
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    >
+                      {categories.map(category => {
+                        const count = category.value === 'all' 
+                          ? services.filter(service => service.providerId === user?.id).length
+                          : services.filter(service => service.providerId === user?.id && service.category === category.value).length;
+                        console.log(`🔍 Compteur ${category.label}: ${count} services`);
+                        return (
+                          <option key={category.value} value={category.value} className="bg-slate-800">
+                            {category.label} ({count})
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Service Example */}
-                  <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <div className="w-10 h-10 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center">
-                        <span className="text-[#4A5C6A] text-lg">💻</span>
+                  {/* Services de l'utilisateur */}
+                  {filteredServices.filter(service => service.providerId === user?.id).length > 0 ? (
+                    filteredServices.filter(service => service.providerId === user?.id).map((service) => (
+                      <div key={service.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
+                            <img 
+                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                              alt="Avatar"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="text-white font-semibold">{user?.username || 'Utilisateur'}</h3>
+                            <p className="text-gray-400 text-sm">{categories.find(cat => cat.value === service.category)?.label || service.category}</p>
+                          </div>
+                        </div>
+                        <h4 className="text-white font-bold mb-2">{service.title}</h4>
+                        <p className="text-gray-300 text-sm mb-3">{service.description}</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[#4A5C6A] font-bold">{service.pricePerHour} crédits/heure</span>
+                          <div className="flex space-x-2">
+                            <span className="text-green-400 text-sm">✓ Actif</span>
+                            <button className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-3 py-1 rounded text-xs transition-colors">
+                              Modifier
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-white font-semibold">Développement Web</h3>
-                        <p className="text-gray-400 text-sm">Frontend React</p>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8">
+                      <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MdWork className="w-8 h-8 text-gray-400" />
                       </div>
+                      <h3 className="text-white font-semibold mb-2">Aucun service trouvé</h3>
+                      <p className="text-gray-400 text-sm mb-4">
+                        {selectedCategory === 'all' 
+                          ? "Vous n'avez pas encore créé de services." 
+                          : "Aucun service dans cette catégorie."
+                        }
+                      </p>
+                      <button 
+                        onClick={() => setShowServiceModal(true)}
+                        className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-6 py-2 rounded-lg transition-colors"
+                      >
+                        Créer un service
+                      </button>
                     </div>
-                    <p className="text-gray-300 text-sm mb-3">Création de sites web modernes et responsives</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[#4A5C6A] font-bold">25 crédits/heure</span>
-                      <span className="text-green-400 text-sm">✓ Actif</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <div className="w-10 h-10 bg-[#9BA8AB]/20 rounded-lg flex items-center justify-center">
-                        <span className="text-[#9BA8AB] text-lg">🎨</span>
-                      </div>
-                      <div>
-                        <h3 className="text-white font-semibold">Design Graphique</h3>
-                        <p className="text-gray-400 text-sm">Logos & Identité</p>
-                      </div>
-                    </div>
-                    <p className="text-gray-300 text-sm mb-3">Création de logos et chartes graphiques</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[#4A5C6A] font-bold">20 crédits/heure</span>
-                      <span className="text-green-400 text-sm">✓ Actif</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <div className="w-10 h-10 bg-[#CCD0CF]/20 rounded-lg flex items-center justify-center">
-                        <span className="text-[#CCD0CF] text-lg">📚</span>
-                      </div>
-                      <div>
-                        <h3 className="text-white font-semibold">Cours de Français</h3>
-                        <p className="text-gray-400 text-sm">Langue & Littérature</p>
-                      </div>
-                    </div>
-                    <p className="text-gray-300 text-sm mb-3">Cours particuliers de français tous niveaux</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[#4A5C6A] font-bold">15 crédits/heure</span>
-                      <span className="text-green-400 text-sm">✓ Actif</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -1190,12 +1283,21 @@ export default function DashboardPage() {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold text-white">Services Disponibles</h2>
                   <div className="flex space-x-2">
-                    <select className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
-                      <option>Toutes catégories</option>
-                      <option>Technologie</option>
-                      <option>Design</option>
-                      <option>Éducation</option>
-                      <option>Services</option>
+                    <select 
+                      value={selectedAvailableCategory}
+                      onChange={(e) => setSelectedAvailableCategory(e.target.value)}
+                      className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    >
+                      {categories.map(category => {
+                        const count = category.value === 'all' 
+                          ? services.filter(service => service.providerId !== user?.id).length
+                          : services.filter(service => service.providerId !== user?.id && service.category === category.value).length;
+                        return (
+                          <option key={category.value} value={category.value} className="bg-slate-800">
+                            {category.label} ({count})
+                          </option>
+                        );
+                      })}
                     </select>
                     <input
                       type="text"
@@ -1206,7 +1308,8 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Services d'autres utilisateurs */}
-                  {services.filter(service => service.providerId !== user?.id).slice(0, 6).map((service) => (
+                  {filteredAvailableServices.filter(service => service.providerId !== user?.id).length > 0 ? (
+                    filteredAvailableServices.filter(service => service.providerId !== user?.id).slice(0, 6).map((service) => (
                     <div key={service.id} className="bg-white/5 rounded-lg p-4 border border-white/10 hover:border-[#4A5C6A]/50 transition-all duration-300 cursor-pointer">
                       <div className="flex items-center space-x-3 mb-3">
                         <div className="w-10 h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
@@ -1233,7 +1336,21 @@ export default function DashboardPage() {
                         </button>
                       </div>
                     </div>
-                  ))}
+                  ))
+                  ) : (
+                    <div className="col-span-full text-center py-8">
+                      <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MdWork className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-white font-semibold mb-2">Aucun service disponible</h3>
+                      <p className="text-gray-400 text-sm">
+                        {selectedAvailableCategory === 'all' 
+                          ? "Aucun service disponible pour le moment." 
+                          : "Aucun service disponible dans cette catégorie."
+                        }
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1350,24 +1467,39 @@ export default function DashboardPage() {
                               <>
                                 <button 
                                   onClick={() => handleConfirmBooking(booking.id)}
-                                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                                  disabled={processingBookings.has(booking.id)}
+                                  className={`px-3 py-1 rounded text-sm transition-colors ${
+                                    processingBookings.has(booking.id)
+                                      ? 'bg-gray-500 cursor-not-allowed text-gray-300'
+                                      : 'bg-green-500 hover:bg-green-600 text-white'
+                                  }`}
                                 >
-                                  Confirmer
+                                  {processingBookings.has(booking.id) ? '⏳' : '✅ Confirmer'}
                                 </button>
                                 <button 
                                   onClick={() => handleCancelBooking(booking.id)}
-                                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                                  disabled={processingBookings.has(booking.id)}
+                                  className={`px-3 py-1 rounded text-sm transition-colors ${
+                                    processingBookings.has(booking.id)
+                                      ? 'bg-gray-500 cursor-not-allowed text-gray-300'
+                                      : 'bg-red-500 hover:bg-red-600 text-white'
+                                  }`}
                                 >
-                                  Refuser
+                                  {processingBookings.has(booking.id) ? '⏳' : '❌ Refuser'}
                                 </button>
                               </>
                             )}
                             {booking.status === 'CONFIRMED' && (
                               <button 
                                 onClick={() => handleCompleteBooking(booking.id)}
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                                disabled={processingBookings.has(booking.id)}
+                                className={`px-3 py-1 rounded text-sm transition-colors ${
+                                  processingBookings.has(booking.id)
+                                    ? 'bg-gray-500 cursor-not-allowed text-gray-300'
+                                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                }`}
                               >
-                                Marquer terminé
+                                {processingBookings.has(booking.id) ? '⏳' : '🎉 Terminer'}
                               </button>
                             )}
                           </div>
@@ -1590,7 +1722,7 @@ export default function DashboardPage() {
       {/* Transfer Modal */}
       {showTransferModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/20 max-w-md w-full mx-auto">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/20 max-w-md w-full mx-auto modal-scrollbar">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">Transfert rapide</h2>
               <button
@@ -1660,7 +1792,7 @@ export default function DashboardPage() {
       {/* User Search Modal */}
       {showUserSearch && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/20 max-w-2xl w-full mx-auto">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/20 max-w-2xl w-full mx-auto modal-scrollbar">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">Rechercher un utilisateur</h2>
               <button
@@ -1677,7 +1809,7 @@ export default function DashboardPage() {
               placeholder="Nom d'utilisateur ou email..."
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent mb-4"
             />
-            <div className="space-y-2 max-h-60 overflow-y-auto">
+            <div className="space-y-2 max-h-60 overflow-y-auto modal-scrollbar">
               {filteredUsers.map((u) => (
                 <div
                   key={u.id}
@@ -1719,7 +1851,7 @@ export default function DashboardPage() {
       {/* Modal de création de service */}
       {showServiceModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-md">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-md modal-scrollbar">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">Ajouter un service</h2>
               <button
@@ -1802,11 +1934,11 @@ export default function DashboardPage() {
                   required
                 >
                   <option value="" className="bg-slate-800">Sélectionner une catégorie</option>
-                  <option value="programming" className="bg-slate-800">Programmation</option>
-                  <option value="design" className="bg-slate-800">Design</option>
-                  <option value="marketing" className="bg-slate-800">Marketing</option>
-                  <option value="consulting" className="bg-slate-800">Conseil</option>
-                  <option value="other" className="bg-slate-800">Autre</option>
+                  {categories.filter(cat => cat.value !== 'all').map(category => (
+                    <option key={category.value} value={category.value} className="bg-slate-800">
+                      {category.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               
@@ -1833,7 +1965,7 @@ export default function DashboardPage() {
       {/* Modal de réservation de service */}
       {showBookingModal && selectedService && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-md">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-md modal-scrollbar">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">Réserver un service</h2>
               <button
@@ -1900,10 +2032,26 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Toast notifications */}
+      {toast.type && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform ${
+          toast.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : 'bg-red-500 text-white'
+        }`}>
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">
+              {toast.type === 'success' ? '✅' : '❌'}
+            </span>
+            <span className="font-medium">{toast.message}</span>
+          </div>
+        </div>
+      )}
+
       {/* Modal de modification de profil */}
       {showProfileModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scrollbar">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">Modifier le profil</h2>
               <button
