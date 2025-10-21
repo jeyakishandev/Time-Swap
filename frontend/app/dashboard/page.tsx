@@ -458,6 +458,12 @@ export default function DashboardPage() {
     ? services 
     : services.filter(service => service.category === selectedAvailableCategory);
 
+  // Calculer les statistiques
+  const myServices = services.filter(service => service.providerId === user?.id);
+  const myBookings = bookings.filter(booking => booking.providerId === user?.id);
+  const completedBookings = myBookings.filter(booking => booking.status === 'COMPLETED');
+  const totalEarned = completedBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
+
   // Fonction pour confirmer une réservation
   const handleConfirmBooking = async (bookingId: string) => {
     const token = localStorage.getItem('token');
@@ -1355,12 +1361,12 @@ export default function DashboardPage() {
               </div>
 
               {/* Statistiques des Services */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-300 text-sm">Services proposés</p>
-                      <p className="text-3xl font-bold text-white">3</p>
+                      <p className="text-3xl font-bold text-white">{myServices.length}</p>
                     </div>
                     <div className="w-12 h-12 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center">
                       <MdWork className="w-6 h-6 text-[#4A5C6A]" />
@@ -1371,8 +1377,8 @@ export default function DashboardPage() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-300 text-sm">Services utilisés</p>
-                      <p className="text-3xl font-bold text-white">7</p>
+                      <p className="text-gray-300 text-sm">Réservations reçues</p>
+                      <p className="text-3xl font-bold text-white">{myBookings.length}</p>
                     </div>
                     <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
                       <GiReceiveMoney className="w-6 h-6 text-green-400" />
@@ -1383,8 +1389,20 @@ export default function DashboardPage() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center justify-between">
                     <div>
+                      <p className="text-gray-300 text-sm">Réservations terminées</p>
+                      <p className="text-3xl font-bold text-white">{completedBookings.length}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <span className="text-blue-400 text-xl">✅</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div>
                       <p className="text-gray-300 text-sm">Crédits gagnés</p>
-                      <p className="text-3xl font-bold text-white">450</p>
+                      <p className="text-3xl font-bold text-white">{totalEarned}</p>
                     </div>
                     <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
                       <span className="text-yellow-400 text-xl">💰</span>
