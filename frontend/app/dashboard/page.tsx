@@ -42,6 +42,21 @@ export default function DashboardPage() {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [serviceForm, setServiceForm] = useState({
+    title: '',
+    description: '',
+    price: '',
+    category: '',
+    duration: ''
+  });
+  const [bookingForm, setBookingForm] = useState({
+    serviceId: '',
+    message: '',
+    preferredDate: ''
+  });
   const [notifications, setNotifications] = useState<Array<{
     id: string;
     type: 'success' | 'info' | 'warning' | 'error';
@@ -261,6 +276,70 @@ export default function DashboardPage() {
       localStorage.removeItem('currentUser');
       router.push('/');
     }, 1000);
+  };
+
+  // Fonction pour créer un nouveau service
+  const handleCreateService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    
+    try {
+      const response = await fetch('http://localhost:3001/services', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: serviceForm.title,
+          description: serviceForm.description,
+          price: parseInt(serviceForm.price),
+          category: serviceForm.category,
+          duration: parseInt(serviceForm.duration)
+        }),
+      });
+
+      if (response.ok) {
+        addNotification('success', 'Service créé !', 'Votre service a été ajouté avec succès');
+        setServiceForm({ title: '', description: '', price: '', category: '', duration: '' });
+        setShowServiceModal(false);
+        fetchData(); // Recharger les données
+      } else {
+        const error = await response.json();
+        addNotification('error', 'Erreur', error.message || 'Erreur lors de la création du service');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      addNotification('error', 'Erreur de connexion', 'Impossible de contacter le serveur');
+    }
+  };
+
+  // Fonction pour réserver un service
+  const handleBookService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    
+    try {
+      // Simulation de réservation (à adapter selon votre API)
+      addNotification('success', 'Réservation envoyée !', `Votre demande de réservation pour "${selectedService?.title}" a été envoyée`);
+      setBookingForm({ serviceId: '', message: '', preferredDate: '' });
+      setShowBookingModal(false);
+      setSelectedService(null);
+    } catch (error) {
+      console.error('Erreur:', error);
+      addNotification('error', 'Erreur de connexion', 'Impossible de contacter le serveur');
+    }
+  };
+
+  // Fonction pour ouvrir le modal de réservation
+  const openBookingModal = (service: any) => {
+    setSelectedService(service);
+    setBookingForm({ 
+      serviceId: service.id, 
+      message: '', 
+      preferredDate: '' 
+    });
+    setShowBookingModal(true);
   };
 
   const filteredUsers = users.filter(u => 
@@ -930,18 +1009,24 @@ export default function DashboardPage() {
           {/* Services Tab */}
           {activeTab === 'services' && (
             <div className="space-y-8">
-              <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Marketplace des Services</h1>
-                <p className="text-gray-300 text-sm md:text-base">Découvrez et proposez des services Time-Swap</p>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Marketplace des Services</h1>
+                  <p className="text-gray-300 text-sm md:text-base">Découvrez et proposez des services Time-Swap</p>
+                </div>
+                <button
+                  onClick={() => setShowServiceModal(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25 flex items-center space-x-2"
+                >
+                  <MdWork className="w-5 h-5" />
+                  <span>Ajouter un service</span>
+                </button>
               </div>
 
               {/* Mes Services */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold text-white">Mes Services</h2>
-                  <button className="bg-[#4A5C6A] hover:bg-[#253745] text-white px-4 py-2 rounded-lg transition-colors">
-                    + Ajouter un service
-                  </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Service Example */}
@@ -1039,7 +1124,16 @@ export default function DashboardPage() {
                       </p>
                       <div className="flex justify-between items-center">
                         <span className="text-[#4A5C6A] font-bold">{15 + index * 5} crédits/heure</span>
-                        <button className="bg-[#4A5C6A] hover:bg-[#253745] text-white px-3 py-1 rounded text-sm transition-colors">
+                        <button 
+                          onClick={() => openBookingModal({
+                            id: serviceUser.id,
+                            title: ['Création d\'applications web', 'Design de logos', 'Cours de piano', 'Traduction FR/EN', 'Yoga & Méditation', 'Cours de cuisine'][index % 6],
+                            description: ['Création d\'applications web', 'Design de logos', 'Cours de piano', 'Traduction FR/EN', 'Yoga & Méditation', 'Cours de cuisine'][index % 6],
+                            price: 15 + index * 5,
+                            duration: 1
+                          })}
+                          className="bg-[#4A5C6A] hover:bg-[#253745] text-white px-3 py-1 rounded text-sm transition-colors transform hover:scale-105"
+                        >
                           Réserver
                         </button>
                       </div>
@@ -1358,6 +1452,190 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de création de service */}
+      {showServiceModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Ajouter un service</h2>
+              <button
+                onClick={() => setShowServiceModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateService} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Titre du service
+                </label>
+                <input
+                  type="text"
+                  value={serviceForm.title}
+                  onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  placeholder="Ex: Cours de programmation"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={serviceForm.description}
+                  onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
+                  rows={3}
+                  placeholder="Décrivez votre service..."
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Prix (crédits)
+                  </label>
+                  <input
+                    type="number"
+                    value={serviceForm.price}
+                    onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="50"
+                    min="1"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Durée (heures)
+                  </label>
+                  <input
+                    type="number"
+                    value={serviceForm.duration}
+                    onChange={(e) => setServiceForm({ ...serviceForm, duration: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="2"
+                    min="1"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Catégorie
+                </label>
+                <select
+                  value={serviceForm.category}
+                  onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  required
+                >
+                  <option value="" className="bg-slate-800">Sélectionner une catégorie</option>
+                  <option value="programming" className="bg-slate-800">Programmation</option>
+                  <option value="design" className="bg-slate-800">Design</option>
+                  <option value="marketing" className="bg-slate-800">Marketing</option>
+                  <option value="consulting" className="bg-slate-800">Conseil</option>
+                  <option value="other" className="bg-slate-800">Autre</option>
+                </select>
+              </div>
+              
+              <div className="flex space-x-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowServiceModal(false)}
+                  className="flex-1 px-4 py-3 text-gray-300 hover:text-white transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300"
+                >
+                  Créer le service
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de réservation de service */}
+      {showBookingModal && selectedService && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Réserver un service</h2>
+              <button
+                onClick={() => setShowBookingModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
+              <h3 className="text-lg font-semibold text-white mb-2">{selectedService.title}</h3>
+              <p className="text-gray-300 text-sm mb-2">{selectedService.description}</p>
+              <div className="flex justify-between text-sm">
+                <span className="text-[#4A5C6A] font-semibold">{selectedService.price} crédits</span>
+                <span className="text-gray-400">{selectedService.duration}h</span>
+              </div>
+            </div>
+            
+            <form onSubmit={handleBookService} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Date préférée
+                </label>
+                <input
+                  type="date"
+                  value={bookingForm.preferredDate}
+                  onChange={(e) => setBookingForm({ ...bookingForm, preferredDate: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Message (optionnel)
+                </label>
+                <textarea
+                  value={bookingForm.message}
+                  onChange={(e) => setBookingForm({ ...bookingForm, message: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
+                  rows={3}
+                  placeholder="Décrivez vos besoins spécifiques..."
+                />
+              </div>
+              
+              <div className="flex space-x-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowBookingModal(false)}
+                  className="flex-1 px-4 py-3 text-gray-300 hover:text-white transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300"
+                >
+                  Envoyer la demande
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
