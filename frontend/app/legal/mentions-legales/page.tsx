@@ -48,7 +48,19 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">5. Responsabilité</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">5. Cookies</h2>
+            <div className="text-gray-300 space-y-3">
+              <p>Ce site utilise des cookies techniques nécessaires au fonctionnement de l'application :</p>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                <li>Cookies de session pour l'authentification</li>
+                <li>Cookies de préférences utilisateur</li>
+              </ul>
+              <p>Aucun cookie de tracking ou de publicité n'est utilisé dans cette démonstration.</p>
+            </div>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">6. Responsabilité</h2>
             <div className="text-gray-300 space-y-3">
               <p>Les informations contenues sur ce site sont aussi précises que possible et le site remis à jour à différentes périodes de l'année, mais peut toutefois contenir des inexactitudes ou des omissions.</p>
               <p>Si vous constatez une lacune, erreur ou ce qui parait être un dysfonctionnement, merci de bien vouloir le signaler par email, à l'adresse contact@timeswap.network, en décrivant le problème de la manière la plus précise possible.</p>
@@ -56,35 +68,31 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">6. Liens hypertextes</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">7. Liens hypertextes</h2>
             <div className="text-gray-300 space-y-3">
-              <p>Des liens hypertextes peuvent être présents sur le site. L'utilisateur est informé qu'en cliquant sur ces liens, il sortira du site timeswap.network.</p>
-              <p>Ce dernier n'a pas de contrôle sur les pages web sur lesquelles aboutissent ces liens et ne saurait en aucun cas être responsable de leur contenu.</p>
-            </div>
-          </section>
-
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">7. Cookies</h2>
-            <div className="text-gray-300 space-y-3">
-              <p>Le site timeswap.network peut être amené à vous demander l'acceptation des cookies pour des besoins de statistiques et d'affichage.</p>
-              <p>Un cookie est une information déposée sur votre disque dur par le serveur du site que vous visitez.</p>
-              <p>Il contient plusieurs données qui sont stockées sur votre ordinateur dans un simple fichier texte auquel un serveur accède pour lire et enregistrer des informations.</p>
+              <p>Des liens hypertextes peuvent être présents sur le site. L'utilisateur est informé qu'en cliquant sur ces liens, il sortira du site timeswap.network. Ce dernier n'a pas de contrôle sur les pages web sur lesquelles aboutissent ces liens et ne saurait en aucun cas être responsable de leur contenu.</p>
             </div>
           </section>
 
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">8. Droit applicable</h2>
-            <div className="text-gray-300">
-              <p>Tout litige en relation avec l'utilisation du site timeswap.network est soumis au droit français.</p>
-              <p>Il est fait attribution exclusive de juridiction aux tribunaux compétents de Paris.</p>
+            <div className="text-gray-300 space-y-3">
+              <p>Tout litige en relation avec l'utilisation du site timeswap.network est soumis au droit français. Il est fait attribution exclusive de juridiction aux tribunaux compétents de Paris.</p>
             </div>
           </section>
 
-          <div className="mt-8 p-4 bg-blue-500/20 rounded-lg border border-blue-500/30">
-            <p className="text-blue-200 text-sm">
-              <strong>Note importante :</strong> Ce site est une démonstration technique. 
-              Les informations légales présentées sont génériques et doivent être adaptées 
-              selon le contexte réel d'utilisation.
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">9. Contact</h2>
+            <div className="text-gray-300 space-y-2">
+              <p>Pour toute question concernant ces mentions légales, vous pouvez nous contacter :</p>
+              <p><strong>Email :</strong> contact@timeswap.network</p>
+              <p><strong>Site web :</strong> https://timeswap.network</p>
+            </div>
+          </section>
+
+          <div className="mt-8 p-4 bg-[#4A5C6A]/10 rounded-lg border border-[#4A5C6A]/20">
+            <p className="text-[#9BA8AB] text-sm">
+              <strong>Dernière mise à jour :</strong> {new Date().toLocaleDateString('fr-FR')}
             </p>
           </div>
         </div>

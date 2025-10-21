@@ -34,21 +34,73 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-[#06141B] via-[#11212D] to-[#253745]">
       {/* Header */}
       <header className="relative z-10 py-6">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:shadow-blue-500/25">
-                <span className="text-white font-bold text-lg">TS</span>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:shadow-[#4A5C6A]/25">
+                <svg 
+                  viewBox="0 0 100 100" 
+                  className="w-full h-full rounded-xl"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Cercle extérieur avec dégradé */}
+                  <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#4A5C6A" />
+                      <stop offset="100%" stopColor="#9BA8AB" />
+                    </linearGradient>
+                  </defs>
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="45" 
+                    fill="url(#logoGradient)" 
+                    stroke="#CCD0CF" 
+                    strokeWidth="2"
+                  />
+                  
+                  {/* Marqueurs d'horloge */}
+                  <line x1="50" y1="10" x2="50" y2="20" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
+                  <line x1="90" y1="50" x2="80" y2="50" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
+                  <line x1="50" y1="90" x2="50" y2="80" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
+                  <line x1="10" y1="50" x2="20" y2="50" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
+                  
+                  {/* Symbole central - T */}
+                  <text 
+                    x="50" 
+                    y="45" 
+                    textAnchor="middle" 
+                    fontSize="24" 
+                    fontWeight="bold" 
+                    fill="#CCD0CF"
+                    fontFamily="Arial, sans-serif"
+                  >
+                    T
+                  </text>
+                  
+                  {/* Symbole central - S */}
+                  <text 
+                    x="50" 
+                    y="70" 
+                    textAnchor="middle" 
+                    fontSize="24" 
+                    fontWeight="bold" 
+                    fill="#CCD0CF"
+                    fontFamily="Arial, sans-serif"
+                  >
+                    S
+                  </text>
+                </svg>
               </div>
-              <span className="text-white text-xl font-bold group-hover:text-blue-300 transition-colors">Time-Swap</span>
+              <span className="text-white text-xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
             </Link>
             
             <Link 
               href="/"
-              className="px-4 py-2 text-white hover:text-blue-300 transition-all duration-300 hover:scale-105"
+              className="px-4 py-2 text-white hover:text-[#9BA8AB] transition-all duration-300 hover:scale-105"
             >
               ← Retour à l'accueil
             </Link>
@@ -61,12 +113,11 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto px-6">
           {/* Hero Section */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-white mb-6">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
               Contactez-nous
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Une question sur Time-Swap ? Un problème technique ? Une suggestion ? 
-              Notre équipe est là pour vous aider !
+              Une question ? Un problème ? Notre équipe est là pour vous aider.
             </p>
           </div>
 
@@ -76,18 +127,14 @@ export default function ContactPage() {
               <h2 className="text-2xl font-bold text-white mb-6">Envoyez-nous un message</h2>
               
               {submitStatus === 'success' && (
-                <div className="mb-6 p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
-                  <p className="text-green-200">
-                    ✅ Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.
-                  </p>
+                <div className="bg-green-500/20 border border-green-500/30 text-green-200 px-4 py-3 rounded-lg mb-6">
+                  Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.
                 </div>
               )}
 
               {submitStatus === 'error' && (
-                <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
-                  <p className="text-red-200">
-                    ❌ Erreur lors de l'envoi. Veuillez réessayer ou nous contacter directement par email.
-                  </p>
+                <div className="bg-red-500/20 border border-red-500/30 text-red-200 px-4 py-3 rounded-lg mb-6">
+                  Erreur lors de l'envoi. Veuillez réessayer.
                 </div>
               )}
 
@@ -102,9 +149,9 @@ export default function ContactPage() {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
                       placeholder="Votre nom"
+                      required
                     />
                   </div>
                   
@@ -117,9 +164,9 @@ export default function ContactPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
                       placeholder="votre@email.com"
+                      required
                     />
                   </div>
                 </div>
@@ -132,14 +179,14 @@ export default function ContactPage() {
                     name="subject"
                     value={formData.subject}
                     onChange={handleInputChange}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
                     required
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   >
-                    <option value="" className="bg-slate-800">Sélectionnez un sujet</option>
+                    <option value="" className="bg-slate-800">Sélectionner un sujet</option>
                     <option value="support" className="bg-slate-800">Support technique</option>
-                    <option value="feature" className="bg-slate-800">Demande de fonctionnalité</option>
                     <option value="bug" className="bg-slate-800">Signaler un bug</option>
-                    <option value="partnership" className="bg-slate-800">Partenariat</option>
+                    <option value="feature" className="bg-slate-800">Demande de fonctionnalité</option>
+                    <option value="account" className="bg-slate-800">Problème de compte</option>
                     <option value="other" className="bg-slate-800">Autre</option>
                   </select>
                 </div>
@@ -152,17 +199,17 @@ export default function ContactPage() {
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    required
                     rows={6}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
                     placeholder="Décrivez votre demande en détail..."
+                    required
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-6 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold"
+                  className="w-full bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold"
                 >
                   {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
                 </button>
@@ -171,96 +218,91 @@ export default function ContactPage() {
 
             {/* Contact Info */}
             <div className="space-y-8">
-              {/* Direct Contact */}
+              {/* Contact Methods */}
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-                <h3 className="text-2xl font-bold text-white mb-6">Contact direct</h3>
+                <h2 className="text-2xl font-bold text-white mb-6">Autres moyens de contact</h2>
                 
                 <div className="space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-400 text-xl">📧</span>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold">Email général</h4>
-                      <a href="mailto:contact@timeswap.network" className="text-gray-300 hover:text-blue-300 transition-colors">
-                        contact@timeswap.network
-                      </a>
+                      <h3 className="text-lg font-semibold text-white mb-1">Email</h3>
+                      <p className="text-gray-300">contact@timeswap.network</p>
+                      <p className="text-sm text-gray-400">Réponse sous 24h</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-green-400 text-xl">🛠️</span>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-[#9BA8AB]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[#9BA8AB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold">Support technique</h4>
-                      <a href="mailto:support@timeswap.network" className="text-gray-300 hover:text-green-300 transition-colors">
-                        support@timeswap.network
-                      </a>
+                      <h3 className="text-lg font-semibold text-white mb-1">Support</h3>
+                      <p className="text-gray-300">support@timeswap.network</p>
+                      <p className="text-sm text-gray-400">Aide technique</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-purple-400 text-xl">🤝</span>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-[#CCD0CF]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[#CCD0CF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold">Partenariats</h4>
-                      <a href="mailto:partnerships@timeswap.network" className="text-gray-300 hover:text-purple-300 transition-colors">
-                        partnerships@timeswap.network
-                      </a>
+                      <h3 className="text-lg font-semibold text-white mb-1">Développement</h3>
+                      <p className="text-gray-300">dev@timeswap.network</p>
+                      <p className="text-sm text-gray-400">Questions techniques</p>
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-red-400 text-xl">🔒</span>
-                    </div>
-                    <div>
-                      <h4 className="text-white font-semibold">Sécurité & Confidentialité</h4>
-                      <a href="mailto:security@timeswap.network" className="text-gray-300 hover:text-red-300 transition-colors">
-                        security@timeswap.network
-                      </a>
-                    </div>
+              {/* FAQ */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                <h2 className="text-2xl font-bold text-white mb-6">Questions fréquentes</h2>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-2">Comment créer un compte ?</h3>
+                    <p className="text-gray-300 text-sm">Cliquez sur "S'inscrire" et remplissez le formulaire avec vos informations.</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-2">Les crédits sont-ils réels ?</h3>
+                    <p className="text-gray-300 text-sm">Non, les crédits Time-Swap sont virtuels et n'ont aucune valeur monétaire.</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-2">Comment réinitialiser mon mot de passe ?</h3>
+                    <p className="text-gray-300 text-sm">Contactez-nous par email avec votre nom d'utilisateur pour obtenir de l'aide.</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-2">Puis-je supprimer mon compte ?</h3>
+                    <p className="text-gray-300 text-sm">Oui, contactez-nous et nous supprimerons votre compte et vos données.</p>
                   </div>
                 </div>
               </div>
 
               {/* Response Time */}
-              <div className="bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl p-8 backdrop-blur-sm">
-                <h3 className="text-2xl font-bold text-white mb-4">Temps de réponse</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">Support technique</span>
-                    <span className="text-blue-300 font-semibold">24h</span>
+              <div className="bg-gradient-to-r from-[#4A5C6A]/10 to-[#9BA8AB]/10 rounded-2xl p-6 border border-[#4A5C6A]/20">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">Questions générales</span>
-                    <span className="text-green-300 font-semibold">48h</span>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Temps de réponse</h3>
+                    <p className="text-gray-300 text-sm">Nous nous engageons à vous répondre dans les 24 heures</p>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">Partenariats</span>
-                    <span className="text-purple-300 font-semibold">72h</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* FAQ Link */}
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <h3 className="text-xl font-bold text-white mb-4">Questions fréquentes</h3>
-                <p className="text-gray-300 mb-4">
-                  Vous avez peut-être déjà la réponse à votre question !
-                </p>
-                <div className="space-y-2">
-                  <a href="/legal/cgu" className="block text-blue-400 hover:text-blue-300 transition-colors hover:underline">
-                    → Conditions d'utilisation
-                  </a>
-                  <a href="/legal/confidentialite" className="block text-blue-400 hover:text-blue-300 transition-colors hover:underline">
-                    → Politique de confidentialité
-                  </a>
-                  <a href="/legal/mentions-legales" className="block text-blue-400 hover:text-blue-300 transition-colors hover:underline">
-                    → Mentions légales
-                  </a>
                 </div>
               </div>
             </div>

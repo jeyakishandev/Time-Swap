@@ -81,6 +81,77 @@ async function main() {
     },
   });
 
+  // Créer des services de test
+  const service1 = await prisma.service.create({
+    data: {
+      title: 'Développement Web',
+      description: 'Création de sites web modernes et responsives avec React et Node.js',
+      category: 'Technologie',
+      pricePerHour: 25.0,
+      providerId: alice.id,
+    },
+  });
+
+  const service2 = await prisma.service.create({
+    data: {
+      title: 'Design Graphique',
+      description: 'Création de logos et chartes graphiques professionnelles',
+      category: 'Design',
+      pricePerHour: 20.0,
+      providerId: alice.id,
+    },
+  });
+
+  const service3 = await prisma.service.create({
+    data: {
+      title: 'Cours de Français',
+      description: 'Cours particuliers de français tous niveaux',
+      category: 'Éducation',
+      pricePerHour: 15.0,
+      providerId: alice.id,
+    },
+  });
+
+  const service4 = await prisma.service.create({
+    data: {
+      title: 'Cours de Piano',
+      description: 'Apprentissage du piano pour débutants et intermédiaires',
+      category: 'Musique',
+      pricePerHour: 30.0,
+      providerId: bob.id,
+    },
+  });
+
+  const service5 = await prisma.service.create({
+    data: {
+      title: 'Traduction FR/EN',
+      description: 'Traduction professionnelle français-anglais',
+      category: 'Langues',
+      pricePerHour: 18.0,
+      providerId: charlie.id,
+    },
+  });
+
+  const service6 = await prisma.service.create({
+    data: {
+      title: 'Yoga & Méditation',
+      description: 'Séances de yoga et méditation pour le bien-être',
+      category: 'Bien-être',
+      pricePerHour: 22.0,
+      providerId: diana.id,
+    },
+  });
+
+  const service7 = await prisma.service.create({
+    data: {
+      title: 'Cours de Cuisine',
+      description: 'Apprendre à cuisiner des plats traditionnels français',
+      category: 'Cuisine',
+      pricePerHour: 28.0,
+      providerId: diana.id,
+    },
+  });
+
   console.log('✅ Users created:', { 
     alice: alice.username, 
     bob: bob.username,
@@ -92,6 +163,14 @@ async function main() {
     alice_to_bob: `${transaction1.amount} credits`,
     diana_to_charlie: `${transaction2.amount} credits`,
     bob_to_alice: `${transaction3.amount} credits`
+  });
+
+  console.log('✅ Services created:', {
+    alice_services: 3,
+    bob_services: 1,
+    charlie_services: 1,
+    diana_services: 2,
+    total_services: 7
   });
 }
 

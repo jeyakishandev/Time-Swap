@@ -68,15 +68,67 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#06141B] via-[#11212D] to-[#253745] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center space-x-2 text-white">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">TS</span>
+          <Link href="/" className="inline-flex items-center space-x-3 text-white group">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:shadow-[#4A5C6A]/25">
+              <svg 
+                viewBox="0 0 100 100" 
+                className="w-full h-full rounded-xl"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Cercle extérieur avec dégradé */}
+                <defs>
+                  <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#4A5C6A" />
+                    <stop offset="100%" stopColor="#9BA8AB" />
+                  </linearGradient>
+                </defs>
+                <circle 
+                  cx="50" 
+                  cy="50" 
+                  r="45" 
+                  fill="url(#logoGradient)" 
+                  stroke="#CCD0CF" 
+                  strokeWidth="2"
+                />
+                
+                {/* Marqueurs d'horloge */}
+                <line x1="50" y1="10" x2="50" y2="20" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
+                <line x1="90" y1="50" x2="80" y2="50" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
+                <line x1="50" y1="90" x2="50" y2="80" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
+                <line x1="10" y1="50" x2="20" y2="50" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
+                
+                {/* Symbole central - T */}
+                <text 
+                  x="50" 
+                  y="45" 
+                  textAnchor="middle" 
+                  fontSize="24" 
+                  fontWeight="bold" 
+                  fill="#CCD0CF"
+                  fontFamily="Arial, sans-serif"
+                >
+                  T
+                </text>
+                
+                {/* Symbole central - S */}
+                <text 
+                  x="50" 
+                  y="70" 
+                  textAnchor="middle" 
+                  fontSize="24" 
+                  fontWeight="bold" 
+                  fill="#CCD0CF"
+                  fontFamily="Arial, sans-serif"
+                >
+                  S
+                </text>
+              </svg>
             </div>
-            <span className="text-2xl font-bold">Time-Swap</span>
+            <span className="text-2xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
           </Link>
         </div>
 
@@ -108,7 +160,7 @@ export default function RegisterPage() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
                 placeholder="votre@email.com"
                 required
               />
@@ -122,7 +174,7 @@ export default function RegisterPage() {
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
                 placeholder="mon_username"
                 required
               />
@@ -136,7 +188,7 @@ export default function RegisterPage() {
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
                 placeholder="••••••••"
                 required
               />
@@ -150,7 +202,7 @@ export default function RegisterPage() {
                 type="password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
                 placeholder="••••••••"
                 required
               />
@@ -159,7 +211,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold"
+              className="w-full bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-4 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold"
             >
               {isLoading ? 'Création du compte...' : 'Créer mon compte'}
             </button>
@@ -168,7 +220,7 @@ export default function RegisterPage() {
           <div className="mt-6 text-center">
             <p className="text-gray-300">
               Déjà un compte ?{' '}
-              <Link href="/auth/login" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold">
+              <Link href="/auth/login" className="text-[#4A5C6A] hover:text-[#9BA8AB] transition-colors font-semibold">
                 Se connecter
               </Link>
             </p>

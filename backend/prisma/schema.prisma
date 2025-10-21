@@ -21,6 +21,9 @@ model User {
 
   sentTransactions     CreditTransaction[] @relation("SentTransactions")
   receivedTransactions CreditTransaction[] @relation("ReceivedTransactions")
+  services             Service[]
+  bookings             Booking[] @relation("ClientBookings")
+  serviceBookings      Booking[] @relation("ServiceProviderBookings")
 
   @@map("users")
 }
@@ -39,4 +42,41 @@ model CreditTransaction {
   receiver User @relation("ReceivedTransactions", fields: [receiverId], references: [id])
 
   @@map("credit_transactions")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  pricePerHour Float
+  isActive    Boolean  @default(true)
+  providerId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  provider User      @relation(fields: [providerId], references: [id])
+  bookings Booking[]
+
+  @@map("services")
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  clientId    String
+  serviceId   String
+  providerId  String
+  hours       Float
+  totalPrice  Float
+  status      String   @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED
+  notes       String?
+  scheduledAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  client   User    @relation("ClientBookings", fields: [clientId], references: [id])
+  service  Service @relation(fields: [serviceId], references: [id])
+  provider User    @relation("ServiceProviderBookings", fields: [providerId], references: [id])
+
+  @@map("bookings")
 }

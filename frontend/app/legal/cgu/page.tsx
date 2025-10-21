@@ -49,143 +49,146 @@ export default function CGUPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">4. Fonctionnement de la plateforme</h2>
-            <div className="text-gray-300 space-y-4">
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-2">4.1 Système de crédits</h3>
-                <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>Chaque utilisateur reçoit 100 crédits de départ</li>
-                  <li>Les crédits permettent d'effectuer des transactions</li>
-                  <li>Les transactions sont irréversibles</li>
-                  <li>Le solde ne peut pas être négatif</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-2">4.2 Transactions</h3>
-                <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>Toutes les transactions sont enregistrées</li>
-                  <li>Chaque transaction nécessite un destinataire valide</li>
-                  <li>Les montants doivent être positifs</li>
-                  <li>Les transactions sont traitées instantanément</li>
-                </ul>
-              </div>
+            <h2 className="text-2xl font-bold text-white mb-4">4. Services proposés</h2>
+            <div className="text-gray-300 space-y-3">
+              <p>Time-Swap propose les services suivants :</p>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                <li>Création et gestion de compte utilisateur</li>
+                <li>Transfert de crédits entre utilisateurs</li>
+                <li>Historique des transactions</li>
+                <li>Marketplace des services (en développement)</li>
+                <li>Tableau de bord personnel</li>
+              </ul>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">5. Utilisation acceptable</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">5. Utilisation de la plateforme</h2>
             <div className="text-gray-300 space-y-4">
               <div>
-                <h3 className="text-xl font-semibold text-white mb-2">5.1 Utilisations autorisées</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">5.1 Utilisation autorisée</h3>
                 <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>Tests et démonstrations techniques</li>
-                  <li>Apprentissage des fonctionnalités</li>
-                  <li>Expérimentation avec les transactions</li>
-                  <li>Découverte de l'interface utilisateur</li>
+                  <li>Utilisation personnelle et non commerciale</li>
+                  <li>Respect des lois et réglementations en vigueur</li>
+                  <li>Respect des droits des autres utilisateurs</li>
+                  <li>Utilisation conforme à l'objectif de démonstration</li>
                 </ul>
               </div>
               
               <div>
-                <h3 className="text-xl font-semibold text-white mb-2">5.2 Utilisations interdites</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">5.2 Utilisation interdite</h3>
                 <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>Utilisation à des fins commerciales réelles</li>
-                  <li>Échange de vraies monnaies ou valeurs</li>
+                  <li>Utilisation à des fins illégales ou frauduleuses</li>
                   <li>Tentative de piratage ou d'intrusion</li>
-                  <li>Création de multiples comptes frauduleux</li>
+                  <li>Transmission de contenu malveillant</li>
+                  <li>Usurpation d'identité</li>
                   <li>Spam ou harcèlement d'autres utilisateurs</li>
-                  <li>Utilisation de robots ou scripts automatisés</li>
                 </ul>
               </div>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">6. Sécurité et confidentialité</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">6. Crédits et transactions</h2>
             <div className="text-gray-300 space-y-3">
-              <p>Nous nous engageons à :</p>
+              <p>Les crédits Time-Swap sont des unités virtuelles utilisées uniquement dans le cadre de cette démonstration :</p>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                <li>Protéger vos données personnelles</li>
-                <li>Utiliser des protocoles de sécurité modernes</li>
-                <li>Ne jamais partager vos informations avec des tiers</li>
-                <li>Maintenir la confidentialité des transactions</li>
-              </ul>
-              <p>Consultez notre <a href="/legal/confidentialite" className="text-blue-400 hover:text-blue-300 underline">Politique de Confidentialité</a> pour plus de détails.</p>
-            </div>
-          </section>
-
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">7. Disponibilité du service</h2>
-            <div className="text-gray-300 space-y-3">
-              <p>Nous nous efforçons de maintenir la disponibilité de la plateforme, mais :</p>
-              <ul className="list-disc list-inside ml-4 space-y-1">
-                <li>Des interruptions peuvent survenir pour maintenance</li>
-                <li>Nous ne garantissons pas une disponibilité à 100%</li>
-                <li>Les mises à jour peuvent temporairement interrompre le service</li>
-                <li>En tant que démonstration, le service peut être arrêté sans préavis</li>
+                <li>Ils n'ont aucune valeur monétaire réelle</li>
+                <li>Ils ne peuvent pas être échangés contre de l'argent</li>
+                <li>Ils sont attribués gratuitement à l'inscription (100 crédits)</li>
+                <li>Les transactions sont irréversibles</li>
               </ul>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">8. Limitation de responsabilité</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">7. Responsabilité</h2>
             <div className="text-gray-300 space-y-3">
+              <p><strong>7.1 Limitation de responsabilité</strong></p>
               <p>Time-Swap Network ne peut être tenu responsable :</p>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                <li>De la perte de crédits due à une erreur utilisateur</li>
-                <li>Des interruptions temporaires du service</li>
+                <li>Des pertes de crédits dues à une utilisation incorrecte</li>
+                <li>Des dysfonctionnements techniques temporaires</li>
                 <li>Des dommages indirects ou consécutifs</li>
-                <li>De l'utilisation frauduleuse de comptes</li>
+                <li>De l'utilisation de la plateforme à des fins non autorisées</li>
               </ul>
-              <p><strong>Rappel :</strong> Il s'agit d'une démonstration technique, les crédits n'ont aucune valeur réelle.</p>
+              
+              <p><strong>7.2 Responsabilité de l'utilisateur</strong></p>
+              <p>L'utilisateur est seul responsable :</p>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                <li>De la sécurité de son compte</li>
+                <li>De l'utilisation de ses crédits</li>
+                <li>Du respect des présentes CGU</li>
+                <li>Des conséquences de ses actions</li>
+              </ul>
+            </div>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">8. Propriété intellectuelle</h2>
+            <div className="text-gray-300 space-y-3">
+              <p>La plateforme Time-Swap et tous ses éléments sont protégés par le droit de la propriété intellectuelle :</p>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                <li>Code source et architecture</li>
+                <li>Design et interface utilisateur</li>
+                <li>Marques et logos</li>
+                <li>Documentation technique</li>
+              </ul>
+              <p>Toute reproduction ou utilisation non autorisée est interdite.</p>
             </div>
           </section>
 
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">9. Suspension et résiliation</h2>
             <div className="text-gray-300 space-y-3">
-              <p>Nous nous réservons le droit de :</p>
+              <p>Nous nous réservons le droit de suspendre ou résilier votre compte en cas de :</p>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                <li>Suspendre temporairement un compte en cas de violation</li>
-                <li>Supprimer définitivement un compte en cas de manquement grave</li>
-                <li>Modifier ou arrêter le service sans préavis</li>
+                <li>Violation des présentes CGU</li>
+                <li>Comportement inapproprié</li>
+                <li>Utilisation frauduleuse</li>
+                <li>Demande de l'utilisateur</li>
               </ul>
-              <p>Les utilisateurs peuvent supprimer leur compte à tout moment.</p>
+              <p>La résiliation peut être effectuée sans préavis en cas de violation grave.</p>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">10. Propriété intellectuelle</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">10. Protection des données</h2>
             <div className="text-gray-300 space-y-3">
-              <p>Tous les éléments de Time-Swap (code, design, contenu) sont protégés par le droit d'auteur.</p>
-              <p>L'utilisation de la plateforme ne confère aucun droit de propriété sur ces éléments.</p>
-              <p>Il est interdit de copier, modifier ou distribuer le code source sans autorisation.</p>
+              <p>Le traitement de vos données personnelles est régi par notre <a href="/legal/confidentialite" className="text-[#4A5C6A] hover:text-[#9BA8AB] transition-colors">Politique de Confidentialité</a>.</p>
+              <p>Nous nous engageons à protéger vos données conformément au RGPD.</p>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">11. Droit applicable et juridiction</h2>
-            <div className="text-gray-300">
+            <h2 className="text-2xl font-bold text-white mb-4">11. Modifications des CGU</h2>
+            <div className="text-gray-300 space-y-3">
+              <p>Nous nous réservons le droit de modifier ces CGU à tout moment.</p>
+              <p>Les modifications importantes seront notifiées par email ou via la plateforme.</p>
+              <p>L'utilisation continue de la plateforme après modification vaut acceptation des nouvelles conditions.</p>
+            </div>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">12. Droit applicable et juridiction</h2>
+            <div className="text-gray-300 space-y-3">
               <p>Les présentes CGU sont régies par le droit français.</p>
               <p>En cas de litige, les tribunaux français seront seuls compétents.</p>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">12. Contact</h2>
-            <div className="text-gray-300 space-y-3">
+            <h2 className="text-2xl font-bold text-white mb-4">13. Contact</h2>
+            <div className="text-gray-300 space-y-2">
               <p>Pour toute question concernant ces CGU :</p>
-              <ul className="list-disc list-inside ml-4 space-y-1">
-                <li><strong>Email :</strong> legal@timeswap.network</li>
-                <li><strong>Support :</strong> contact@timeswap.network</li>
-              </ul>
+              <p><strong>Email :</strong> contact@timeswap.network</p>
+              <p><strong>Site web :</strong> https://timeswap.network</p>
             </div>
           </section>
 
-          <div className="mt-8 p-4 bg-yellow-500/20 rounded-lg border border-yellow-500/30">
-            <p className="text-yellow-200 text-sm">
-              <strong>Dernière mise à jour :</strong> Décembre 2024<br/>
-              <strong>Version :</strong> 1.0 - Démonstration technique
+          <div className="mt-8 p-4 bg-[#4A5C6A]/10 rounded-lg border border-[#4A5C6A]/20">
+            <p className="text-[#9BA8AB] text-sm">
+              <strong>Dernière mise à jour :</strong> {new Date().toLocaleDateString('fr-FR')}
             </p>
           </div>
         </div>

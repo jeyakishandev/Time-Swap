@@ -49,102 +49,98 @@ export default function ConfidentialitePage() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">3. Utilisation des données</h2>
             <div className="text-gray-300 space-y-3">
-              <p>Vos données sont utilisées uniquement pour :</p>
+              <p>Nous utilisons vos données uniquement pour :</p>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                <li>Authentification et gestion des comptes</li>
-                <li>Fonctionnement des transactions de crédits</li>
-                <li>Amélioration de l'expérience utilisateur</li>
-                <li>Sécurité et prévention de la fraude</li>
+                <li>Fournir les services de la plateforme Time-Swap</li>
+                <li>Authentifier votre identité</li>
+                <li>Traiter les transactions de crédits</li>
+                <li>Maintenir la sécurité de la plateforme</li>
+                <li>Améliorer l'expérience utilisateur</li>
               </ul>
-              <p><strong>Nous ne vendons jamais vos données à des tiers.</strong></p>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">4. Stockage et sécurité</h2>
-            <div className="text-gray-300 space-y-4">
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-2">4.1 Sécurité des mots de passe</h3>
-                <p>Les mots de passe sont hashés avec SHA-256 avant stockage. Aucun mot de passe en clair n'est jamais stocké.</p>
-              </div>
-              
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-2">4.2 Base de données</h3>
-                <p>Les données sont stockées dans une base SQLite locale pour cette démonstration.</p>
-                <p>En production, nous utiliserions PostgreSQL avec chiffrement.</p>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-2">4.3 Authentification</h3>
-                <p>Utilisation de JWT (JSON Web Tokens) pour l'authentification sécurisée.</p>
-              </div>
+            <h2 className="text-2xl font-bold text-white mb-4">4. Partage des données</h2>
+            <div className="text-gray-300 space-y-3">
+              <p><strong>Nous ne partageons PAS vos données personnelles avec des tiers.</strong></p>
+              <p>Vos données restent strictement confidentielles et ne sont utilisées que dans le cadre de cette démonstration technique.</p>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">5. Vos droits</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">5. Sécurité des données</h2>
+            <div className="text-gray-300 space-y-3">
+              <p>Nous mettons en place des mesures de sécurité appropriées :</p>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                <li>Chiffrement des mots de passe (SHA-256)</li>
+                <li>Authentification JWT sécurisée</li>
+                <li>Validation des données côté serveur</li>
+                <li>Protection contre les injections SQL</li>
+                <li>HTTPS pour toutes les communications</li>
+              </ul>
+            </div>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">6. Vos droits (RGPD)</h2>
             <div className="text-gray-300 space-y-3">
               <p>Conformément au RGPD, vous disposez des droits suivants :</p>
               <ul className="list-disc list-inside ml-4 space-y-1">
                 <li><strong>Droit d'accès :</strong> Consulter vos données personnelles</li>
-                <li><strong>Droit de rectification :</strong> Corriger des données inexactes</li>
-                <li><strong>Droit à l'effacement :</strong> Supprimer vos données</li>
+                <li><strong>Droit de rectification :</strong> Corriger vos données</li>
+                <li><strong>Droit d'effacement :</strong> Supprimer votre compte</li>
                 <li><strong>Droit à la portabilité :</strong> Récupérer vos données</li>
                 <li><strong>Droit d'opposition :</strong> Vous opposer au traitement</li>
               </ul>
-              <p>Pour exercer ces droits, contactez : privacy@timeswap.network</p>
+              <p>Pour exercer ces droits, contactez-nous à : contact@timeswap.network</p>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">6. Cookies</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">7. Cookies</h2>
             <div className="text-gray-300 space-y-3">
-              <p>Nous utilisons des cookies pour :</p>
+              <p>Nous utilisons uniquement des cookies techniques nécessaires :</p>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                <li>Maintenir votre session de connexion</li>
-                <li>Améliorer la sécurité</li>
-                <li>Mémoriser vos préférences</li>
+                <li>Cookies de session pour l'authentification</li>
+                <li>Cookies de préférences utilisateur</li>
               </ul>
-              <p>Vous pouvez désactiver les cookies dans les paramètres de votre navigateur.</p>
-            </div>
-          </section>
-
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">7. Partage de données</h2>
-            <div className="text-gray-300 space-y-3">
-              <p>Nous ne partageons vos données qu'avec :</p>
-              <ul className="list-disc list-inside ml-4 space-y-1">
-                <li>Vous-même (accès à votre propre compte)</li>
-                <li>Les autres utilisateurs (nom d'utilisateur dans les transactions uniquement)</li>
-              </ul>
-              <p><strong>Jamais avec des tiers commerciaux.</strong></p>
+              <p>Aucun cookie de tracking ou de publicité n'est utilisé.</p>
             </div>
           </section>
 
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">8. Conservation des données</h2>
             <div className="text-gray-300 space-y-3">
-              <p>Nous conservons vos données :</p>
+              <p>Vos données sont conservées :</p>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                <li><strong>Compte actif :</strong> Tant que votre compte est actif</li>
-                <li><strong>Données de transaction :</strong> 3 ans pour la traçabilité</li>
-                <li><strong>Logs de sécurité :</strong> 1 an maximum</li>
+                <li>Pendant la durée de votre inscription</li>
+                <li>Jusqu'à 30 jours après suppression du compte</li>
+                <li>Les logs de sécurité sont conservés 1 an maximum</li>
               </ul>
             </div>
           </section>
 
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">9. Modifications</h2>
-            <div className="text-gray-300">
-              <p>Cette politique peut être modifiée. Les changements seront notifiés sur cette page.</p>
-              <p><strong>Dernière mise à jour :</strong> Décembre 2024</p>
+            <div className="text-gray-300 space-y-3">
+              <p>Cette politique peut être modifiée à tout moment. Les modifications importantes seront notifiées par email.</p>
+              <p>Nous vous encourageons à consulter régulièrement cette page.</p>
             </div>
           </section>
 
-          <div className="mt-8 p-4 bg-green-500/20 rounded-lg border border-green-500/30">
-            <p className="text-green-200 text-sm">
-              <strong>Contact :</strong> Pour toute question sur cette politique de confidentialité, 
-              contactez-nous à privacy@timeswap.network
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">10. Contact</h2>
+            <div className="text-gray-300 space-y-2">
+              <p>Pour toute question concernant cette politique de confidentialité :</p>
+              <p><strong>Email :</strong> contact@timeswap.network</p>
+              <p><strong>Site web :</strong> https://timeswap.network</p>
+            </div>
+          </section>
+
+          <div className="mt-8 p-4 bg-[#4A5C6A]/10 rounded-lg border border-[#4A5C6A]/20">
+            <p className="text-[#9BA8AB] text-sm">
+              <strong>Dernière mise à jour :</strong> {new Date().toLocaleDateString('fr-FR')}
             </p>
           </div>
         </div>
