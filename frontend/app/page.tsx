@@ -163,9 +163,9 @@ export default function HomePage() {
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            L'avenir des <span className="text-[#4A5C6A] font-bold">échanges sécurisés</span>.
+            La plateforme complète pour <span className="text-[#4A5C6A] font-bold">échanger vos services</span>.
             <br />
-            <span className="text-[#9BA8AB] font-bold">Échangez</span> vos compétences, <span className="text-[#CCD0CF] font-bold">gagnez</span> des crédits, <span className="text-[#4A5C6A] font-bold">construisez</span> des communautés.
+            <span className="text-[#9BA8AB] font-bold">Proposez</span> vos compétences, <span className="text-[#CCD0CF] font-bold">réservez</span> des services, <span className="text-[#4A5C6A] font-bold">gagnez</span> des crédits.
           </p>
 
           {/* CTA Buttons */}
@@ -191,9 +191,9 @@ export default function HomePage() {
           {/* Stats Cards */}
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
-              { title: 'Utilisateurs actifs', value: '10,000+', icon: '👥' },
-              { title: 'Transactions', value: '50,000+', icon: '💳' },
-              { title: 'Sécurité', value: '99.9%', icon: '🔒' }
+              { title: 'Services disponibles', value: '50+', icon: '🛠️' },
+              { title: 'Réservations', value: '500+', icon: '📅' },
+              { title: 'Utilisateurs', value: '100+', icon: '👥' }
             ].map((stat, index) => (
               <div
                 key={index}
@@ -217,7 +217,7 @@ export default function HomePage() {
               Fonctionnalités
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Une plateforme moderne pour échanger du temps et des compétences en toute sécurité
+              Une plateforme complète pour créer, gérer et réserver des services en toute sécurité
             </p>
           </div>
 
@@ -226,19 +226,24 @@ export default function HomePage() {
             <div className="space-y-8">
               {[
                 {
-                  title: 'Transactions instantanées',
-                  desc: 'Échangez vos crédits en temps réel avec une sécurité maximale. Aucun délai, aucune attente.',
+                  title: 'Marketplace de services',
+                  desc: 'Créez et gérez vos services, réservez ceux des autres, avec un système de réservation complet et sécurisé.',
                   color: 'from-[#4A5C6A] to-[#9BA8AB]'
                 },
                 {
-                  title: 'Sécurité bancaire',
-                  desc: 'Protection militaire de vos données avec chiffrement AES-256 et authentification multi-facteurs.',
+                  title: 'Notifications temps réel',
+                  desc: 'Recevez des notifications instantanées pour vos réservations, messages et mises à jour importantes.',
                   color: 'from-[#253745] to-[#4A5C6A]'
                 },
                 {
-                  title: 'Interface intuitive',
-                  desc: 'Design moderne et ergonomique pour une expérience utilisateur fluide et professionnelle.',
+                  title: 'Système de crédits',
+                  desc: 'Gagnez et dépensez des crédits en échange de services, avec un système de paiement sécurisé et transparent.',
                   color: 'from-[#9BA8AB] to-[#CCD0CF]'
+                },
+                {
+                  title: 'Profil personnalisé',
+                  desc: 'Créez votre profil avec avatar généré automatiquement, gérez vos informations et statistiques.',
+                  color: 'from-[#4A5C6A] to-[#253745]'
                 }
               ].map((feature, index) => (
                 <div
@@ -268,11 +273,11 @@ export default function HomePage() {
               <div className="w-full h-96 bg-gradient-to-br from-[#4A5C6A]/20 to-[#9BA8AB]/20 rounded-2xl border border-[#4A5C6A]/30 flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#4A5C6A]/10 to-[#9BA8AB]/10 animate-pulse"></div>
                 <div className="relative z-10 text-center">
-                  <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center text-4xl animate-spin">
-                    💳
+                  <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center text-4xl animate-pulse">
+                    🛠️
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Plateforme active</h3>
-                  <p className="text-[#4A5C6A] font-semibold">Status: En ligne</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">Services disponibles</h3>
+                  <p className="text-[#4A5C6A] font-semibold">Marketplace actif</p>
                 </div>
               </div>
             </div>
@@ -288,15 +293,15 @@ export default function HomePage() {
               Sécurité
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Vos données protégées par les technologies de sécurité les plus avancées
+              Vos données et transactions protégées par les meilleures pratiques de sécurité
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: 'Chiffrement AES-256', value: '99.9%', color: 'green' },
-              { title: 'Temps de fonctionnement', value: '100%', color: 'blue' },
-              { title: 'Sécurité des transactions', value: '100%', color: 'indigo' }
+              { title: 'Protection des mots de passe', value: '100%', color: 'green' },
+              { title: 'Transactions sécurisées', value: '100%', color: 'blue' },
+              { title: 'Données chiffrées', value: '100%', color: 'indigo' }
             ].map((stat, index) => (
               <div key={index} className="text-center group">
                 <div className={`w-24 h-24 mx-auto mb-6 bg-gradient-to-r ${
@@ -328,7 +333,7 @@ export default function HomePage() {
               À propos
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Révolutionner l'avenir des échanges décentralisés de temps
+              Une plateforme moderne pour échanger des services et des compétences
             </p>
           </div>
 
@@ -336,13 +341,13 @@ export default function HomePage() {
             <div>
               <h3 className="text-3xl font-bold text-white mb-6">Notre Mission</h3>
               <p className="text-gray-300 mb-6 leading-relaxed text-lg">
-                Time-Swap représente la prochaine évolution dans la finance décentralisée. Nous construisons 
-                une plateforme qui permet des échanges de temps et de compétences sans intermédiaires 
-                traditionnels ou contrôle centralisé.
+                Time-Swap est une plateforme moderne qui permet aux utilisateurs de créer, gérer et réserver 
+                des services en toute sécurité. Notre système de crédits facilite les échanges et encourage 
+                la collaboration entre les membres de la communauté.
               </p>
               <p className="text-gray-300 mb-8 leading-relaxed">
-                Notre vision est de créer un monde où le temps devient un actif échangeable et précieux 
-                qui peut être échangé à travers les frontières, les cultures et les économies.
+                Avec des fonctionnalités comme les notifications temps réel, les avatars personnalisés, 
+                et un système de réservation complet, nous créons une expérience utilisateur fluide et sécurisée.
               </p>
               
               <div className="space-y-4">
@@ -350,19 +355,19 @@ export default function HomePage() {
                   <div className="w-8 h-8 bg-[#4A5C6A] rounded-full flex items-center justify-center">
                     <span className="text-white text-sm font-bold">✓</span>
                   </div>
-                  <span className="text-gray-300">Architecture décentralisée</span>
+                  <span className="text-gray-300">Marketplace de services complet</span>
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="w-8 h-8 bg-[#9BA8AB] rounded-full flex items-center justify-center">
                     <span className="text-white text-sm font-bold">✓</span>
                   </div>
-                  <span className="text-gray-300">Confidentialité zero-knowledge</span>
+                  <span className="text-gray-300">Notifications temps réel</span>
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="w-8 h-8 bg-[#CCD0CF] rounded-full flex items-center justify-center">
                     <span className="text-white text-sm font-bold">✓</span>
                   </div>
-                  <span className="text-gray-300">Gouvernance communautaire</span>
+                  <span className="text-gray-300">Sécurité renforcée</span>
                 </div>
               </div>
             </div>
@@ -374,8 +379,8 @@ export default function HomePage() {
                   <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-r from-[#9BA8AB] to-[#4A5C6A] rounded-full flex items-center justify-center text-4xl animate-pulse">
                     🚀
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Statut de la plateforme</h3>
-                  <p className="text-[#9BA8AB] font-semibold">Version 2.0 - EN LIGNE</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">Plateforme active</h3>
+                  <p className="text-[#9BA8AB] font-semibold">Services en temps réel</p>
                 </div>
               </div>
             </div>
@@ -390,7 +395,7 @@ export default function HomePage() {
             Prêt à commencer ?
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Rejoignez la révolution. Faites partie de l'avenir des échanges décentralisés de temps.
+            Rejoignez notre communauté. Créez, réservez et échangez des services en toute sécurité.
           </p>
           <Link
             href="/auth/register"
@@ -412,7 +417,7 @@ export default function HomePage() {
                 </div>
                 <span className="text-white text-xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
               </Link>
-              <p className="text-gray-400">L'avenir des échanges sécurisés</p>
+              <p className="text-gray-400">La plateforme complète pour échanger des services</p>
             </div>
             
             <div>
