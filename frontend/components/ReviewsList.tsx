@@ -1,12 +1,18 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import ReviewCard from './ReviewCard';
 
 interface Review {
   id: string;
   rating: number;
-  comment?: string;
+  comment: string;
+  createdAt: string;
   reviewer: {
+    id: string;
+    username: string;
+  };
+  reviewee: {
     id: string;
     username: string;
   };
@@ -14,45 +20,126 @@ interface Review {
     id: string;
     title: string;
   };
-  createdAt: string;
+  booking?: {
+    id: string;
+  };
 }
 
 interface ReviewsListProps {
-  reviews: Review[];
-  title?: string;
-  showEmptyState?: boolean;
-  emptyStateMessage?: string;
+  userId?: string;
+  serviceId?: string;
+  showService?: boolean;
+  limit?: number;
+  className?: string;
 }
 
-export default function ReviewsList({
-  reviews,
-  title = 'Avis',
-  showEmptyState = true,
-  emptyStateMessage = 'Aucun avis pour le moment.'
+export default function ReviewsList({ 
+  userId, 
+  serviceId, 
+  showService = true, 
+  limit,
+  className = '' 
 }: ReviewsListProps) {
-  if (reviews.length === 0 && showEmptyState) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('Non authentifié');
+          return;
+        }
+
+        let url = 'http://localhost:3001/reviews';
+        if (userId) {
+          url = `http://localhost:3001/reviews/user/${userId}`;
+        } else if (serviceId) {
+          url = `http://localhost:3001/reviews/service/${serviceId}`;
+        }
+
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des avis');
+        }
+
+        const data = await response.json();
+        const limitedReviews = limit ? data.slice(0, limit) : data;
+        setReviews(limitedReviews);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erreur inconnue');
+        console.error('Erreur lors du chargement des avis:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [userId, serviceId, limit]);
+
+  if (loading) {
     return (
-      <div className="text-center py-8">
-        <div className="text-gray-400 mb-4">
-          <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      <div className={`space-y-4 ${className}`}>
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-gray-100 rounded-lg p-4 animate-pulse">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                <div className="h-3 bg-gray-200 rounded w-20"></div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-200 rounded w-full"></div>
+              <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+        <p className="text-red-600 text-sm">{error}</p>
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div className={`bg-gray-50 border border-gray-200 rounded-lg p-6 text-center ${className}`}>
+        <div className="text-gray-400 mb-2">
+          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
           </svg>
         </div>
-        <p className="text-gray-500">{emptyStateMessage}</p>
+        <p className="text-gray-500">Aucun avis pour le moment</p>
       </div>
     );
   }
 
   return (
-    <div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        {title} ({reviews.length})
-      </h3>
-      <div className="space-y-4">
-        {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
-        ))}
-      </div>
+    <div className={`space-y-4 ${className}`}>
+      {reviews.map((review) => (
+        <ReviewCard
+          key={review.id}
+          review={review}
+          showService={showService}
+        />
+      ))}
     </div>
   );
 }

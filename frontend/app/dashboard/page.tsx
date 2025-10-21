@@ -8,6 +8,9 @@ import { TbSend } from 'react-icons/tb';
 import { GiReceiveMoney } from 'react-icons/gi';
 import { MdWork } from 'react-icons/md';
 import NotificationCenter from '../../components/NotificationCenter';
+import ReviewsList from '../../components/ReviewsList';
+import RatingStats from '../../components/RatingStats';
+import CreateReviewModal from '../../components/CreateReviewModal';
 
 interface User {
   id: string;
@@ -41,12 +44,14 @@ export default function DashboardPage() {
     description: '',
   });
   const [isTransferring, setIsTransferring] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile' | 'reviews'>('overview');
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedReviewTarget, setSelectedReviewTarget] = useState<any>(null);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [serviceForm, setServiceForm] = useState({
     title: '',
@@ -494,6 +499,32 @@ export default function DashboardPage() {
     }, 3000);
   };
 
+  const handleCreateReview = async (data: { rating: number; comment: string; revieweeId: string; serviceId?: string; bookingId?: string }) => {
+    const token = localStorage.getItem('token');
+    
+    try {
+      const response = await fetch('http://localhost:3001/reviews', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        showToast('⭐ Avis publié avec succès !', 'success');
+        fetchData(); // Recharger les données
+      } else {
+        const error = await response.json();
+        showToast(`❌ Erreur: ${error.message || 'Impossible de publier l\'avis'}`, 'error');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'avis:', error);
+      showToast('❌ Erreur de connexion', 'error');
+    }
+  };
+
   // Liste des catégories disponibles (basée sur les vraies catégories de la DB)
   const categories = [
     { value: 'all', label: 'Toutes catégories' },
@@ -832,6 +863,7 @@ export default function DashboardPage() {
                 { id: 'services', label: 'Services' },
                 { id: 'bookings', label: 'Réservations' },
                 { id: 'history', label: 'Historique' },
+                { id: 'reviews', label: 'Avis' },
                 { id: 'profile', label: 'Profil' }
               ].map((tab) => (
                 <button
@@ -953,6 +985,7 @@ export default function DashboardPage() {
                 { id: 'services', label: 'Services' },
                 { id: 'bookings', label: 'Réservations' },
                 { id: 'history', label: 'Historique' },
+                { id: 'reviews', label: 'Avis' },
                 { id: 'profile', label: 'Profil' }
               ].map((tab) => (
                 <button
@@ -1797,6 +1830,59 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
+
+          {/* Reviews Tab */}
+          {activeTab === 'reviews' && (
+            <div className="space-y-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Système d'Avis</h1>
+                  <p className="text-gray-300 text-sm md:text-base">Consultez et gérez les avis sur les services</p>
+                </div>
+              </div>
+
+              {/* Statistiques des avis */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <RatingStats userId={user?.id} />
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                  <h2 className="text-xl font-bold text-white mb-4">Mes avis reçus</h2>
+                  <ReviewsList userId={user?.id} limit={3} />
+                </div>
+              </div>
+
+              {/* Avis sur mes services */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h2 className="text-xl font-bold text-white mb-6">Avis sur mes services</h2>
+                <ReviewsList serviceId={undefined} showService={true} />
+              </div>
+
+              {/* Bouton pour laisser un avis */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-white mb-2">Laisser un avis</h2>
+                    <p className="text-gray-300 text-sm">Évaluez les services que vous avez utilisés</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedReviewTarget({ 
+                        id: 'all-services', 
+                        name: 'Tous les services',
+                        type: 'service' 
+                      });
+                      setShowReviewModal(true);
+                    }}
+                    className="px-6 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25 flex items-center space-x-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                    <span>Laisser un avis</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
@@ -2415,6 +2501,18 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Create Review Modal */}
+      <CreateReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        onSubmit={handleCreateReview}
+        revieweeId={selectedReviewTarget?.id || ''}
+        revieweeName={selectedReviewTarget?.name || ''}
+        serviceId={selectedReviewTarget?.serviceId}
+        serviceTitle={selectedReviewTarget?.serviceTitle}
+        bookingId={selectedReviewTarget?.bookingId}
+      />
     </div>
   );
 }

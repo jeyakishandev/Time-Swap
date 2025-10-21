@@ -1,89 +1,171 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import RatingStars from './RatingStars';
 
 interface RatingStatsProps {
-  averageRating: number;
-  totalReviews: number;
-  ratingDistribution?: {
-    5: number;
-    4: number;
-    3: number;
-    2: number;
-    1: number;
-  };
-  showDistribution?: boolean;
+  userId?: string;
+  serviceId?: string;
+  className?: string;
 }
 
-export default function RatingStats({
-  averageRating,
-  totalReviews,
-  ratingDistribution,
-  showDistribution = true
-}: RatingStatsProps) {
-  const getRatingPercentage = (stars: number) => {
-    if (!ratingDistribution || totalReviews === 0) return 0;
-    return (ratingDistribution[stars as keyof typeof ratingDistribution] / totalReviews) * 100;
-  };
+interface RatingDistribution {
+  rating: number;
+  count: number;
+}
 
-  const getRatingText = (rating: number) => {
-    if (rating >= 4.5) return 'Excellent';
-    if (rating >= 4.0) return 'Très bien';
-    if (rating >= 3.5) return 'Bien';
-    if (rating >= 3.0) return 'Correct';
-    if (rating >= 2.0) return 'Moyen';
-    return 'À améliorer';
-  };
+interface StatsData {
+  averageRating: number;
+  totalReviews: number;
+  distribution: RatingDistribution[];
+}
+
+export default function RatingStats({ userId, serviceId, className = '' }: RatingStatsProps) {
+  const [stats, setStats] = useState<StatsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('Non authentifié');
+          return;
+        }
+
+        let url = 'http://localhost:3001/reviews';
+        if (userId) {
+          url = `http://localhost:3001/reviews/user/${userId}`;
+        } else if (serviceId) {
+          url = `http://localhost:3001/reviews/service/${serviceId}`;
+        }
+
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des statistiques');
+        }
+
+        const reviews = await response.json();
+        
+        if (reviews.length === 0) {
+          setStats({
+            averageRating: 0,
+            totalReviews: 0,
+            distribution: []
+          });
+          return;
+        }
+
+        // Calculer la moyenne
+        const averageRating = reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length;
+        
+        // Calculer la distribution
+        const distribution = [5, 4, 3, 2, 1].map(rating => ({
+          rating,
+          count: reviews.filter((review: any) => review.rating === rating).length
+        }));
+
+        setStats({
+          averageRating: Math.round(averageRating * 10) / 10,
+          totalReviews: reviews.length,
+          distribution
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erreur inconnue');
+        console.error('Erreur lors du chargement des statistiques:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [userId, serviceId]);
+
+  if (loading) {
+    return (
+      <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-gray-200 rounded w-32"></div>
+          <div className="flex items-center gap-2">
+            <div className="h-5 w-20 bg-gray-200 rounded"></div>
+            <div className="h-4 w-16 bg-gray-200 rounded"></div>
+          </div>
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="h-4 w-4 bg-gray-200 rounded"></div>
+                <div className="h-3 w-8 bg-gray-200 rounded"></div>
+                <div className="h-3 w-16 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+        <p className="text-red-600 text-sm">{error}</p>
+      </div>
+    );
+  }
+
+  if (!stats || stats.totalReviews === 0) {
+    return (
+      <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistiques des avis</h3>
+        <p className="text-gray-500">Aucun avis pour le moment</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center gap-6 mb-6">
-        <div className="text-center">
-          <div className="text-4xl font-bold text-gray-900 mb-1">
-            {averageRating.toFixed(1)}
-          </div>
-          <RatingStars rating={averageRating} size="lg" />
-          <p className="text-sm text-gray-600 mt-2">
-            {getRatingText(averageRating)}
-          </p>
+    <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistiques des avis</h3>
+      
+      <div className="flex items-center gap-4 mb-6">
+        <div className="text-3xl font-bold text-gray-900">
+          {stats.averageRating.toFixed(1)}
         </div>
-        
-        <div className="flex-1">
-          <p className="text-lg font-semibold text-gray-900 mb-2">
-            {totalReviews} {totalReviews === 1 ? 'avis' : 'avis'}
-          </p>
-          <p className="text-gray-600">
-            Basé sur les retours des utilisateurs
+        <div>
+          <RatingStars rating={Math.round(stats.averageRating)} size="lg" />
+          <p className="text-sm text-gray-500 mt-1">
+            Basé sur {stats.totalReviews} avis
           </p>
         </div>
       </div>
 
-      {showDistribution && ratingDistribution && totalReviews > 0 && (
-        <div className="space-y-2">
-          <h4 className="font-medium text-gray-900 mb-3">Répartition des notes</h4>
-          {[5, 4, 3, 2, 1].map((stars) => {
-            const count = ratingDistribution[stars as keyof typeof ratingDistribution];
-            const percentage = getRatingPercentage(stars);
-            
-            return (
-              <div key={stars} className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-600 w-4">
-                  {stars}
-                </span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-[#4A5C6A] h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-                <span className="text-sm text-gray-600 w-8 text-right">
-                  {count}
-                </span>
+      <div className="space-y-2">
+        {stats.distribution.map(({ rating, count }) => {
+          const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+          
+          return (
+            <div key={rating} className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 w-4">{rating}</span>
+              <RatingStars rating={rating} size="sm" />
+              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${percentage}%` }}
+                ></div>
               </div>
-            );
-          })}
-        </div>
-      )}
+              <span className="text-sm text-gray-500 w-8 text-right">{count}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
