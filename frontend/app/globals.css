@@ -1,3 +1,77 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Scrollbar personnalisé pour le design Time-Swap */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #06141B;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4A5C6A, #9BA8AB);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #253745, #4A5C6A);
+  box-shadow: 0 0 10px rgba(74, 92, 106, 0.3);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, #11212D, #253745);
+}
+
+::-webkit-scrollbar-corner {
+  background: #06141B;
+}
+
+/* Scrollbar pour les éléments avec fond différent */
+.bg-white\/10 ::-webkit-scrollbar-track,
+.bg-white\/5 ::-webkit-scrollbar-track {
+  background: rgba(6, 20, 27, 0.8);
+}
+
+/* Scrollbar pour les modals et panels */
+.modal-scrollbar ::-webkit-scrollbar-track {
+  background: rgba(17, 33, 45, 0.9);
+}
+
+.modal-scrollbar ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4A5C6A, #9BA8AB);
+  border: 1px solid rgba(74, 92, 106, 0.3);
+}
+
+.modal-scrollbar ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #253745, #4A5C6A);
+  border-color: rgba(74, 92, 106, 0.5);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4A5C6A #06141B;
+}
+
+/* Animation pour les scrollbars */
+@keyframes scrollbar-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(74, 92, 106, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(74, 92, 106, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(74, 92, 106, 0.3);
+  }
+}
+
+::-webkit-scrollbar-thumb:hover {
+  animation: scrollbar-glow 2s ease-in-out infinite;
+}
