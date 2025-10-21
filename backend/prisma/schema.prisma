@@ -25,6 +25,8 @@ model User {
   bookings             Booking[] @relation("ClientBookings")
   serviceBookings      Booking[] @relation("ServiceProviderBookings")
   notifications        Notification[]
+  reviewsGiven         Review[] @relation("ReviewsGiven")
+  reviewsReceived      Review[] @relation("ReviewsReceived")
 
   @@map("users")
 }
@@ -58,6 +60,7 @@ model Service {
 
   provider User      @relation(fields: [providerId], references: [id])
   bookings Booking[]
+  reviews  Review[]
 
   @@map("services")
 }
@@ -78,6 +81,7 @@ model Booking {
   client   User    @relation("ClientBookings", fields: [clientId], references: [id])
   service  Service @relation(fields: [serviceId], references: [id])
   provider User    @relation("ServiceProviderBookings", fields: [providerId], references: [id])
+  reviews  Review[]
 
   @@map("bookings")
 }
@@ -95,4 +99,24 @@ model Notification {
   user User @relation(fields: [userId], references: [id])
 
   @@map("notifications")
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int      // 1-5 étoiles
+  comment     String?
+  reviewerId  String
+  revieweeId  String
+  serviceId   String?
+  bookingId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reviewer User    @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  reviewee User    @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+  service  Service? @relation(fields: [serviceId], references: [id])
+  booking  Booking? @relation(fields: [bookingId], references: [id])
+
+  @@unique([reviewerId, bookingId]) // Un seul avis par réservation
+  @@map("reviews")
 }

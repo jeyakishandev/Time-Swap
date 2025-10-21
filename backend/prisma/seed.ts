@@ -1,18 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-
-// Déclaration pour crypto
-declare const crypto: {
-  createHash: (algorithm: string) => {
-    update: (data: string) => {
-      digest: (encoding: string) => string;
-    };
-  };
-};
-
-// Déclaration pour process
-declare const process: {
-  exit: (code: number) => never;
-};
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -20,7 +7,7 @@ async function main() {
   console.log('🌱 Seeding database...');
 
   // Créer des utilisateurs de test
-  const hashedPassword = crypto.createHash('sha256').update('password123').digest('hex');
+  const hashedPassword = await bcrypt.hash('password123', 12);
 
   const alice = await prisma.user.upsert({
     where: { email: 'alice@example.com' },
@@ -184,6 +171,110 @@ async function main() {
     charlie_services: 1,
     diana_services: 2,
     total_services: 7
+  });
+
+  // Créer des réservations terminées pour les tests d'avis
+  const completedBookings = await Promise.all([
+    prisma.booking.create({
+      data: {
+        clientId: bob.id,
+        serviceId: service1.id,
+        providerId: alice.id,
+        hours: 2,
+        totalPrice: service1.pricePerHour * 2,
+        status: 'COMPLETED',
+        notes: 'Excellent travail !',
+        scheduledAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Il y a 7 jours
+      },
+    }),
+    prisma.booking.create({
+      data: {
+        clientId: charlie.id,
+        serviceId: service2.id,
+        providerId: alice.id,
+        hours: 1,
+        totalPrice: service2.pricePerHour * 1,
+        status: 'COMPLETED',
+        notes: 'Très professionnel',
+        scheduledAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // Il y a 5 jours
+      },
+    }),
+    prisma.booking.create({
+      data: {
+        clientId: alice.id,
+        serviceId: service4.id,
+        providerId: bob.id,
+        hours: 3,
+        totalPrice: service4.pricePerHour * 3,
+        status: 'COMPLETED',
+        notes: 'Super service',
+        scheduledAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // Il y a 3 jours
+      },
+    }),
+  ]);
+
+  // Créer des avis pour les réservations terminées
+  const reviews = await Promise.all([
+    // Bob évalue Alice (service de développement)
+    prisma.review.create({
+      data: {
+        rating: 5,
+        comment: 'Alice est une développeuse exceptionnelle ! Elle a livré un travail de qualité supérieure dans les délais. Je recommande vivement ses services.',
+        reviewerId: bob.id,
+        revieweeId: alice.id,
+        serviceId: service1.id,
+        bookingId: completedBookings[0].id,
+      },
+    }),
+    // Charlie évalue Alice (service de design)
+    prisma.review.create({
+      data: {
+        rating: 4,
+        comment: 'Très bon designer, créatif et à l\'écoute. Le résultat correspondait exactement à mes attentes.',
+        reviewerId: charlie.id,
+        revieweeId: alice.id,
+        serviceId: service2.id,
+        bookingId: completedBookings[1].id,
+      },
+    }),
+    // Alice évalue Bob (service de piano)
+    prisma.review.create({
+      data: {
+        rating: 5,
+        comment: 'Bob est un excellent professeur de piano. Il est patient et pédagogue. Mes enfants adorent ses cours !',
+        reviewerId: alice.id,
+        revieweeId: bob.id,
+        serviceId: service4.id,
+        bookingId: completedBookings[2].id,
+      },
+    }),
+    // Diana évalue Alice (avis général)
+    prisma.review.create({
+      data: {
+        rating: 5,
+        comment: 'Alice est une professionnelle de talent. Travail soigné, respect des délais et excellente communication.',
+        reviewerId: diana.id,
+        revieweeId: alice.id,
+        serviceId: service3.id,
+      },
+    }),
+    // Charlie évalue Diana (service de musique)
+    prisma.review.create({
+      data: {
+        rating: 4,
+        comment: 'Diana a créé une bande sonore parfaite pour mon projet. Très créative et professionnelle.',
+        reviewerId: charlie.id,
+        revieweeId: diana.id,
+        serviceId: service6.id,
+      },
+    }),
+  ]);
+
+  console.log('✅ Reviews created:', {
+    total_reviews: reviews.length,
+    average_rating_alice: 4.75,
+    average_rating_bob: 5.0,
+    average_rating_diana: 4.0
   });
 }
 

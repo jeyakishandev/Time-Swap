@@ -9,6 +9,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { ServicesModule } from './services/services.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ServicesModule,
     BookingsModule,
     NotificationsModule,
+    ReviewsModule,
   ],
   providers: [
     {
