@@ -207,21 +207,30 @@ export class BookingsService {
         }
       });
 
-      // Envoyer des notifications après la transaction
-      const clientNotification = await this.notificationsService.createBookingConfirmedNotification(
-        confirmedBooking.clientId,
-        confirmedBooking.service.title,
-      );
+      return confirmedBooking;
+    }, {
+      timeout: 10000, // 10 secondes au lieu de 5
+    }).then(async (confirmedBooking) => {
+      // Envoyer des notifications après la transaction (en dehors de la transaction)
+      try {
+        const clientNotification = await this.notificationsService.createBookingConfirmedNotification(
+          confirmedBooking.clientId,
+          confirmedBooking.service.title,
+        );
 
-      const providerNotification = await this.notificationsService.createPaymentReceivedNotification(
-        confirmedBooking.providerId,
-        confirmedBooking.totalPrice,
-        confirmedBooking.service.title,
-      );
+        const providerNotification = await this.notificationsService.createPaymentReceivedNotification(
+          confirmedBooking.providerId,
+          confirmedBooking.totalPrice,
+          confirmedBooking.service.title,
+        );
 
-      // Envoyer les notifications en temps réel
-      await this.notificationsGateway.sendNotificationToUser(confirmedBooking.clientId, clientNotification);
-      await this.notificationsGateway.sendNotificationToUser(confirmedBooking.providerId, providerNotification);
+        // Envoyer les notifications en temps réel
+        await this.notificationsGateway.sendNotificationToUser(confirmedBooking.clientId, clientNotification);
+        await this.notificationsGateway.sendNotificationToUser(confirmedBooking.providerId, providerNotification);
+      } catch (notificationError) {
+        console.error('Erreur lors de l\'envoi des notifications:', notificationError);
+        // Ne pas faire échouer la confirmation si les notifications échouent
+      }
 
       return confirmedBooking;
     });
