@@ -16,7 +16,7 @@ async function main() {
       email: 'alice@example.com',
       username: 'alice',
       password: hashedPassword,
-      credits: 100.0,
+      credits: 10000.0,
     },
   });
 
