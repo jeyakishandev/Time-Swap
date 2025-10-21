@@ -1,5 +1,18 @@
 import { PrismaClient } from '@prisma/client';
-import * as crypto from 'crypto';
+
+// Déclaration pour crypto
+declare const crypto: {
+  createHash: (algorithm: string) => {
+    update: (data: string) => {
+      digest: (encoding: string) => string;
+    };
+  };
+};
+
+// Déclaration pour process
+declare const process: {
+  exit: (code: number) => never;
+};
 
 const prisma = new PrismaClient();
 
