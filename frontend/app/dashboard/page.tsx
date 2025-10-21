@@ -61,6 +61,8 @@ export default function DashboardPage() {
     preferredDate: ''
   });
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showEditServiceModal, setShowEditServiceModal] = useState(false);
+  const [editingService, setEditingService] = useState<any>(null);
   const [profileForm, setProfileForm] = useState({
     username: '',
     email: '',
@@ -69,6 +71,13 @@ export default function DashboardPage() {
     bio: '',
     phone: '',
     location: ''
+  });
+  const [editServiceForm, setEditServiceForm] = useState({
+    title: '',
+    description: '',
+    pricePerHour: '',
+    category: '',
+    duration: ''
   });
   const [avatarSeed, setAvatarSeed] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -318,6 +327,57 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Erreur:', error);
 
+    }
+  };
+
+  // Fonction pour ouvrir la modale d'édition
+  const handleEditService = (service: any) => {
+    setEditingService(service);
+    setEditServiceForm({
+      title: service.title || '',
+      description: service.description || '',
+      pricePerHour: (service.pricePerHour || 0).toString(),
+      category: service.category || '',
+      duration: (service.duration || 1).toString()
+    });
+    setShowEditServiceModal(true);
+  };
+
+  // Fonction pour modifier un service
+  const handleUpdateService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    
+    if (!token || !editingService) return;
+
+    try {
+      const response = await fetch(`http://localhost:3001/services/${editingService.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: editServiceForm.title,
+          description: editServiceForm.description,
+          pricePerHour: parseInt(editServiceForm.pricePerHour),
+          category: editServiceForm.category,
+          duration: parseInt(editServiceForm.duration)
+        }),
+      });
+
+      if (response.ok) {
+        setShowEditServiceModal(false);
+        setEditingService(null);
+        setEditServiceForm({ title: '', description: '', pricePerHour: '', category: '', duration: '' });
+        fetchData();
+        setToast({ message: 'Service modifié avec succès !', type: 'success' });
+      } else {
+        setToast({ message: 'Erreur lors de la modification du service', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      setToast({ message: 'Erreur lors de la modification du service', type: 'error' });
     }
   };
 
@@ -1254,7 +1314,10 @@ export default function DashboardPage() {
                           <span className="text-[#4A5C6A] font-bold">{service.pricePerHour} crédits/heure</span>
                           <div className="flex space-x-2">
                             <span className="text-green-400 text-sm">✓ Actif</span>
-                            <button className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-3 py-1 rounded text-xs transition-colors">
+                            <button 
+                              onClick={() => handleEditService(service)}
+                              className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-3 py-1 rounded text-xs transition-colors"
+                            >
                               Modifier
                             </button>
                           </div>
@@ -1998,7 +2061,7 @@ export default function DashboardPage() {
               <h3 className="text-lg font-semibold text-white mb-2">{selectedService.title}</h3>
               <p className="text-gray-300 text-sm mb-2">{selectedService.description}</p>
               <div className="flex justify-between text-sm">
-                <span className="text-[#4A5C6A] font-semibold">{selectedService.price} crédits</span>
+                <span className="text-[#4A5C6A] font-semibold">{selectedService.pricePerHour} crédits/heure</span>
                 <span className="text-gray-400">{selectedService.duration}h</span>
               </div>
             </div>
@@ -2043,6 +2106,128 @@ export default function DashboardPage() {
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300"
                 >
                   Envoyer la demande
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal d'édition de service */}
+      {showEditServiceModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scrollbar">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Modifier le service</h2>
+              <button
+                onClick={() => {
+                  setShowEditServiceModal(false);
+                  setEditingService(null);
+                  setEditServiceForm({ title: '', description: '', pricePerHour: '', category: '', duration: '' });
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateService} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Titre du service
+                </label>
+                <input
+                  type="text"
+                  value={editServiceForm.title}
+                  onChange={(e) => setEditServiceForm({ ...editServiceForm, title: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  placeholder="Ex: Cours de programmation"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={editServiceForm.description}
+                  onChange={(e) => setEditServiceForm({ ...editServiceForm, description: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
+                  rows={3}
+                  placeholder="Décrivez votre service..."
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Prix par heure (crédits)
+                  </label>
+                  <input
+                    type="number"
+                    value={editServiceForm.pricePerHour}
+                    onChange={(e) => setEditServiceForm({ ...editServiceForm, pricePerHour: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="25"
+                    min="1"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Durée (heures)
+                  </label>
+                  <input
+                    type="number"
+                    value={editServiceForm.duration}
+                    onChange={(e) => setEditServiceForm({ ...editServiceForm, duration: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    placeholder="2"
+                    min="1"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Catégorie
+                </label>
+                <select
+                  value={editServiceForm.category}
+                  onChange={(e) => setEditServiceForm({ ...editServiceForm, category: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  required
+                >
+                  <option value="" className="bg-slate-800">Sélectionner une catégorie</option>
+                  {categories.filter(cat => cat.value !== 'all').map(category => (
+                    <option key={category.value} value={category.value} className="bg-slate-800">
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="flex space-x-4 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25"
+                >
+                  Modifier le service
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditServiceModal(false);
+                    setEditingService(null);
+                    setEditServiceForm({ title: '', description: '', pricePerHour: '', category: '', duration: '' });
+                  }}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300"
+                >
+                  Annuler
                 </button>
               </div>
             </form>
