@@ -59,7 +59,7 @@ export default function DashboardPage() {
   const [serviceErrors, setServiceErrors] = useState<Record<string, string>>({});
   const [bookingErrors, setBookingErrors] = useState<Record<string, string>>({});
   const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile' | 'reviews'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile'>('overview');
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -693,9 +693,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#06141B] via-[#11212D] to-[#253745]">
       {/* Header Bancaire Professionnel */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <header className="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             {/* Logo et Menu Mobile */}
@@ -703,7 +703,7 @@ export default function DashboardPage() {
               {/* Menu Mobile Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300"
+                className="md:hidden p-2 text-white hover:text-gray-300 hover:bg-white/10 rounded-lg transition-all duration-300"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -717,8 +717,8 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 <div className="hidden sm:block">
-                  <span className="text-gray-900 text-lg lg:text-xl font-semibold tracking-tight">Time-Swap Bank</span>
-                  <p className="text-gray-600 text-xs lg:text-sm font-light">Portail bancaire</p>
+                  <span className="text-white text-lg lg:text-xl font-semibold tracking-tight">Time-Swap Bank</span>
+                  <p className="text-gray-300 text-xs lg:text-sm font-light">Portail bancaire</p>
                 </div>
               </Link>
             </div>
@@ -732,7 +732,7 @@ export default function DashboardPage() {
               <div className="relative dropdown-menu">
                 <button 
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 md:space-x-3 bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-all duration-300 dropdown-trigger border border-gray-200"
+                  className="flex items-center space-x-2 md:space-x-3 bg-white/10 rounded-lg p-2 hover:bg-white/20 transition-all duration-300 dropdown-trigger border border-white/20"
                 >
                   <div className="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
                     <img 
@@ -742,17 +742,17 @@ export default function DashboardPage() {
                     />
                   </div>
                   <div className="text-left hidden md:block">
-                    <p className="text-gray-900 font-semibold text-sm">{user?.username}</p>
-                    <p className="text-gray-500 text-xs">{user?.credits?.toFixed(2)} crédits</p>
+                    <p className="text-white font-semibold text-sm">{user?.username}</p>
+                    <p className="text-gray-300 text-xs">{user?.credits?.toFixed(2)} crédits</p>
                   </div>
-                  <svg className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 text-gray-300 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
                 {/* Dropdown Menu */}
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg border border-gray-200 p-2 shadow-xl dropdown-menu">
+                  <div className="absolute right-0 mt-2 w-56 bg-[#1a2332]/95 backdrop-blur-md rounded-lg border border-white/20 p-2 shadow-xl dropdown-menu">
                     <div className="space-y-1">
                       <button 
                         onClick={() => {
@@ -778,7 +778,7 @@ export default function DashboardPage() {
                           handleLogout();
                           setShowUserMenu(false);
                         }}
-                        className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm flex items-center space-x-2"
+                        className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors text-sm flex items-center space-x-2"
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -811,7 +811,6 @@ export default function DashboardPage() {
                 { id: 'services', label: 'Services', icon: 'services' },
                 { id: 'bookings', label: 'Réservations', icon: 'bookings' },
                 { id: 'history', label: 'Historique', icon: 'history' },
-                { id: 'reviews', label: 'Avis', icon: 'reviews' },
                 { id: 'profile', label: 'Mon compte', icon: 'profile' }
               ].map((tab) => (
                 <button
@@ -820,7 +819,7 @@ export default function DashboardPage() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                     activeTab === tab.id
                       ? 'bg-[#4A5C6A] text-white shadow-md font-semibold'
-                      : 'text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50'
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <div className="w-5 h-5">
@@ -862,19 +861,19 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              <h3 className="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">Actions rapides</h3>
+            <div className="mt-8 pt-8 border-t border-white/20">
+              <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Actions rapides</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => setShowTransferModal(true)}
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300 border border-white/20 hover:border-[#4A5C6A]"
                 >
                   <BiTransfer className="w-4 h-4" />
                   <span className="font-medium">Virement rapide</span>
                 </button>
                 <button
                   onClick={() => setShowUserSearch(true)}
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300 border border-white/20 hover:border-[#4A5C6A]"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
@@ -883,7 +882,7 @@ export default function DashboardPage() {
                 </button>
                 <Link
                   href="/contact"
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300 border border-white/20 hover:border-[#4A5C6A]"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
@@ -896,12 +895,12 @@ export default function DashboardPage() {
         </aside>
 
         {/* Sidebar - Mobile */}
-        <aside className={`fixed top-0 left-0 h-full w-80 bg-white border-r border-gray-200 transform transition-transform duration-300 z-50 md:hidden shadow-xl ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside className={`fixed top-0 left-0 h-full w-80 bg-gradient-to-b from-[#1a2332] to-[#253745] border-r border-white/20 transform transition-transform duration-300 z-50 md:hidden shadow-xl ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <nav className="p-6 pt-20">
             {/* Close Button */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300"
+              className="absolute top-4 right-4 p-2 text-white hover:text-gray-300 hover:bg-white/10 rounded-lg transition-all duration-300"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -909,7 +908,7 @@ export default function DashboardPage() {
             </button>
 
             {/* User Info */}
-            <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="mb-8 p-4 bg-white/10 rounded-lg border border-white/20">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
                   <img 
@@ -919,8 +918,8 @@ export default function DashboardPage() {
                   />
                 </div>
                 <div>
-                  <p className="text-gray-900 font-semibold">{user?.username}</p>
-                  <p className="text-gray-600 text-sm">{user?.credits?.toFixed(2)} crédits</p>
+                  <p className="text-white font-semibold">{user?.username}</p>
+                  <p className="text-gray-300 text-sm">{user?.credits?.toFixed(2)} crédits</p>
                 </div>
               </div>
             </div>
@@ -933,7 +932,6 @@ export default function DashboardPage() {
                 { id: 'services', label: 'Services' },
                 { id: 'bookings', label: 'Réservations' },
                 { id: 'history', label: 'Historique' },
-                { id: 'reviews', label: 'Avis' },
                 { id: 'profile', label: 'Profil' }
               ].map((tab) => (
                 <button
@@ -945,7 +943,7 @@ export default function DashboardPage() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                     activeTab === tab.id
                       ? 'bg-[#4A5C6A] text-white shadow-lg'
-                      : 'text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50'
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <div className="w-5 h-5">
@@ -987,15 +985,15 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              <h3 className="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">Actions rapides</h3>
+            <div className="mt-8 pt-8 border-t border-white/20">
+              <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Actions rapides</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => {
                     setShowTransferModal(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300 border border-white/20 hover:border-[#4A5C6A]"
                 >
                   <BiTransfer className="w-4 h-4" />
                   <span className="font-medium">Virement rapide</span>
@@ -1005,7 +1003,7 @@ export default function DashboardPage() {
                     setShowUserSearch(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300 border border-white/20 hover:border-[#4A5C6A]"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
@@ -1015,7 +1013,7 @@ export default function DashboardPage() {
                 <Link
                   href="/contact"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300 border border-white/20 hover:border-[#4A5C6A]"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
@@ -1103,8 +1101,8 @@ export default function DashboardPage() {
               </div>
 
               {/* Historique des Transactions Bancaires */}
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-[#1a2332] to-[#253745] px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#1a2332] to-[#253745] px-4 sm:px-6 py-3 sm:py-4 border-b border-white/20">
                   <div className="flex justify-between items-center gap-2">
                     <h2 className="text-lg sm:text-xl font-bold text-white">Historique des transactions</h2>
                     <button
@@ -1123,7 +1121,7 @@ export default function DashboardPage() {
                   {transactions.slice(0, 5).map((transaction) => (
                     <div
                       key={transaction.id}
-                      className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors"
+                      className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 hover:bg-white/5 transition-colors border-b border-white/10"
                     >
                       <div className="flex items-center justify-between gap-2 sm:gap-4">
                         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0 flex-1">
@@ -1143,13 +1141,13 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-gray-900 font-semibold text-sm sm:text-base truncate">
+                            <p className="text-white font-semibold text-sm sm:text-base truncate">
                               {transaction.receiverId === user?.id
                                 ? `Crédit reçu de ${transaction.sender?.username || 'Utilisateur'}`
                                 : `Débit envoyé à ${transaction.receiver?.username || 'Utilisateur'}`}
                             </p>
                             <div className="flex items-center space-x-1 sm:space-x-2 mt-0.5 sm:mt-1 flex-wrap">
-                              <p className="text-gray-500 text-xs sm:text-sm">
+                              <p className="text-gray-300 text-xs sm:text-sm">
                                 {new Date(transaction.createdAt).toLocaleDateString('fr-FR', {
                                   day: 'numeric',
                                   month: 'short',
@@ -1160,8 +1158,8 @@ export default function DashboardPage() {
                               </p>
                               {transaction.description && (
                                 <>
-                                  <span className="text-gray-300 hidden sm:inline">•</span>
-                                  <p className="text-gray-500 text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{transaction.description}</p>
+                                  <span className="text-gray-400 hidden sm:inline">•</span>
+                                  <p className="text-gray-300 text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{transaction.description}</p>
                                 </>
                               )}
                             </div>
@@ -1183,7 +1181,7 @@ export default function DashboardPage() {
                       <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <p className="text-gray-500 text-base sm:text-lg font-medium">Aucune transaction</p>
+                      <p className="text-gray-300 text-base sm:text-lg font-medium">Aucune transaction</p>
                       <p className="text-gray-400 text-xs sm:text-sm mt-2">Vos transactions apparaîtront ici</p>
                     </div>
                   )}
@@ -1200,37 +1198,37 @@ export default function DashboardPage() {
                 <p className="text-gray-300 text-xs sm:text-sm md:text-base">Envoyez des crédits à d'autres utilisateurs</p>
               </div>
 
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-6 md:p-8 max-w-2xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-white/20 p-4 sm:p-6 md:p-8 max-w-2xl mx-auto">
                 <form onSubmit={handleTransfer} className="space-y-4 sm:space-y-6">
                   <div>
-                    <label className="block text-gray-700 font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Bénéficiaire</label>
+                    <label className="block text-white font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Bénéficiaire</label>
                     <select
                       value={transferForm.receiverId}
                       onChange={(e) => {
                         setTransferForm({ ...transferForm, receiverId: e.target.value });
                         if (transferErrors.receiverId) setTransferErrors({ ...transferErrors, receiverId: '' });
                       }}
-                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base ${
-                        transferErrors.receiverId ? 'border-red-500' : 'border-gray-300'
+                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base ${
+                        transferErrors.receiverId ? 'border-red-500' : 'border-white/20'
                       }`}
                       required
                     >
-                      <option value="">Sélectionner un bénéficiaire</option>
+                      <option value="" className="bg-[#1a2332]">Sélectionner un bénéficiaire</option>
                       {users.filter(u => u.id !== user?.id).map((u) => (
-                        <option key={u.id} value={u.id}>
+                        <option key={u.id} value={u.id} className="bg-[#1a2332]">
                           {u.username} - {u.email}
                         </option>
                       ))}
                     </select>
                     {transferErrors.receiverId && (
-                      <p className="text-red-600 text-xs sm:text-sm mt-1">{transferErrors.receiverId}</p>
+                      <p className="text-red-400 text-xs sm:text-sm mt-1">{transferErrors.receiverId}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Montant</label>
+                    <label className="block text-white font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Montant</label>
                     <div className="relative">
-                      <span className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium text-xs sm:text-sm">Crédits</span>
+                      <span className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-300 font-medium text-xs sm:text-sm">Crédits</span>
                       <input
                         type="number"
                         step="0.01"
@@ -1241,30 +1239,30 @@ export default function DashboardPage() {
                           setTransferForm({ ...transferForm, amount: e.target.value });
                           if (transferErrors.amount) setTransferErrors({ ...transferErrors, amount: '' });
                         }}
-                        className={`w-full pl-16 sm:pl-20 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-gray-50 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base placeholder-gray-400 ${
-                          transferErrors.amount ? 'border-red-500' : 'border-gray-300'
+                        className={`w-full pl-16 sm:pl-20 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base placeholder-gray-400 ${
+                          transferErrors.amount ? 'border-red-500' : 'border-white/20'
                         }`}
                         placeholder="0.00"
                         required
                       />
                     </div>
                     {transferErrors.amount && (
-                      <p className="text-red-600 text-xs sm:text-sm mt-1">{transferErrors.amount}</p>
+                      <p className="text-red-400 text-xs sm:text-sm mt-1">{transferErrors.amount}</p>
                     )}
-                    <div className="mt-2 p-2 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-gray-700 text-xs sm:text-sm">
+                    <div className="mt-2 p-2 sm:p-3 bg-blue-500/20 rounded-lg border border-blue-400/30">
+                      <p className="text-white text-xs sm:text-sm">
                         <span className="font-semibold">Solde disponible:</span> {user?.credits.toFixed(2)} crédits
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Libellé du virement (optionnel)</label>
+                    <label className="block text-white font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Libellé du virement (optionnel)</label>
                     <input
                       type="text"
                       value={transferForm.description}
                       onChange={(e) => setTransferForm({ ...transferForm, description: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base placeholder-gray-400"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base placeholder-gray-400"
                       placeholder="Ex: Paiement de service, Remboursement..."
                     />
                   </div>
@@ -1995,58 +1993,6 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Reviews Tab */}
-          {activeTab === 'reviews' && (
-            <div className="space-y-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Système d'Avis</h1>
-                  <p className="text-gray-300 text-sm md:text-base">Consultez et gérez les avis sur les services</p>
-                </div>
-              </div>
-
-              {/* Statistiques des avis */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <RatingStats userId={user?.id} />
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                  <h2 className="text-xl font-bold text-white mb-4">Mes avis reçus</h2>
-                  <ReviewsList userId={user?.id} limit={3} />
-                </div>
-              </div>
-
-              {/* Avis sur mes services */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <h2 className="text-xl font-bold text-white mb-6">Avis sur mes services</h2>
-                <ReviewsList serviceId={undefined} showService={true} />
-              </div>
-
-              {/* Bouton pour laisser un avis */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-white mb-2">Laisser un avis</h2>
-                    <p className="text-gray-300 text-sm">Évaluez les services que vous avez utilisés</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedReviewTarget({ 
-                        id: 'all-services', 
-                        name: 'Tous les services',
-                        type: 'service' 
-                      });
-                      setShowReviewModal(true);
-                    }}
-                    className="px-6 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25 flex items-center space-x-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                    <span>Laisser un avis</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </main>
       </div>
 
