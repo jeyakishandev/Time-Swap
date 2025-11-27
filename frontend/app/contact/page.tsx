@@ -35,12 +35,12 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#06141B] via-[#11212D] to-[#253745]">
-      {/* Header */}
-      <header className="relative z-10 py-6">
-        <div className="max-w-7xl mx-auto px-6">
+      {/* Header - Mobile First */}
+      <header className="relative z-10 py-4 sm:py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:shadow-[#4A5C6A]/25">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:shadow-[#4A5C6A]/25">
                 <svg 
                   viewBox="0 0 100 100" 
                   className="w-full h-full rounded-xl"
@@ -95,53 +95,54 @@ export default function ContactPage() {
                   </text>
                 </svg>
               </div>
-              <span className="text-white text-xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
+              <span className="text-white text-lg sm:text-xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
             </Link>
             
             <Link 
               href="/"
-              className="px-4 py-2 text-white hover:text-[#9BA8AB] transition-all duration-300 hover:scale-105"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 text-white hover:text-[#9BA8AB] transition-all duration-300 hover:scale-105 text-sm sm:text-base"
             >
-              ← Retour à l'accueil
+              <span className="hidden sm:inline">← Retour à l'accueil</span>
+              <span className="sm:hidden">← Retour</span>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="relative z-10 pb-20">
-        <div className="max-w-6xl mx-auto px-6">
+      {/* Main Content - Mobile First */}
+      <main className="relative z-10 pb-12 sm:pb-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Hero Section */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          <div className="text-center mb-10 sm:mb-12 md:mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6">
               Contactez-nous
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto px-4">
               Une question ? Un problème ? Notre équipe est là pour vous aider.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
             {/* Contact Form */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h2 className="text-2xl font-bold text-white mb-6">Envoyez-nous un message</h2>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20 order-2 lg:order-1">
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Envoyez-nous un message</h2>
               
               {submitStatus === 'success' && (
-                <div className="bg-green-500/20 border border-green-500/30 text-green-200 px-4 py-3 rounded-lg mb-6">
+                <div className="bg-green-500/20 border border-green-500/30 text-green-200 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">
                   Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.
                 </div>
               )}
 
               {submitStatus === 'error' && (
-                <div className="bg-red-500/20 border border-red-500/30 text-red-200 px-4 py-3 rounded-lg mb-6">
+                <div className="bg-red-500/20 border border-red-500/30 text-red-200 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">
                   Erreur lors de l'envoi. Veuillez réessayer.
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                       Nom complet *
                     </label>
                     <input
@@ -149,14 +150,14 @@ export default function ContactPage() {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                       placeholder="Votre nom"
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                       Email *
                     </label>
                     <input
@@ -164,7 +165,7 @@ export default function ContactPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                       placeholder="votre@email.com"
                       required
                     />
@@ -172,14 +173,14 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                     Sujet *
                   </label>
                   <select
                     name="subject"
                     value={formData.subject}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                     required
                   >
                     <option value="" className="bg-slate-800">Sélectionner un sujet</option>
@@ -192,15 +193,15 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                     Message *
                   </label>
                   <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    rows={6}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
+                    rows={5}
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none text-sm sm:text-base"
                     placeholder="Décrivez votre demande en détail..."
                     required
                   />
@@ -209,7 +210,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold"
+                  className="w-full bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 sm:py-3.5 px-6 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold text-sm sm:text-base"
                 >
                   {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
                 </button>
@@ -217,91 +218,91 @@ export default function ContactPage() {
             </div>
 
             {/* Contact Info */}
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8 order-1 lg:order-2">
               {/* Contact Methods */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-                <h2 className="text-2xl font-bold text-white mb-6">Autres moyens de contact</h2>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Autres moyens de contact</h2>
                 
-                <div className="space-y-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">Email</h3>
-                      <p className="text-gray-300">contact@timeswap.network</p>
-                      <p className="text-sm text-gray-400">Réponse sous 24h</p>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-1">Email</h3>
+                      <p className="text-sm sm:text-base text-gray-300 break-words">contact@timeswap.network</p>
+                      <p className="text-xs sm:text-sm text-gray-400">Réponse sous 24h</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-[#9BA8AB]/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-[#9BA8AB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#9BA8AB]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#9BA8AB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">Support</h3>
-                      <p className="text-gray-300">support@timeswap.network</p>
-                      <p className="text-sm text-gray-400">Aide technique</p>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-1">Support</h3>
+                      <p className="text-sm sm:text-base text-gray-300 break-words">support@timeswap.network</p>
+                      <p className="text-xs sm:text-sm text-gray-400">Aide technique</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-[#CCD0CF]/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-[#CCD0CF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#CCD0CF]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#CCD0CF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">Développement</h3>
-                      <p className="text-gray-300">dev@timeswap.network</p>
-                      <p className="text-sm text-gray-400">Questions techniques</p>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-1">Développement</h3>
+                      <p className="text-sm sm:text-base text-gray-300 break-words">dev@timeswap.network</p>
+                      <p className="text-xs sm:text-sm text-gray-400">Questions techniques</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* FAQ */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-                <h2 className="text-2xl font-bold text-white mb-6">Questions fréquentes</h2>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Questions fréquentes</h2>
                 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Comment créer un compte ?</h3>
-                    <p className="text-gray-300 text-sm">Cliquez sur "S'inscrire" et remplissez le formulaire avec vos informations.</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Comment créer un compte ?</h3>
+                    <p className="text-gray-300 text-xs sm:text-sm">Cliquez sur "S'inscrire" et remplissez le formulaire avec vos informations.</p>
                   </div>
                   
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Les crédits sont-ils réels ?</h3>
-                    <p className="text-gray-300 text-sm">Non, les crédits Time-Swap sont virtuels et n'ont aucune valeur monétaire.</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Les crédits sont-ils réels ?</h3>
+                    <p className="text-gray-300 text-xs sm:text-sm">Non, les crédits Time-Swap sont virtuels et n'ont aucune valeur monétaire.</p>
                   </div>
                   
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Comment réinitialiser mon mot de passe ?</h3>
-                    <p className="text-gray-300 text-sm">Contactez-nous par email avec votre nom d'utilisateur pour obtenir de l'aide.</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Comment réinitialiser mon mot de passe ?</h3>
+                    <p className="text-gray-300 text-xs sm:text-sm">Contactez-nous par email avec votre nom d'utilisateur pour obtenir de l'aide.</p>
                   </div>
                   
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Puis-je supprimer mon compte ?</h3>
-                    <p className="text-gray-300 text-sm">Oui, contactez-nous et nous supprimerons votre compte et vos données.</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Puis-je supprimer mon compte ?</h3>
+                    <p className="text-gray-300 text-xs sm:text-sm">Oui, contactez-nous et nous supprimerons votre compte et vos données.</p>
                   </div>
                 </div>
               </div>
 
               {/* Response Time */}
-              <div className="bg-gradient-to-r from-[#4A5C6A]/10 to-[#9BA8AB]/10 rounded-2xl p-6 border border-[#4A5C6A]/20">
+              <div className="bg-gradient-to-r from-[#4A5C6A]/10 to-[#9BA8AB]/10 rounded-2xl p-4 sm:p-6 border border-[#4A5C6A]/20">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white">Temps de réponse</h3>
-                    <p className="text-gray-300 text-sm">Nous nous engageons à vous répondre dans les 24 heures</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-white">Temps de réponse</h3>
+                    <p className="text-gray-300 text-xs sm:text-sm">Nous nous engageons à vous répondre dans les 24 heures</p>
                   </div>
                 </div>
               </div>

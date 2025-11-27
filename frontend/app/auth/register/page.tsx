@@ -61,12 +61,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#06141B] via-[#11212D] to-[#253745] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#06141B] via-[#11212D] to-[#253745] flex items-center justify-center px-4 py-8 sm:py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center space-x-3 text-white group">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:shadow-[#4A5C6A]/25">
+        <div className="text-center mb-6 sm:mb-8">
+          <Link href="/" className="inline-flex items-center space-x-2 sm:space-x-3 text-white group">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:shadow-[#4A5C6A]/25">
               <svg 
                 viewBox="0 0 100 100" 
                 className="w-full h-full rounded-xl"
@@ -121,60 +121,60 @@ export default function RegisterPage() {
                 </text>
               </svg>
             </div>
-            <span className="text-2xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
+            <span className="text-xl sm:text-2xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
           </Link>
         </div>
 
         {/* Card */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Inscription</h1>
-            <p className="text-gray-300">Créez votre compte gratuitement</p>
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Inscription</h1>
+            <p className="text-sm sm:text-base text-gray-300">Créez votre compte gratuitement</p>
           </div>
 
           {error && (
-            <div className="bg-red-500/20 border border-red-500/30 text-red-200 px-4 py-3 rounded-lg mb-6">
+            <div className="bg-red-500/20 border border-red-500/30 text-red-200 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-500/20 border border-green-500/30 text-green-200 px-4 py-3 rounded-lg mb-6">
+            <div className="bg-green-500/20 border border-green-500/30 text-green-200 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">
               Compte créé avec succès !
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                 Email
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                 placeholder="votre@email.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                 Nom d'utilisateur
               </label>
               <input
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                 placeholder="mon_username"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                 Mot de passe
               </label>
               <div className="relative">
@@ -182,7 +182,7 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                   placeholder="••••••••"
                   required
                 />
@@ -206,7 +206,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                 Confirmer le mot de passe
               </label>
               <div className="relative">
@@ -214,7 +214,7 @@ export default function RegisterPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                   placeholder="••••••••"
                   required
                 />
@@ -240,14 +240,14 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-4 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold"
+              className="w-full bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 sm:py-3.5 px-4 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold text-sm sm:text-base"
             >
               {isLoading ? 'Création du compte...' : 'Créer mon compte'}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-300">
+          <div className="mt-4 sm:mt-6 text-center">
+            <p className="text-sm sm:text-base text-gray-300">
               Déjà un compte ?{' '}
               <Link href="/auth/login" className="text-[#4A5C6A] hover:text-[#9BA8AB] transition-colors font-semibold">
                 Se connecter
@@ -256,9 +256,9 @@ export default function RegisterPage() {
           </div>
 
           {/* Benefits */}
-          <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
-            <p className="text-sm text-gray-300 mb-3">Avec votre compte, vous bénéficiez de :</p>
-            <ul className="text-sm text-gray-400 space-y-1">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-white/5 rounded-lg border border-white/10">
+            <p className="text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3">Avec votre compte, vous bénéficiez de :</p>
+            <ul className="text-xs sm:text-sm text-gray-400 space-y-1">
               <li>• 100 crédits gratuits à l'inscription</li>
               <li>• Transfers sécurisés et instantanés</li>
               <li>• Historique complet de vos transactions</li>
@@ -268,8 +268,8 @@ export default function RegisterPage() {
         </div>
 
         {/* Back to home */}
-        <div className="text-center mt-6">
-          <Link href="/" className="text-gray-400 hover:text-white transition-colors">
+        <div className="text-center mt-4 sm:mt-6">
+          <Link href="/" className="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">
             ← Retour à l'accueil
           </Link>
         </div>
