@@ -1044,7 +1044,7 @@ export default function DashboardPage() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 bg-gradient-to-br from-[#06141B] via-[#11212D] to-[#253745]">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10">
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="space-y-4 sm:space-y-6 md:space-y-8">
@@ -1103,8 +1103,8 @@ export default function DashboardPage() {
               </div>
 
               {/* Historique des Transactions Bancaires */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div className="bg-gradient-to-r from-[#1a2332] to-[#253745] px-4 sm:px-6 py-3 sm:py-4 border-b border-white/20">
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#1a2332] to-[#253745] px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
                   <div className="flex justify-between items-center gap-2">
                     <h2 className="text-lg sm:text-xl font-bold text-white">Historique des transactions</h2>
                     <button
@@ -1119,37 +1119,37 @@ export default function DashboardPage() {
                     </button>
                   </div>
                 </div>
-                <div className="divide-y divide-white/10">
+                <div className="divide-y divide-gray-100">
                   {transactions.slice(0, 5).map((transaction) => (
                     <div
                       key={transaction.id}
-                      className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 hover:bg-white/5 transition-colors"
+                      className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-center justify-between gap-2 sm:gap-4">
                         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0 flex-1">
                           <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
                             transaction.receiverId === user?.id
-                              ? 'bg-green-500/20'
-                              : 'bg-red-500/20'
+                              ? 'bg-green-50'
+                              : 'bg-red-50'
                           }`}>
                             {transaction.receiverId === user?.id ? (
-                              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                               </svg>
                             ) : (
-                              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                               </svg>
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-white font-semibold text-sm sm:text-base truncate">
+                            <p className="text-gray-900 font-semibold text-sm sm:text-base truncate">
                               {transaction.receiverId === user?.id
                                 ? `Crédit reçu de ${transaction.sender?.username || 'Utilisateur'}`
                                 : `Débit envoyé à ${transaction.receiver?.username || 'Utilisateur'}`}
                             </p>
                             <div className="flex items-center space-x-1 sm:space-x-2 mt-0.5 sm:mt-1 flex-wrap">
-                              <p className="text-gray-300 text-xs sm:text-sm">
+                              <p className="text-gray-500 text-xs sm:text-sm">
                                 {new Date(transaction.createdAt).toLocaleDateString('fr-FR', {
                                   day: 'numeric',
                                   month: 'short',
@@ -1160,8 +1160,8 @@ export default function DashboardPage() {
                               </p>
                               {transaction.description && (
                                 <>
-                                  <span className="text-gray-400 hidden sm:inline">•</span>
-                                  <p className="text-gray-300 text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{transaction.description}</p>
+                                  <span className="text-gray-300 hidden sm:inline">•</span>
+                                  <p className="text-gray-500 text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{transaction.description}</p>
                                 </>
                               )}
                             </div>
@@ -1169,7 +1169,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className={`text-base sm:text-lg font-bold ${
-                            transaction.receiverId === user?.id ? 'text-green-400' : 'text-red-400'
+                            transaction.receiverId === user?.id ? 'text-green-600' : 'text-red-600'
                           }`}>
                             {transaction.receiverId === user?.id ? '+' : '-'}{transaction.amount.toFixed(2)}
                           </p>
@@ -1180,10 +1180,10 @@ export default function DashboardPage() {
                   ))}
                   {transactions.length === 0 && (
                     <div className="px-4 sm:px-6 py-8 sm:py-12 text-center">
-                      <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <p className="text-gray-300 text-base sm:text-lg font-medium">Aucune transaction</p>
+                      <p className="text-gray-500 text-base sm:text-lg font-medium">Aucune transaction</p>
                       <p className="text-gray-400 text-xs sm:text-sm mt-2">Vos transactions apparaîtront ici</p>
                     </div>
                   )}
@@ -1200,37 +1200,37 @@ export default function DashboardPage() {
                 <p className="text-gray-300 text-xs sm:text-sm md:text-base">Envoyez des crédits à d'autres utilisateurs</p>
               </div>
 
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-6 md:p-8 border border-white/20 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-6 md:p-8 max-w-2xl mx-auto">
                 <form onSubmit={handleTransfer} className="space-y-4 sm:space-y-6">
                   <div>
-                    <label className="block text-white font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Bénéficiaire</label>
+                    <label className="block text-gray-700 font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Bénéficiaire</label>
                     <select
                       value={transferForm.receiverId}
                       onChange={(e) => {
                         setTransferForm({ ...transferForm, receiverId: e.target.value });
                         if (transferErrors.receiverId) setTransferErrors({ ...transferErrors, receiverId: '' });
                       }}
-                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base ${
-                        transferErrors.receiverId ? 'border-red-500' : 'border-white/20'
+                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base ${
+                        transferErrors.receiverId ? 'border-red-500' : 'border-gray-300'
                       }`}
                       required
                     >
-                      <option value="" className="bg-slate-800">Sélectionner un bénéficiaire</option>
+                      <option value="">Sélectionner un bénéficiaire</option>
                       {users.filter(u => u.id !== user?.id).map((u) => (
-                        <option key={u.id} value={u.id} className="bg-slate-800">
+                        <option key={u.id} value={u.id}>
                           {u.username} - {u.email}
                         </option>
                       ))}
                     </select>
                     {transferErrors.receiverId && (
-                      <p className="text-red-400 text-xs sm:text-sm mt-1">{transferErrors.receiverId}</p>
+                      <p className="text-red-600 text-xs sm:text-sm mt-1">{transferErrors.receiverId}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-white font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Montant</label>
+                    <label className="block text-gray-700 font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Montant</label>
                     <div className="relative">
-                      <span className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-300 font-medium text-xs sm:text-sm">Crédits</span>
+                      <span className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium text-xs sm:text-sm">Crédits</span>
                       <input
                         type="number"
                         step="0.01"
@@ -1241,30 +1241,30 @@ export default function DashboardPage() {
                           setTransferForm({ ...transferForm, amount: e.target.value });
                           if (transferErrors.amount) setTransferErrors({ ...transferErrors, amount: '' });
                         }}
-                        className={`w-full pl-16 sm:pl-20 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base placeholder-gray-400 ${
-                          transferErrors.amount ? 'border-red-500' : 'border-white/20'
+                        className={`w-full pl-16 sm:pl-20 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-gray-50 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base placeholder-gray-400 ${
+                          transferErrors.amount ? 'border-red-500' : 'border-gray-300'
                         }`}
                         placeholder="0.00"
                         required
                       />
                     </div>
                     {transferErrors.amount && (
-                      <p className="text-red-400 text-xs sm:text-sm mt-1">{transferErrors.amount}</p>
+                      <p className="text-red-600 text-xs sm:text-sm mt-1">{transferErrors.amount}</p>
                     )}
-                    <div className="mt-2 p-2 sm:p-3 bg-blue-500/20 rounded-lg border border-blue-400/30">
-                      <p className="text-white text-xs sm:text-sm">
+                    <div className="mt-2 p-2 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-gray-700 text-xs sm:text-sm">
                         <span className="font-semibold">Solde disponible:</span> {user?.credits.toFixed(2)} crédits
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-white font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Libellé du virement (optionnel)</label>
+                    <label className="block text-gray-700 font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base">Libellé du virement (optionnel)</label>
                     <input
                       type="text"
                       value={transferForm.description}
                       onChange={(e) => setTransferForm({ ...transferForm, description: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base placeholder-gray-400"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] text-sm sm:text-base placeholder-gray-400"
                       placeholder="Ex: Paiement de service, Remboursement..."
                     />
                   </div>
