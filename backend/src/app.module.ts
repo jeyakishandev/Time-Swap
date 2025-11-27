@@ -16,6 +16,8 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [require('./common/config/configuration').default],
+      envFilePath: ['.env.local', '.env'],
     }),
     ThrottlerModule.forRoot([
       {

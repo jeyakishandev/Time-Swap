@@ -1,10 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Bootstrap');
+  const configService = app.get(ConfigService);
+
+  // Validation des variables d'environnement critiques
+  const jwtSecret = configService.get<string>('jwt.secret');
+  const nodeEnv = configService.get<string>('nodeEnv');
+
+  if (!jwtSecret && nodeEnv === 'production') {
+    logger.error('JWT_SECRET is required in production environment');
+    process.exit(1);
+  }
+
+  if (!jwtSecret) {
+    logger.warn('JWT_SECRET not set, using default secret. This is insecure for production!');
+  }
 
   // Configuration CORS sécurisée
   app.enableCors({
@@ -33,8 +48,8 @@ async function bootstrap() {
   const port = process.env.BACKEND_PORT || 3001;
   await app.listen(port);
 
-  logger.log(`🚀 Backend Time-Swap Network démarré sur http://localhost:${port}`);
-  logger.log(`🔒 Sécurité renforcée : bcrypt, rate limiting, headers sécurisés`);
-  logger.log(`📊 Gestion d'erreurs améliorée avec filtres globaux et logging structuré`);
+  logger.log(`Backend Time-Swap Network démarré sur http://localhost:${port}`);
+  logger.log(`Sécurité renforcée : bcrypt, rate limiting, headers sécurisés`);
+  logger.log(`Gestion d'erreurs améliorée avec filtres globaux et logging structuré`);
 }
 bootstrap();
