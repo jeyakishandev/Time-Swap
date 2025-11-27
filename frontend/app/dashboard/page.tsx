@@ -24,6 +24,16 @@ import {
   type Booking,
   type Review
 } from '../../lib/api';
+import { 
+  transferSchema, 
+  serviceSchema, 
+  bookingSchema, 
+  profileSchema,
+  type TransferFormData,
+  type ServiceFormData,
+  type BookingFormData,
+  type ProfileFormData
+} from '../../lib/validations';
 
 // Types importés depuis lib/api.ts
 
@@ -40,6 +50,14 @@ export default function DashboardPage() {
     description: '',
   });
   const [isTransferring, setIsTransferring] = useState(false);
+  const [isCreatingService, setIsCreatingService] = useState(false);
+  const [isUpdatingService, setIsUpdatingService] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [transferErrors, setTransferErrors] = useState<Record<string, string>>({});
+  const [serviceErrors, setServiceErrors] = useState<Record<string, string>>({});
+  const [bookingErrors, setBookingErrors] = useState<Record<string, string>>({});
+  const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile' | 'reviews'>('overview');
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
@@ -47,7 +65,13 @@ export default function DashboardPage() {
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [selectedReviewTarget, setSelectedReviewTarget] = useState<any>(null);
+  const [selectedReviewTarget, setSelectedReviewTarget] = useState<{
+    revieweeId: string;
+    revieweeUsername: string;
+    serviceId?: string;
+    serviceTitle?: string;
+    bookingId?: string;
+  } | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [serviceForm, setServiceForm] = useState({
@@ -208,6 +232,27 @@ export default function DashboardPage() {
     e.preventDefault();
     if (!user) return;
 
+    // Validation
+    setTransferErrors({});
+    const validationResult = transferSchema.safeParse(transferForm);
+    
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setTransferErrors(errors);
+      return;
+    }
+
+    // Vérifier que l'utilisateur a assez de crédits
+    if (user.credits < parseFloat(transferForm.amount)) {
+      setTransferErrors({ amount: 'Crédits insuffisants' });
+      return;
+    }
+
     setIsTransferring(true);
 
     try {
@@ -226,11 +271,14 @@ export default function DashboardPage() {
       
       // Réinitialiser le formulaire
       setTransferForm({ receiverId: '', amount: '', description: '' });
+      setTransferErrors({});
       setShowTransferModal(false);
       
       showToast('Virement effectué avec succès', 'success');
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Erreur lors du virement';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors du virement';
       showToast(errorMessage, 'error');
     } finally {
       setIsTransferring(false);
@@ -251,6 +299,23 @@ export default function DashboardPage() {
   const handleCreateService = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation
+    setServiceErrors({});
+    const validationResult = serviceSchema.safeParse(serviceForm);
+    
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setServiceErrors(errors);
+      return;
+    }
+
+    setIsCreatingService(true);
+
     try {
       await servicesApi.create({
         title: serviceForm.title,
@@ -260,17 +325,22 @@ export default function DashboardPage() {
       });
 
       setServiceForm({ title: '', description: '', price: '', category: '', duration: '' });
+      setServiceErrors({});
       setShowServiceModal(false);
       showToast('Service créé avec succès', 'success');
       fetchData();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Erreur lors de la création du service';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors de la création du service';
       showToast(errorMessage, 'error');
+    } finally {
+      setIsCreatingService(false);
     }
   };
 
   // Fonction pour ouvrir la modale d'édition
-  const handleEditService = (service: any) => {
+  const handleEditService = (service: Service) => {
     setEditingService(service);
     setEditServiceForm({
       title: service.title || '',
@@ -288,6 +358,29 @@ export default function DashboardPage() {
     
     if (!editingService) return;
 
+    // Validation
+    setServiceErrors({});
+    const validationResult = serviceSchema.safeParse({
+      title: editServiceForm.title,
+      description: editServiceForm.description,
+      price: editServiceForm.pricePerHour,
+      category: editServiceForm.category,
+    });
+    
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          const field = err.path[0].toString();
+          errors[field === 'price' ? 'pricePerHour' : field] = err.message;
+        }
+      });
+      setServiceErrors(errors);
+      return;
+    }
+
+    setIsUpdatingService(true);
+
     try {
       await servicesApi.update(editingService.id, {
         title: editServiceForm.title,
@@ -299,24 +392,48 @@ export default function DashboardPage() {
       setShowEditServiceModal(false);
       setEditingService(null);
       setEditServiceForm({ title: '', description: '', pricePerHour: '', category: '', duration: '' });
+      setServiceErrors({});
       showToast('Service modifié avec succès', 'success');
       fetchData();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Erreur lors de la modification du service';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors de la modification du service';
       showToast(errorMessage, 'error');
+    } finally {
+      setIsUpdatingService(false);
     }
   };
 
   // Fonction pour réserver un service
   const handleBookService = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
     
     if (!selectedService) {
-
+      showToast('Service non sélectionné', 'error');
       return;
     }
     
+    // Validation
+    setBookingErrors({});
+    const validationResult = bookingSchema.safeParse({
+      ...bookingForm,
+      serviceId: selectedService.id,
+    });
+    
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setBookingErrors(errors);
+      return;
+    }
+
+    setIsBooking(true);
+
     try {
       await bookingsApi.create({
         serviceId: selectedService.id,
@@ -326,18 +443,23 @@ export default function DashboardPage() {
       });
 
       setBookingForm({ serviceId: '', message: '', preferredDate: '' });
+      setBookingErrors({});
       setShowBookingModal(false);
       setSelectedService(null);
       showToast('Réservation créée avec succès', 'success');
       fetchData();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Erreur lors de la création de la réservation';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors de la création de la réservation';
       showToast(errorMessage, 'error');
+    } finally {
+      setIsBooking(false);
     }
   };
 
   // Fonction pour ouvrir le modal de réservation
-  const openBookingModal = (service: any) => {
+  const openBookingModal = (service: Service) => {
     setSelectedService(service);
     setBookingForm({ 
       serviceId: service.id, 
@@ -366,11 +488,37 @@ export default function DashboardPage() {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation
+    setProfileErrors({});
+    const validationResult = profileSchema.safeParse(profileForm);
+    
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setProfileErrors(errors);
+      return;
+    }
+
+    setIsUpdatingProfile(true);
+
     try {
       await usersApi.updateProfile(profileForm);
       showToast('Profil mis à jour avec succès', 'success');
+      setProfileErrors({});
       setShowProfileModal(false);
       fetchData();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors de la mise à jour du profil';
+      showToast(errorMessage, 'error');
+    } finally {
+      setIsUpdatingProfile(false);
+    }
       } else {
         const error = await response.json();
 
@@ -402,8 +550,10 @@ export default function DashboardPage() {
       showToast('Avis publié avec succès', 'success');
       fetchData();
       setShowReviewModal(false);
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Impossible de publier l\'avis';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Impossible de publier l\'avis';
       showToast(errorMessage, 'error');
     }
   };
@@ -466,8 +616,10 @@ export default function DashboardPage() {
       await bookingsApi.confirm(bookingId);
       showToast('Réservation confirmée avec succès', 'success');
       fetchData();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Impossible de confirmer la réservation';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Impossible de confirmer la réservation';
       showToast(errorMessage, 'error');
     } finally {
       setProcessingBookings(prev => {
@@ -486,8 +638,10 @@ export default function DashboardPage() {
       await bookingsApi.cancel(bookingId);
       showToast('Réservation refusée avec succès', 'success');
       fetchData();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Impossible de refuser la réservation';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Impossible de refuser la réservation';
       showToast(errorMessage, 'error');
     } finally {
       setProcessingBookings(prev => {
@@ -506,8 +660,10 @@ export default function DashboardPage() {
       await bookingsApi.complete(bookingId);
       showToast('Réservation terminée avec succès', 'success');
       fetchData();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Impossible de terminer la réservation';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Impossible de terminer la réservation';
       showToast(errorMessage, 'error');
     } finally {
       setProcessingBookings(prev => {
@@ -715,7 +871,7 @@ export default function DashboardPage() {
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                     activeTab === tab.id
                       ? 'bg-[#4A5C6A] text-white shadow-lg'
@@ -838,7 +994,7 @@ export default function DashboardPage() {
                 <button
                   key={tab.id}
                   onClick={() => {
-                    setActiveTab(tab.id as any);
+                    setActiveTab(tab.id as typeof activeTab);
                     setIsMobileMenuOpen(false);
                   }}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
@@ -1070,8 +1226,13 @@ export default function DashboardPage() {
                     <label className="block text-white font-medium mb-2">Destinataire</label>
                     <select
                       value={transferForm.receiverId}
-                      onChange={(e) => setTransferForm({ ...transferForm, receiverId: e.target.value })}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                      onChange={(e) => {
+                        setTransferForm({ ...transferForm, receiverId: e.target.value });
+                        if (transferErrors.receiverId) setTransferErrors({ ...transferErrors, receiverId: '' });
+                      }}
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                        transferErrors.receiverId ? 'border-red-500' : 'border-white/20'
+                      }`}
                       required
                     >
                       <option value="" className="bg-slate-800">Sélectionner un utilisateur</option>
@@ -1081,6 +1242,9 @@ export default function DashboardPage() {
                         </option>
                       ))}
                     </select>
+                    {transferErrors.receiverId && (
+                      <p className="text-red-400 text-sm mt-1">{transferErrors.receiverId}</p>
+                    )}
                   </div>
 
                   <div>
@@ -1091,11 +1255,19 @@ export default function DashboardPage() {
                       min="0.01"
                       max={user?.credits}
                       value={transferForm.amount}
-                      onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                      onChange={(e) => {
+                        setTransferForm({ ...transferForm, amount: e.target.value });
+                        if (transferErrors.amount) setTransferErrors({ ...transferErrors, amount: '' });
+                      }}
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                        transferErrors.amount ? 'border-red-500' : 'border-white/20'
+                      }`}
                       placeholder="0.00"
                       required
                     />
+                    {transferErrors.amount && (
+                      <p className="text-red-400 text-sm mt-1">{transferErrors.amount}</p>
+                    )}
                     <p className="text-gray-400 text-sm mt-1">
                       Solde disponible: {user?.credits.toFixed(2)} crédits
                     </p>
@@ -1115,13 +1287,21 @@ export default function DashboardPage() {
                   <button
                     type="submit"
                     disabled={isTransferring}
-                    className="w-full bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold"
+                    className="w-full bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-semibold flex items-center justify-center space-x-2"
                   >
-                    {isTransferring ? 'Transfert en cours...' : (
-                      <span className="flex items-center justify-center space-x-2">
+                    {isTransferring ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Transfert en cours...</span>
+                      </>
+                    ) : (
+                      <>
                         <TbSend className="w-5 h-5" />
                         <span>Effectuer le transfert</span>
-                      </span>
+                      </>
                     )}
                   </button>
                 </form>
@@ -1897,8 +2077,13 @@ export default function DashboardPage() {
                 <label className="block text-white font-medium mb-2">Destinataire</label>
                 <select
                   value={transferForm.receiverId}
-                  onChange={(e) => setTransferForm({ ...transferForm, receiverId: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  onChange={(e) => {
+                    setTransferForm({ ...transferForm, receiverId: e.target.value });
+                    if (transferErrors.receiverId) setTransferErrors({ ...transferErrors, receiverId: '' });
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                    transferErrors.receiverId ? 'border-red-500' : 'border-white/20'
+                  }`}
                   required
                 >
                   <option value="" className="bg-slate-800">Sélectionner un utilisateur</option>
@@ -1908,6 +2093,9 @@ export default function DashboardPage() {
                     </option>
                   ))}
                 </select>
+                {transferErrors.receiverId && (
+                  <p className="text-red-400 text-sm mt-1">{transferErrors.receiverId}</p>
+                )}
               </div>
               <div>
                 <label className="block text-white font-medium mb-2">Montant</label>
@@ -1917,30 +2105,50 @@ export default function DashboardPage() {
                   min="0.01"
                   max={user?.credits}
                   value={transferForm.amount}
-                  onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  onChange={(e) => {
+                    setTransferForm({ ...transferForm, amount: e.target.value });
+                    if (transferErrors.amount) setTransferErrors({ ...transferErrors, amount: '' });
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                    transferErrors.amount ? 'border-red-500' : 'border-white/20'
+                  }`}
                   placeholder="0.00"
                   required
                 />
+                {transferErrors.amount && (
+                  <p className="text-red-400 text-sm mt-1">{transferErrors.amount}</p>
+                )}
               </div>
               <div className="flex space-x-4">
                 <button
                   type="button"
-                  onClick={() => setShowTransferModal(false)}
+                  onClick={() => {
+                    setShowTransferModal(false);
+                    setTransferErrors({});
+                  }}
                   className="flex-1 px-4 py-3 text-gray-300 hover:text-white transition-colors"
+                  disabled={isTransferring}
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={isTransferring}
-                  className="flex-1 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                  className="flex-1 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-semibold flex items-center justify-center space-x-2"
                 >
-                  {isTransferring ? 'En cours...' : (
-                    <span className="flex items-center justify-center space-x-2">
+                  {isTransferring ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>En cours...</span>
+                    </>
+                  ) : (
+                    <>
                       <TbSend className="w-4 h-4" />
                       <span>Transférer</span>
-                    </span>
+                    </>
                   )}
                 </button>
               </div>
@@ -2030,11 +2238,19 @@ export default function DashboardPage() {
                 <input
                   type="text"
                   value={serviceForm.title}
-                  onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  onChange={(e) => {
+                    setServiceForm({ ...serviceForm, title: e.target.value });
+                    if (serviceErrors.title) setServiceErrors({ ...serviceErrors, title: '' });
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                    serviceErrors.title ? 'border-red-500' : 'border-white/20'
+                  }`}
                   placeholder="Ex: Cours de programmation"
                   required
                 />
+                {serviceErrors.title && (
+                  <p className="text-red-400 text-sm mt-1">{serviceErrors.title}</p>
+                )}
               </div>
               
               <div>
@@ -2043,12 +2259,20 @@ export default function DashboardPage() {
                 </label>
                 <textarea
                   value={serviceForm.description}
-                  onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
+                  onChange={(e) => {
+                    setServiceForm({ ...serviceForm, description: e.target.value });
+                    if (serviceErrors.description) setServiceErrors({ ...serviceErrors, description: '' });
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none ${
+                    serviceErrors.description ? 'border-red-500' : 'border-white/20'
+                  }`}
                   rows={3}
                   placeholder="Décrivez votre service..."
                   required
                 />
+                {serviceErrors.description && (
+                  <p className="text-red-400 text-sm mt-1">{serviceErrors.description}</p>
+                )}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -2059,12 +2283,20 @@ export default function DashboardPage() {
                   <input
                     type="number"
                     value={serviceForm.price}
-                    onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    onChange={(e) => {
+                      setServiceForm({ ...serviceForm, price: e.target.value });
+                      if (serviceErrors.price) setServiceErrors({ ...serviceErrors, price: '' });
+                    }}
+                    className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                      serviceErrors.price ? 'border-red-500' : 'border-white/20'
+                    }`}
                     placeholder="50"
                     min="1"
                     required
                   />
+                  {serviceErrors.price && (
+                    <p className="text-red-400 text-sm mt-1">{serviceErrors.price}</p>
+                  )}
                 </div>
                 
                 <div>
@@ -2089,8 +2321,13 @@ export default function DashboardPage() {
                 </label>
                 <select
                   value={serviceForm.category}
-                  onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  onChange={(e) => {
+                    setServiceForm({ ...serviceForm, category: e.target.value });
+                    if (serviceErrors.category) setServiceErrors({ ...serviceErrors, category: '' });
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                    serviceErrors.category ? 'border-red-500' : 'border-white/20'
+                  }`}
                   required
                 >
                   <option value="" className="bg-slate-800">Sélectionner une catégorie</option>
@@ -2100,21 +2337,39 @@ export default function DashboardPage() {
                     </option>
                   ))}
                 </select>
+                {serviceErrors.category && (
+                  <p className="text-red-400 text-sm mt-1">{serviceErrors.category}</p>
+                )}
               </div>
               
               <div className="flex space-x-4 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowServiceModal(false)}
+                  onClick={() => {
+                    setShowServiceModal(false);
+                    setServiceErrors({});
+                  }}
                   className="flex-1 px-4 py-3 text-gray-300 hover:text-white transition-colors"
+                  disabled={isCreatingService}
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300"
+                  disabled={isCreatingService}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
-                  Créer le service
+                  {isCreatingService ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Création...</span>
+                    </>
+                  ) : (
+                    'Créer le service'
+                  )}
                 </button>
               </div>
             </form>
@@ -2175,16 +2430,31 @@ export default function DashboardPage() {
               <div className="flex space-x-4 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowBookingModal(false)}
+                  onClick={() => {
+                    setShowBookingModal(false);
+                    setBookingErrors({});
+                  }}
                   className="flex-1 px-4 py-3 text-gray-300 hover:text-white transition-colors"
+                  disabled={isBooking}
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300"
+                  disabled={isBooking}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
-                  Envoyer la demande
+                  {isBooking ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Envoi...</span>
+                    </>
+                  ) : (
+                    'Envoyer la demande'
+                  )}
                 </button>
               </div>
             </form>
@@ -2218,11 +2488,19 @@ export default function DashboardPage() {
                 <input
                   type="text"
                   value={editServiceForm.title}
-                  onChange={(e) => setEditServiceForm({ ...editServiceForm, title: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  onChange={(e) => {
+                    setEditServiceForm({ ...editServiceForm, title: e.target.value });
+                    if (serviceErrors.title) setServiceErrors({ ...serviceErrors, title: '' });
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                    serviceErrors.title ? 'border-red-500' : 'border-white/20'
+                  }`}
                   placeholder="Ex: Cours de programmation"
                   required
                 />
+                {serviceErrors.title && (
+                  <p className="text-red-400 text-sm mt-1">{serviceErrors.title}</p>
+                )}
               </div>
               
               <div>
@@ -2231,12 +2509,20 @@ export default function DashboardPage() {
                 </label>
                 <textarea
                   value={editServiceForm.description}
-                  onChange={(e) => setEditServiceForm({ ...editServiceForm, description: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
+                  onChange={(e) => {
+                    setEditServiceForm({ ...editServiceForm, description: e.target.value });
+                    if (serviceErrors.description) setServiceErrors({ ...serviceErrors, description: '' });
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none ${
+                    serviceErrors.description ? 'border-red-500' : 'border-white/20'
+                  }`}
                   rows={3}
                   placeholder="Décrivez votre service..."
                   required
                 />
+                {serviceErrors.description && (
+                  <p className="text-red-400 text-sm mt-1">{serviceErrors.description}</p>
+                )}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -2247,12 +2533,20 @@ export default function DashboardPage() {
                   <input
                     type="number"
                     value={editServiceForm.pricePerHour}
-                    onChange={(e) => setEditServiceForm({ ...editServiceForm, pricePerHour: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    onChange={(e) => {
+                      setEditServiceForm({ ...editServiceForm, pricePerHour: e.target.value });
+                      if (serviceErrors.pricePerHour) setServiceErrors({ ...serviceErrors, pricePerHour: '' });
+                    }}
+                    className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                      serviceErrors.pricePerHour ? 'border-red-500' : 'border-white/20'
+                    }`}
                     placeholder="25"
                     min="1"
                     required
                   />
+                  {serviceErrors.pricePerHour && (
+                    <p className="text-red-400 text-sm mt-1">{serviceErrors.pricePerHour}</p>
+                  )}
                 </div>
                 
                 <div>
@@ -2277,8 +2571,13 @@ export default function DashboardPage() {
                 </label>
                 <select
                   value={editServiceForm.category}
-                  onChange={(e) => setEditServiceForm({ ...editServiceForm, category: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                  onChange={(e) => {
+                    setEditServiceForm({ ...editServiceForm, category: e.target.value });
+                    if (serviceErrors.category) setServiceErrors({ ...serviceErrors, category: '' });
+                  }}
+                  className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                    serviceErrors.category ? 'border-red-500' : 'border-white/20'
+                  }`}
                   required
                 >
                   <option value="" className="bg-slate-800">Sélectionner une catégorie</option>
@@ -2288,14 +2587,28 @@ export default function DashboardPage() {
                     </option>
                   ))}
                 </select>
+                {serviceErrors.category && (
+                  <p className="text-red-400 text-sm mt-1">{serviceErrors.category}</p>
+                )}
               </div>
               
               <div className="flex space-x-4 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25"
+                  disabled={isUpdatingService}
+                  className="flex-1 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white py-3 px-6 rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
                 >
-                  Modifier le service
+                  {isUpdatingService ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Modification...</span>
+                    </>
+                  ) : (
+                    'Modifier le service'
+                  )}
                 </button>
                 <button
                   type="button"
@@ -2389,11 +2702,17 @@ export default function DashboardPage() {
                     onChange={(e) => {
                       setProfileForm({ ...profileForm, username: e.target.value });
                       setAvatarSeed(e.target.value);
+                      if (profileErrors.username) setProfileErrors({ ...profileErrors, username: '' });
                     }}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                      profileErrors.username ? 'border-red-500' : 'border-white/20'
+                    }`}
                     placeholder="Nom d'utilisateur"
                     required
                   />
+                  {profileErrors.username && (
+                    <p className="text-red-400 text-sm mt-1">{profileErrors.username}</p>
+                  )}
                 </div>
                 
                 <div>
@@ -2403,42 +2722,22 @@ export default function DashboardPage() {
                   <input
                     type="email"
                     value={profileForm.email}
-                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                    onChange={(e) => {
+                      setProfileForm({ ...profileForm, email: e.target.value });
+                      if (profileErrors.email) setProfileErrors({ ...profileErrors, email: '' });
+                    }}
+                    className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                      profileErrors.email ? 'border-red-500' : 'border-white/20'
+                    }`}
                     placeholder="Email"
                     required
                   />
+                  {profileErrors.email && (
+                    <p className="text-red-400 text-sm mt-1">{profileErrors.email}</p>
+                  )}
                 </div>
               </div>
 
-              {/* Nom et prénom */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Nom d'utilisateur
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.username}
-                    onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
-                    placeholder="Nom d'utilisateur"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={profileForm.email}
-                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
-                    placeholder="Email"
-                  />
-                </div>
-              </div>
 
               {/* Téléphone et localisation */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2486,16 +2785,31 @@ export default function DashboardPage() {
               <div className="flex space-x-4 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowProfileModal(false)}
+                  onClick={() => {
+                    setShowProfileModal(false);
+                    setProfileErrors({});
+                  }}
                   className="flex-1 px-4 py-3 text-gray-300 hover:text-white transition-colors"
+                  disabled={isUpdatingProfile}
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300"
+                  disabled={isUpdatingProfile}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
-                  Sauvegarder
+                  {isUpdatingProfile ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Sauvegarde...</span>
+                    </>
+                  ) : (
+                    'Sauvegarder'
+                  )}
                 </button>
               </div>
             </form>

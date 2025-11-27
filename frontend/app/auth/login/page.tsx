@@ -29,8 +29,10 @@ export default function LoginPage() {
       
       // Rediriger vers le dashboard
       router.push('/dashboard');
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || err?.message || 'Erreur lors de la connexion';
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors de la connexion';
       setError(errorMessage);
     } finally {
       setIsLoading(false);
