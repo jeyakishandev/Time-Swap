@@ -12,6 +12,10 @@ import ReviewsList from '../../components/ReviewsList';
 import RatingStats from '../../components/RatingStats';
 import CreateReviewModal from '../../components/CreateReviewModal';
 import ServiceRating from '../../components/ServiceRating';
+import AnalyticsStats, { calculateAnalytics } from '../../components/AnalyticsStats';
+import RevenueExpenseChart from '../../components/RevenueExpenseChart';
+import TransactionDistributionChart from '../../components/TransactionDistributionChart';
+import MonthlyReport from '../../components/MonthlyReport';
 import { 
   usersApi, 
   transactionsApi, 
@@ -59,7 +63,7 @@ export default function DashboardPage() {
   const [serviceErrors, setServiceErrors] = useState<Record<string, string>>({});
   const [bookingErrors, setBookingErrors] = useState<Record<string, string>>({});
   const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile' | 'analytics'>('overview');
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -241,7 +245,7 @@ export default function DashboardPage() {
     
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
+      validationResult.error.issues.forEach((err) => {
         if (err.path[0]) {
           errors[err.path[0].toString()] = err.message;
         }
@@ -308,7 +312,7 @@ export default function DashboardPage() {
     
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
+      validationResult.error.issues.forEach((err) => {
         if (err.path[0]) {
           errors[err.path[0].toString()] = err.message;
         }
@@ -350,7 +354,7 @@ export default function DashboardPage() {
       description: service.description || '',
       pricePerHour: (service.pricePerHour || 0).toString(),
       category: service.category || '',
-      duration: (service.duration || 1).toString()
+      duration: '1'
     });
     setShowEditServiceModal(true);
   };
@@ -372,7 +376,7 @@ export default function DashboardPage() {
     
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
+      validationResult.error.issues.forEach((err) => {
         if (err.path[0]) {
           const field = err.path[0].toString();
           errors[field === 'price' ? 'pricePerHour' : field] = err.message;
@@ -426,7 +430,7 @@ export default function DashboardPage() {
     
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
+      validationResult.error.issues.forEach((err) => {
         if (err.path[0]) {
           errors[err.path[0].toString()] = err.message;
         }
@@ -497,7 +501,7 @@ export default function DashboardPage() {
     
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
+      validationResult.error.issues.forEach((err) => {
         if (err.path[0]) {
           errors[err.path[0].toString()] = err.message;
         }
@@ -677,8 +681,8 @@ export default function DashboardPage() {
 
   const filteredTransactions = transactions.filter(t =>
     t.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.sender.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.receiver.username.toLowerCase().includes(searchTerm.toLowerCase())
+    t.sender?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.receiver?.username?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -811,6 +815,7 @@ export default function DashboardPage() {
                 { id: 'services', label: 'Services', icon: 'services' },
                 { id: 'bookings', label: 'Réservations', icon: 'bookings' },
                 { id: 'history', label: 'Historique', icon: 'history' },
+                { id: 'analytics', label: 'Analytics', icon: 'analytics' },
                 { id: 'profile', label: 'Mon compte', icon: 'profile' }
               ].map((tab) => (
                 <button
@@ -932,6 +937,7 @@ export default function DashboardPage() {
                 { id: 'services', label: 'Services' },
                 { id: 'bookings', label: 'Réservations' },
                 { id: 'history', label: 'Historique' },
+                { id: 'analytics', label: 'Analytics' },
                 { id: 'profile', label: 'Profil' }
               ].map((tab) => (
                 <button
@@ -1450,8 +1456,8 @@ export default function DashboardPage() {
                           showReviewButton={completedServiceIds.has(service.id)}
                           onReviewClick={() => {
                             setSelectedReviewTarget({
-                              id: service.providerId,
-                              name: service.provider?.username || 'Utilisateur',
+                              revieweeId: service.providerId,
+                              revieweeUsername: service.provider?.username || 'Utilisateur',
                               serviceId: service.id,
                               serviceTitle: service.title
                             });
@@ -1610,8 +1616,8 @@ export default function DashboardPage() {
                       <div key={booking.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-white font-semibold">{booking.service.title}</h3>
-                            <p className="text-gray-300 text-sm">Prestataire: {booking.provider.username}</p>
+                            <h3 className="text-white font-semibold">{booking.service?.title || 'Service'}</h3>
+                            <p className="text-gray-300 text-sm">Prestataire: {booking.provider?.username || 'Utilisateur'}</p>
                             <p className="text-gray-300 text-sm">Terminé le {new Date(booking.updatedAt).toLocaleDateString()}</p>
                           </div>
                           <button
@@ -1619,9 +1625,9 @@ export default function DashboardPage() {
                             onClick={() => {
                               setSelectedReviewTarget({
                                 revieweeId: booking.providerId,
-                                revieweeUsername: booking.provider.username,
+                                revieweeUsername: booking.provider?.username || 'Utilisateur',
                                 serviceId: booking.serviceId,
-                                serviceTitle: booking.service.title,
+                                serviceTitle: booking.service?.title || 'Service',
                                 bookingId: booking.id
                               });
                               setShowReviewModal(true);
@@ -1645,8 +1651,8 @@ export default function DashboardPage() {
                       <div key={booking.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-white font-semibold">{booking.service.title}</h3>
-                            <p className="text-gray-300 text-sm">Prestataire: {booking.provider.username}</p>
+                            <h3 className="text-white font-semibold">{booking.service?.title || 'Service'}</h3>
+                            <p className="text-gray-300 text-sm">Prestataire: {booking.provider?.username || 'Utilisateur'}</p>
                             <p className="text-gray-300 text-sm">Durée: {booking.hours}h - Prix: {booking.totalPrice} crédits</p>
                             <p className="text-gray-300 text-sm">Statut: <span className={`font-semibold ${
                               booking.status === 'PENDING' ? 'text-yellow-400' :
@@ -1692,8 +1698,8 @@ export default function DashboardPage() {
                       <div key={booking.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-white font-semibold">{booking.service.title}</h3>
-                            <p className="text-gray-300 text-sm">Client: {booking.client.username}</p>
+                            <h3 className="text-white font-semibold">{booking.service?.title || 'Service'}</h3>
+                            <p className="text-gray-300 text-sm">Client: {booking.client?.username || 'Utilisateur'}</p>
                             <p className="text-gray-300 text-sm">Terminé le {new Date(booking.updatedAt).toLocaleDateString()}</p>
                           </div>
                           <button
@@ -1701,9 +1707,9 @@ export default function DashboardPage() {
                             onClick={() => {
                               setSelectedReviewTarget({
                                 revieweeId: booking.clientId,
-                                revieweeUsername: booking.client.username,
+                                revieweeUsername: booking.client?.username || 'Utilisateur',
                                 serviceId: booking.serviceId,
-                                serviceTitle: booking.service.title,
+                                serviceTitle: booking.service?.title || 'Service',
                                 bookingId: booking.id
                               });
                               setShowReviewModal(true);
@@ -1727,8 +1733,8 @@ export default function DashboardPage() {
                       <div key={booking.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-white font-semibold">{booking.service.title}</h3>
-                            <p className="text-gray-300 text-sm">Client: {booking.client.username}</p>
+                            <h3 className="text-white font-semibold">{booking.service?.title || 'Service'}</h3>
+                            <p className="text-gray-300 text-sm">Client: {booking.client?.username || 'Utilisateur'}</p>
                             <p className="text-gray-300 text-sm">Durée: {booking.hours}h - Prix: {booking.totalPrice} crédits</p>
                             <p className="text-gray-300 text-sm">Statut: <span className={`font-semibold ${
                               booking.status === 'PENDING' ? 'text-yellow-400' :
@@ -1836,8 +1842,8 @@ export default function DashboardPage() {
                           <div>
                             <p className="text-white font-medium">
                               {transaction.receiverId === user?.id
-                                ? `Reçu de ${transaction.sender.username}`
-                                : `Envoyé à ${transaction.receiver.username}`}
+                                ? `Reçu de ${transaction.sender?.username || 'Utilisateur'}`
+                                : `Envoyé à ${transaction.receiver?.username || 'Utilisateur'}`}
                             </p>
                             <p className="text-gray-400 text-sm">
                               {transaction.description || 'Aucune description'}
@@ -1867,6 +1873,64 @@ export default function DashboardPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && user && (
+            <div className="space-y-6 sm:space-y-8">
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">Analytics</h1>
+                <p className="text-gray-300 text-sm sm:text-base">Analysez vos revenus et dépenses en détail</p>
+              </div>
+
+              {(() => {
+                const analytics = calculateAnalytics(transactions, user.id);
+                return (
+                  <>
+                    <AnalyticsStats transactions={transactions} userId={user.id} />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                      <RevenueExpenseChart data={analytics.monthlyData} type="monthly" />
+                      <TransactionDistributionChart 
+                        totalIncome={analytics.totalIncome} 
+                        totalExpenses={analytics.totalExpenses} 
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                      <RevenueExpenseChart data={analytics.weeklyData} type="weekly" />
+                      <MonthlyReport monthlyData={analytics.monthlyData} />
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20">
+                      <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Statistiques détaillées</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                        <div>
+                          <p className="text-gray-300 text-sm mb-1">Plus gros revenu</p>
+                          <p className="text-green-400 text-xl sm:text-2xl font-bold">{analytics.largestIncome.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-300 text-sm mb-1">Plus grosse dépense</p>
+                          <p className="text-red-400 text-xl sm:text-2xl font-bold">{analytics.largestExpense.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-300 text-sm mb-1">Nombre de transactions</p>
+                          <p className="text-white text-xl sm:text-2xl font-bold">{analytics.transactionCount}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-300 text-sm mb-1">Taux d'épargne</p>
+                          <p className="text-blue-400 text-xl sm:text-2xl font-bold">
+                            {analytics.totalIncome > 0 
+                              ? ((analytics.netBalance / analytics.totalIncome) * 100).toFixed(1) 
+                              : '0'}%
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           )}
 
@@ -2333,7 +2397,7 @@ export default function DashboardPage() {
               <p className="text-gray-300 text-sm mb-2">{selectedService.description}</p>
               <div className="flex justify-between text-sm">
                 <span className="text-[#4A5C6A] font-semibold">{selectedService.pricePerHour} crédits/heure</span>
-                <span className="text-gray-400">{selectedService.duration}h</span>
+                <span className="text-gray-400">1h</span>
               </div>
             </div>
             

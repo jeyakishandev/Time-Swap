@@ -5,13 +5,13 @@ import RatingStars from './RatingStars';
 interface Review {
   id: string;
   rating: number;
-  comment: string;
+  comment?: string;
   createdAt: string;
-  reviewer: {
+  reviewer?: {
     id: string;
     username: string;
   };
-  reviewee: {
+  reviewee?: {
     id: string;
     username: string;
   };
@@ -45,10 +45,10 @@ export default function ReviewCard({ review, showService = true, className = '' 
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-            {review.reviewer.username.charAt(0).toUpperCase()}
+            {review.reviewer?.username?.charAt(0).toUpperCase() || '?'}
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900">{review.reviewer.username}</h4>
+            <h4 className="font-semibold text-gray-900">{review.reviewer?.username || 'Utilisateur'}</h4>
             <p className="text-sm text-gray-500">{formatDate(review.createdAt)}</p>
           </div>
         </div>
