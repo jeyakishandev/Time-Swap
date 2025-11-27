@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { authApi } from '../../lib/api';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -37,33 +38,21 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          username: formData.username,
-          password: formData.password,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Stocker le token et les infos utilisateur dans localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Rediriger vers le dashboard
-        router.push('/dashboard');
-      } else {
-        const error = await response.json();
-        setError(error.message || 'Erreur lors de l\'inscription');
-      }
+      const data = await authApi.register(
+        formData.email,
+        formData.username,
+        formData.password
+      );
+      
+      // Stocker le token et les infos utilisateur dans localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Rediriger vers le dashboard
+      router.push('/dashboard');
     } catch (err: any) {
-      setError('Erreur de connexion au serveur');
+      const errorMessage = err?.response?.data?.message || err?.message || 'Erreur lors de l\'inscription';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

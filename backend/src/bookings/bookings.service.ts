@@ -310,7 +310,7 @@ export class BookingsService {
       throw new BadRequestException('Cette réservation doit être confirmée avant d\'être marquée comme terminée');
     }
 
-    return this.prisma.booking.update({
+    const completedBooking = await this.prisma.booking.update({
       where: { id },
       data: { status: 'COMPLETED' },
       include: {
@@ -319,6 +319,34 @@ export class BookingsService {
         provider: { select: { id: true, username: true, email: true } }
       }
     });
+
+    // Envoyer des notifications pour encourager les avis
+    try {
+      // Notification pour le client (évaluer le prestataire)
+      const clientNotification = await this.notificationsService.createReviewReminderNotification(
+        completedBooking.clientId,
+        completedBooking.provider.username,
+        completedBooking.service.title,
+        'client'
+      );
+
+      // Notification pour le prestataire (évaluer le client)
+      const providerNotification = await this.notificationsService.createReviewReminderNotification(
+        completedBooking.providerId,
+        completedBooking.client.username,
+        completedBooking.service.title,
+        'provider'
+      );
+
+      // Envoyer les notifications en temps réel
+      await this.notificationsGateway.sendNotificationToUser(completedBooking.clientId, clientNotification);
+      await this.notificationsGateway.sendNotificationToUser(completedBooking.providerId, providerNotification);
+    } catch (notificationError) {
+      console.error('Erreur lors de l\'envoi des notifications d\'avis:', notificationError);
+      // Ne pas faire échouer la completion si les notifications échouent
+    }
+
+    return completedBooking;
   }
 
   async remove(id: string, userId: string) {

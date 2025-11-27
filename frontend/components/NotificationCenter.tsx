@@ -14,17 +14,41 @@ export default function NotificationCenter({ className = '' }: NotificationCente
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'BOOKING_REQUEST':
-        return '📋';
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        );
       case 'BOOKING_CONFIRMED':
-        return '✅';
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        );
       case 'BOOKING_CANCELLED':
-        return '❌';
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        );
       case 'PAYMENT_RECEIVED':
-        return '💰';
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        );
       case 'BOOKING_COMPLETED':
-        return '🎉';
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
       default:
-        return '🔔';
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        );
     }
   };
 
@@ -72,7 +96,12 @@ export default function NotificationCenter({ className = '' }: NotificationCente
           {/* Header */}
           <div className="p-4 border-b border-[#4A5C6A] bg-gradient-to-r from-[#253745] to-[#4A5C6A] rounded-t-xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-white font-bold text-lg">🔔 Notifications</h3>
+              <div className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <h3 className="text-white font-semibold text-lg">Notifications</h3>
+              </div>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
@@ -88,7 +117,9 @@ export default function NotificationCenter({ className = '' }: NotificationCente
           <div className="max-h-96 overflow-y-auto bg-[#06141B] modal-scrollbar">
             {notifications.length === 0 ? (
               <div className="p-6 text-center text-gray-300 bg-[#06141B] rounded-b-xl">
-                <div className="text-4xl mb-2">🔕</div>
+                <svg className="w-12 h-12 mx-auto mb-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
                 <p className="text-gray-400">Aucune notification</p>
               </div>
             ) : (
@@ -100,14 +131,16 @@ export default function NotificationCenter({ className = '' }: NotificationCente
                   }`}
                 >
                   <div className="flex items-start space-x-3">
-                    <span className="text-2xl">{getNotificationIcon(notification.type)}</span>
+                    <div className={`${getNotificationColor(notification.type)} flex-shrink-0 mt-0.5`}>
+                      {getNotificationIcon(notification.type)}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h4 className={`font-bold text-sm ${getNotificationColor(notification.type)}`}>
+                        <h4 className={`font-semibold text-sm ${getNotificationColor(notification.type)}`}>
                           {notification.title}
                         </h4>
                         {!notification.isRead && (
-                          <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         )}
                       </div>
                       <p className="text-gray-200 text-sm mt-2 leading-relaxed">{notification.message}</p>
@@ -121,14 +154,16 @@ export default function NotificationCenter({ className = '' }: NotificationCente
                           onClick={() => markAsRead(notification.id)}
                           className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors font-medium"
                         >
-                          ✓ Lu
+                          Lu
                         </button>
                       )}
                       <button
                         onClick={() => deleteNotification(notification.id)}
                         className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors font-medium"
                       >
-                        ✕ Suppr
+                        <svg className="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                       </button>
                     </div>
                   </div>

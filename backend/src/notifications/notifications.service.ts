@@ -129,5 +129,40 @@ export class NotificationsService {
       'BOOKING_COMPLETED',
     );
   }
+
+  // Notifications pour encourager les avis
+  async createReviewReminderNotification(
+    userId: string,
+    targetUsername: string,
+    serviceTitle: string,
+    role: 'client' | 'provider',
+  ) {
+    const title = 'Donnez votre avis !';
+    const message = role === 'client' 
+      ? `Comment s'est passée votre expérience avec ${targetUsername} pour "${serviceTitle}" ?`
+      : `Comment s'est passée votre collaboration avec ${targetUsername} pour "${serviceTitle}" ?`;
+    
+    return this.createNotification(
+      userId,
+      title,
+      message,
+      'REVIEW_REMINDER',
+    );
+  }
+
+  async createReviewReceivedNotification(
+    userId: string,
+    reviewerUsername: string,
+    rating: number,
+    serviceTitle: string,
+  ) {
+    const stars = '⭐'.repeat(rating);
+    return this.createNotification(
+      userId,
+      'Nouvel avis reçu',
+      `${reviewerUsername} vous a donné ${rating}/5 ${stars} pour "${serviceTitle}"`,
+      'REVIEW_RECEIVED',
+    );
+  }
 }
 

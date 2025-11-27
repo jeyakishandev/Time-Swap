@@ -1,94 +1,73 @@
-import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class ReviewsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Optional() private notificationsService?: NotificationsService,
+    @Optional() private notificationsGateway?: NotificationsGateway,
+  ) {}
 
   async create(createReviewDto: CreateReviewDto, reviewerId: string) {
-    const { revieweeId, bookingId, serviceId, rating, comment } = createReviewDto;
+    console.log('🔍 ReviewsService.create appelé avec:', { createReviewDto, reviewerId });
+    
+    try {
+      const { revieweeId, bookingId, serviceId, rating, comment } = createReviewDto;
 
-    // Vérifier que l'utilisateur existe
-    const reviewee = await this.prisma.user.findUnique({
-      where: { id: revieweeId },
-    });
-
-    if (!reviewee) {
-      throw new NotFoundException('Utilisateur non trouvé');
-    }
-
-    // Vérifier qu'on ne peut pas s'évaluer soi-même
-    if (reviewerId === revieweeId) {
-      throw new ForbiddenException('Vous ne pouvez pas vous évaluer vous-même');
-    }
-
-    // Si une réservation est spécifiée, vérifier qu'elle existe et appartient au reviewer
-    if (bookingId) {
-      const booking = await this.prisma.booking.findUnique({
-        where: { id: bookingId },
-        include: { client: true, provider: true },
-      });
-
-      if (!booking) {
-        throw new NotFoundException('Réservation non trouvée');
+      // Vérification basique
+      if (reviewerId === revieweeId) {
+        throw new ForbiddenException('Vous ne pouvez pas vous évaluer vous-même');
       }
 
-      if (booking.clientId !== reviewerId && booking.providerId !== reviewerId) {
-        throw new ForbiddenException('Vous ne pouvez évaluer que les réservations auxquelles vous participez');
-      }
-
-      // Vérifier qu'il n'y a pas déjà un avis pour cette réservation
-      const existingReview = await this.prisma.review.findUnique({
-        where: {
-          reviewerId_bookingId: {
-            reviewerId,
-            bookingId,
+      // Créer l'avis directement
+      const review = await this.prisma.review.create({
+        data: {
+          rating,
+          comment,
+          reviewerId,
+          revieweeId,
+          serviceId,
+          bookingId,
+        },
+        include: {
+          reviewer: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          reviewee: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          service: {
+            select: {
+              id: true,
+              title: true,
+            },
           },
         },
       });
 
-      if (existingReview) {
-        throw new ConflictException('Vous avez déjà évalué cette réservation');
+      console.log('✅ Avis créé avec succès:', review.id);
+      return review;
+    } catch (error) {
+      console.error('❌ Erreur dans ReviewsService.create:', error);
+      
+      // Gérer l'erreur de contrainte unique (avis déjà existant)
+      if (error.code === 'P2002' && error.meta?.target?.includes('reviewerId') && error.meta?.target?.includes('bookingId')) {
+        throw new ConflictException('Vous avez déjà donné un avis pour cette réservation');
       }
-
-      // Vérifier que la réservation est terminée
-      if (booking.status !== 'COMPLETED') {
-        throw new ForbiddenException('Vous ne pouvez évaluer que les réservations terminées');
-      }
+      
+      throw error;
     }
-
-    return this.prisma.review.create({
-      data: {
-        rating,
-        comment,
-        reviewerId,
-        revieweeId,
-        serviceId,
-        bookingId,
-      },
-      include: {
-        reviewer: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-        reviewee: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-        service: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-      },
-    });
   }
 
   async findAll() {

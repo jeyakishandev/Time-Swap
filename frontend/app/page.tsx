@@ -163,46 +163,59 @@ export default function HomePage() {
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            La plateforme complète pour <span className="text-[#4A5C6A] font-bold">échanger vos services</span>.
+            Plateforme bancaire sécurisée pour <span className="text-[#4A5C6A] font-bold">gérer vos transactions</span>.
             <br />
-            <span className="text-[#9BA8AB] font-bold">Proposez</span> vos compétences, <span className="text-[#CCD0CF] font-bold">réservez</span> des services, <span className="text-[#4A5C6A] font-bold">gagnez</span> des crédits.
+            <span className="text-[#9BA8AB] font-bold">Ouvrez</span> votre compte, <span className="text-[#CCD0CF] font-bold">effectuez</span> des virements, <span className="text-[#4A5C6A] font-bold">suivez</span> vos opérations.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link
               href="/auth/register"
-              className="group relative px-8 py-4 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg text-lg font-bold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-[#4A5C6A]/25"
+              className="group relative px-8 py-4 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg text-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              <span className="relative z-10">Commencer gratuitement</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10">Ouvrir un compte</span>
             </Link>
             <button 
               onClick={() => {
                 document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-8 py-4 border-2 border-white text-white rounded-lg text-lg font-semibold hover:bg-white hover:text-slate-900 transition-all duration-300 transform hover:scale-105 relative overflow-hidden"
+              className="px-8 py-4 border-2 border-white/30 text-white rounded-lg text-lg font-semibold hover:bg-white/10 hover:border-white/50 transition-all duration-300"
             >
-              <span className="relative z-10">Voir la démo</span>
-              <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+              Découvrir nos services
             </button>
           </div>
 
           {/* Stats Cards */}
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
-              { title: 'Services disponibles', value: '50+', icon: '🛠️' },
-              { title: 'Réservations', value: '500+', icon: '📅' },
-              { title: 'Utilisateurs', value: '100+', icon: '👥' }
+              { title: 'Comptes actifs', value: '50+', icon: 'account' },
+              { title: 'Transactions mensuelles', value: '500+', icon: 'transaction' },
+              { title: 'Clients satisfaits', value: '100+', icon: 'users' }
             ].map((stat, index) => (
               <div
                 key={index}
-                className="relative p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:border-[#4A5C6A]/50 transition-all duration-300 transform hover:scale-105"
+                className="relative p-6 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#4A5C6A]/30 transition-all duration-300"
               >
-                <div className="text-4xl mb-4">{stat.icon}</div>
+                <div className="mb-4">
+                  {stat.icon === 'account' && (
+                    <svg className="w-10 h-10 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                  )}
+                  {stat.icon === 'transaction' && (
+                    <svg className="w-10 h-10 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                  )}
+                  {stat.icon === 'users' && (
+                    <svg className="w-10 h-10 text-[#4A5C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  )}
+                </div>
                 <h3 className="text-3xl font-bold text-white mb-2">{stat.value}</h3>
-                <p className="text-gray-300">{stat.title}</p>
-                <div className="absolute inset-0 bg-gradient-to-r from-[#4A5C6A]/10 to-[#9BA8AB]/10 rounded-xl opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                <p className="text-gray-400 text-sm font-medium">{stat.title}</p>
               </div>
             ))}
           </div>
@@ -214,10 +227,10 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] bg-clip-text text-transparent">
-              Fonctionnalités
+              Services Bancaires
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Une plateforme complète pour créer, gérer et réserver des services en toute sécurité
+              Une solution complète pour gérer vos comptes et transactions en toute sécurité
             </p>
           </div>
 
@@ -226,58 +239,81 @@ export default function HomePage() {
             <div className="space-y-8">
               {[
                 {
-                  title: 'Marketplace de services',
-                  desc: 'Créez et gérez vos services, réservez ceux des autres, avec un système de réservation complet et sécurisé.',
-                  color: 'from-[#4A5C6A] to-[#9BA8AB]'
+                  title: 'Gestion de compte',
+                  desc: 'Consultez votre solde, votre historique de transactions et gérez vos informations bancaires en toute simplicité.',
+                  color: 'from-[#4A5C6A] to-[#9BA8AB]',
+                  icon: 'account'
                 },
                 {
-                  title: 'Notifications temps réel',
-                  desc: 'Recevez des notifications instantanées pour vos réservations, messages et mises à jour importantes.',
-                  color: 'from-[#253745] to-[#4A5C6A]'
+                  title: 'Virements sécurisés',
+                  desc: 'Effectuez des transferts entre comptes avec un système de validation et de traçabilité complet.',
+                  color: 'from-[#253745] to-[#4A5C6A]',
+                  icon: 'transfer'
                 },
                 {
-                  title: 'Système de crédits',
-                  desc: 'Gagnez et dépensez des crédits en échange de services, avec un système de paiement sécurisé et transparent.',
-                  color: 'from-[#9BA8AB] to-[#CCD0CF]'
+                  title: 'Portefeuille numérique',
+                  desc: 'Gérez vos crédits et vos avoirs avec une interface claire et des outils de suivi avancés.',
+                  color: 'from-[#9BA8AB] to-[#CCD0CF]',
+                  icon: 'wallet'
                 },
                 {
-                  title: 'Profil personnalisé',
-                  desc: 'Créez votre profil avec avatar généré automatiquement, gérez vos informations et statistiques.',
-                  color: 'from-[#4A5C6A] to-[#253745]'
+                  title: 'Historique détaillé',
+                  desc: 'Accédez à l\'ensemble de vos opérations avec des filtres et des exports pour votre comptabilité.',
+                  color: 'from-[#4A5C6A] to-[#253745]',
+                  icon: 'history'
                 }
               ].map((feature, index) => (
                 <div
                   key={index}
-                  className="group relative p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:border-[#4A5C6A]/50 transition-all duration-300 hover:scale-105"
+                  className="group relative p-6 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#4A5C6A]/30 transition-all duration-300"
                 >
                   <div className="flex items-start space-x-4">
-                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} flex items-center justify-center text-white font-bold group-hover:scale-110 transition-transform duration-300`}>
-                      {index + 1}
+                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} flex items-center justify-center text-white`}>
+                      {feature.icon === 'account' && (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                      )}
+                      {feature.icon === 'transfer' && (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                      )}
+                      {feature.icon === 'wallet' && (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      )}
+                      {feature.icon === 'history' && (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-[#4A5C6A] transition-colors">
+                      <h3 className="text-xl font-semibold text-white mb-2">
                         {feature.title}
                       </h3>
-                      <p className="text-gray-400 leading-relaxed">
+                      <p className="text-gray-400 text-sm leading-relaxed">
                         {feature.desc}
                       </p>
                     </div>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#4A5C6A]/5 to-[#9BA8AB]/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
               ))}
             </div>
 
             {/* Visual Element */}
             <div className="relative">
-              <div className="w-full h-96 bg-gradient-to-br from-[#4A5C6A]/20 to-[#9BA8AB]/20 rounded-2xl border border-[#4A5C6A]/30 flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#4A5C6A]/10 to-[#9BA8AB]/10 animate-pulse"></div>
+              <div className="w-full h-96 bg-gradient-to-br from-[#4A5C6A]/20 to-[#9BA8AB]/20 rounded-lg border border-[#4A5C6A]/30 flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
                 <div className="relative z-10 text-center">
-                  <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center text-4xl animate-pulse">
-                    🛠️
+                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-lg flex items-center justify-center">
+                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Services disponibles</h3>
-                  <p className="text-[#4A5C6A] font-semibold">Marketplace actif</p>
+                  <h3 className="text-xl font-semibold text-white mb-2">Sécurité bancaire</h3>
+                  <p className="text-[#9BA8AB] text-sm font-medium">Protection de vos données</p>
                 </div>
               </div>
             </div>
@@ -299,20 +335,22 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: 'Protection des mots de passe', value: '100%', color: 'green' },
-              { title: 'Transactions sécurisées', value: '100%', color: 'blue' },
-              { title: 'Données chiffrées', value: '100%', color: 'indigo' }
+              { title: 'Chiffrement des données', value: 'AES-256', color: 'green' },
+              { title: 'Transactions sécurisées', value: 'SSL/TLS', color: 'blue' },
+              { title: 'Authentification', value: '2FA', color: 'indigo' }
             ].map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className={`w-24 h-24 mx-auto mb-6 bg-gradient-to-r ${
+              <div key={index} className="text-center">
+                <div className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-r ${
                   stat.color === 'green' ? 'from-[#9BA8AB] to-[#CCD0CF]' :
                   stat.color === 'blue' ? 'from-[#4A5C6A] to-[#9BA8AB]' :
                   'from-[#253745] to-[#4A5C6A]'
-                } rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300`}>
-                  🔒
+                } rounded-lg flex items-center justify-center`}>
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">{stat.title}</h3>
-                <p className={`text-4xl font-black ${
+                <h3 className="text-lg font-semibold text-white mb-2">{stat.title}</h3>
+                <p className={`text-2xl font-bold ${
                   stat.color === 'green' ? 'text-[#9BA8AB]' :
                   stat.color === 'blue' ? 'text-[#4A5C6A]' :
                   'text-[#253745]'
@@ -339,33 +377,39 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h3 className="text-3xl font-bold text-white mb-6">Notre Mission</h3>
+              <h3 className="text-3xl font-bold text-white mb-6">Notre Engagement</h3>
               <p className="text-gray-300 mb-6 leading-relaxed text-lg">
-                Time-Swap est une plateforme moderne qui permet aux utilisateurs de créer, gérer et réserver 
-                des services en toute sécurité. Notre système de crédits facilite les échanges et encourage 
-                la collaboration entre les membres de la communauté.
+                Time-Swap est une plateforme bancaire moderne qui offre une gestion complète de vos comptes 
+                et transactions. Notre système sécurisé garantit la protection de vos données et la traçabilité 
+                de toutes vos opérations financières.
               </p>
               <p className="text-gray-300 mb-8 leading-relaxed">
-                Avec des fonctionnalités comme les notifications temps réel, les avatars personnalisés, 
-                et un système de réservation complet, nous créons une expérience utilisateur fluide et sécurisée.
+                Avec des fonctionnalités avancées de suivi, des notifications en temps réel, 
+                et une interface intuitive, nous offrons une expérience bancaire digitale de qualité professionnelle.
               </p>
               
               <div className="space-y-4">
                 <div className="flex items-center space-x-4">
-                  <div className="w-8 h-8 bg-[#4A5C6A] rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">✓</span>
+                  <div className="w-8 h-8 bg-[#4A5C6A] rounded flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
-                  <span className="text-gray-300">Marketplace de services complet</span>
+                  <span className="text-gray-300">Gestion de compte complète</span>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <div className="w-8 h-8 bg-[#9BA8AB] rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">✓</span>
+                  <div className="w-8 h-8 bg-[#9BA8AB] rounded flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
-                  <span className="text-gray-300">Notifications temps réel</span>
+                  <span className="text-gray-300">Virements sécurisés</span>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <div className="w-8 h-8 bg-[#CCD0CF] rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">✓</span>
+                  <div className="w-8 h-8 bg-[#CCD0CF] rounded flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
                   <span className="text-gray-300">Sécurité renforcée</span>
                 </div>
@@ -373,14 +417,15 @@ export default function HomePage() {
             </div>
 
             <div className="relative">
-              <div className="w-full h-96 bg-gradient-to-br from-[#9BA8AB]/20 to-[#4A5C6A]/20 rounded-2xl border border-[#9BA8AB]/30 flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#9BA8AB]/10 to-[#4A5C6A]/10 animate-pulse"></div>
+              <div className="w-full h-96 bg-gradient-to-br from-[#9BA8AB]/20 to-[#4A5C6A]/20 rounded-lg border border-[#9BA8AB]/30 flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
                 <div className="relative z-10 text-center">
-                  <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-r from-[#9BA8AB] to-[#4A5C6A] rounded-full flex items-center justify-center text-4xl animate-pulse">
-                    🚀
+                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-[#9BA8AB] to-[#4A5C6A] rounded-lg flex items-center justify-center">
+                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Plateforme active</h3>
-                  <p className="text-[#9BA8AB] font-semibold">Services en temps réel</p>
+                  <h3 className="text-xl font-semibold text-white mb-2">Plateforme active</h3>
+                  <p className="text-[#9BA8AB] text-sm font-medium">Services bancaires en ligne</p>
                 </div>
               </div>
             </div>
@@ -392,16 +437,16 @@ export default function HomePage() {
       <section className="relative py-32 px-6 bg-gradient-to-r from-[#4A5C6A] via-[#9BA8AB] to-[#CCD0CF]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Prêt à commencer ?
+            Ouvrez votre compte
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Rejoignez notre communauté. Créez, réservez et échangez des services en toute sécurité.
+            Rejoignez notre plateforme bancaire. Gérez vos comptes et effectuez vos transactions en toute sécurité.
           </p>
           <Link
             href="/auth/register"
-            className="inline-block px-12 py-6 bg-white text-[#4A5C6A] rounded-lg text-xl font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl"
+            className="inline-block px-12 py-6 bg-white text-[#4A5C6A] rounded-lg text-xl font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg"
           >
-            Créer un compte gratuit
+            Ouvrir un compte
           </Link>
         </div>
       </section>
@@ -417,7 +462,7 @@ export default function HomePage() {
                 </div>
                 <span className="text-white text-xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
               </Link>
-              <p className="text-gray-400">La plateforme complète pour échanger des services</p>
+              <p className="text-gray-400">Plateforme bancaire sécurisée</p>
             </div>
             
             <div>

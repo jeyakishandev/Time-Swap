@@ -11,32 +11,28 @@ import NotificationCenter from '../../components/NotificationCenter';
 import ReviewsList from '../../components/ReviewsList';
 import RatingStats from '../../components/RatingStats';
 import CreateReviewModal from '../../components/CreateReviewModal';
+import ServiceRating from '../../components/ServiceRating';
+import { 
+  usersApi, 
+  transactionsApi, 
+  servicesApi, 
+  bookingsApi, 
+  reviewsApi,
+  type User,
+  type Transaction,
+  type Service,
+  type Booking,
+  type Review
+} from '../../lib/api';
 
-interface User {
-  id: string;
-  email: string;
-  username: string;
-  credits: number;
-}
-
-interface Transaction {
-  id: string;
-  amount: number;
-  description?: string;
-  status: string;
-  senderId: string;
-  receiverId: string;
-  sender: { username: string };
-  receiver: { username: string };
-  createdAt: string;
-}
+// Types importés depuis lib/api.ts
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [transferForm, setTransferForm] = useState({
     receiverId: '',
@@ -52,7 +48,8 @@ export default function DashboardPage() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedReviewTarget, setSelectedReviewTarget] = useState<any>(null);
-  const [selectedService, setSelectedService] = useState<any>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [serviceForm, setServiceForm] = useState({
     title: '',
     description: '',
@@ -67,12 +64,10 @@ export default function DashboardPage() {
   });
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showEditServiceModal, setShowEditServiceModal] = useState(false);
-  const [editingService, setEditingService] = useState<any>(null);
+  const [editingService, setEditingService] = useState<Service | null>(null);
   const [profileForm, setProfileForm] = useState({
     username: '',
     email: '',
-    firstName: '',
-    lastName: '',
     bio: '',
     phone: '',
     location: ''
@@ -91,6 +86,7 @@ export default function DashboardPage() {
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | null}>({message: '', type: null});
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedAvailableCategory, setSelectedAvailableCategory] = useState<string>('all');
+  const [completedServiceIds, setCompletedServiceIds] = useState<Set<string>>(new Set());
   const router = useRouter();
 
   useEffect(() => {
@@ -106,21 +102,7 @@ export default function DashboardPage() {
 
       // Vérifier la validité du token avec le serveur
       try {
-        const response = await fetch('http://localhost:3001/users/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          // Token invalide, déconnecter et rediriger
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          localStorage.removeItem('hasVisitedDashboard');
-          router.push('/auth/login');
-          return;
-        }
+        await usersApi.getProfile();
 
         // Token valide, continuer avec le chargement des données
         await fetchData();
@@ -163,77 +145,60 @@ export default function DashboardPage() {
     }
     
     try {
-      // Récupérer le profil de l'utilisateur connecté
-      const profileResponse = await fetch('http://localhost:3001/users/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      // Récupérer toutes les données en parallèle
+      const [profileData, usersData, transactionsData, bookingsData, servicesData, reviewsData] = await Promise.allSettled([
+        usersApi.getProfile(),
+        usersApi.getAll(),
+        usersApi.getTransactions(),
+        bookingsApi.getMyBookings(),
+        servicesApi.getAll(),
+        reviewsApi.getAll(),
+      ]);
 
-      if (profileResponse.ok) {
-        const profileData = await profileResponse.json();
-        setUser(profileData);
-        localStorage.setItem('currentUser', profileData.id);
-      } else if (profileResponse.status === 401) {
-        // Token invalide, rediriger vers login
+      // Traiter le profil
+      if (profileData.status === 'fulfilled') {
+        setUser(profileData.value);
+        localStorage.setItem('currentUser', profileData.value.id);
+      } else if (profileData.reason?.response?.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         router.push('/auth/login');
         return;
       }
 
-      // Récupérer tous les utilisateurs
-      const usersResponse = await fetch('http://localhost:3001/users', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (usersResponse.ok) {
-        const usersData = await usersResponse.json();
-        setUsers(usersData);
+      // Traiter les utilisateurs
+      if (usersData.status === 'fulfilled') {
+        setUsers(usersData.value);
       }
 
-      // Récupérer les transactions de l'utilisateur connecté
-      const transactionsResponse = await fetch('http://localhost:3001/users/me/transactions', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (transactionsResponse.ok) {
-        const transactionsData = await transactionsResponse.json();
-        setTransactions(transactionsData);
+      // Traiter les transactions
+      if (transactionsData.status === 'fulfilled') {
+        setTransactions(transactionsData.value);
       }
 
-      // Récupérer les réservations
-      const bookingsResponse = await fetch('http://localhost:3001/bookings/my-bookings', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (bookingsResponse.ok) {
-        const bookingsData = await bookingsResponse.json();
-        setBookings(bookingsData);
+      // Traiter les réservations
+      if (bookingsData.status === 'fulfilled') {
+        setBookings(bookingsData.value);
+        const completedServiceIds = bookingsData.value
+          .filter((booking) => booking.status === 'COMPLETED')
+          .map((booking) => booking.serviceId);
+        setCompletedServiceIds(new Set(completedServiceIds));
       }
 
-      // Récupérer les services disponibles
-      const servicesResponse = await fetch('http://localhost:3001/services', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      // Traiter les services
+      if (servicesData.status === 'fulfilled') {
+        setServices(servicesData.value);
+      }
 
-      if (servicesResponse.ok) {
-        const servicesData = await servicesResponse.json();
-        console.log('🔍 Services chargés:', servicesData.length);
-        console.log('🔍 Catégories trouvées:', [...new Set(servicesData.map(s => s.category))]);
-        // Stocker les services dans un état pour les utiliser dans les réservations
-        setServices(servicesData);
+      // Traiter les avis
+      if (reviewsData.status === 'fulfilled') {
+        setReviews(reviewsData.value);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
+      // Erreur critique seulement
+      if (error instanceof Error) {
+        console.error('Erreur lors du chargement des données:', error.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -246,44 +211,27 @@ export default function DashboardPage() {
     setIsTransferring(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/transactions/transfer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          senderId: user.id,
-          receiverId: transferForm.receiverId,
-          amount: parseFloat(transferForm.amount),
-          description: transferForm.description,
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        
-        // Mettre à jour le solde local
-        setUser(prev => prev ? { ...prev, credits: prev.credits - parseFloat(transferForm.amount) } : null);
-        
-        // Ajouter la transaction à la liste
-        setTransactions(prev => [result, ...prev]);
-        
-        // Réinitialiser le formulaire
-        setTransferForm({ receiverId: '', amount: '', description: '' });
-        setShowTransferModal(false);
-        
-        // Notification de succès
-        const receiver = users.find(u => u.id === transferForm.receiverId);
-        // Transfert réussi - notification automatique via WebSocket
-      } else {
-        const error = await response.json();
-
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-
+      const result = await transactionsApi.transfer(
+        user.id,
+        transferForm.receiverId,
+        parseFloat(transferForm.amount),
+        transferForm.description
+      );
+      
+      // Mettre à jour le solde local
+      setUser(prev => prev ? { ...prev, credits: prev.credits - parseFloat(transferForm.amount) } : null);
+      
+      // Ajouter la transaction à la liste
+      setTransactions(prev => [result, ...prev]);
+      
+      // Réinitialiser le formulaire
+      setTransferForm({ receiverId: '', amount: '', description: '' });
+      setShowTransferModal(false);
+      
+      showToast('Virement effectué avec succès', 'success');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Erreur lors du virement';
+      showToast(errorMessage, 'error');
     } finally {
       setIsTransferring(false);
     }
@@ -302,36 +250,22 @@ export default function DashboardPage() {
   // Fonction pour créer un nouveau service
   const handleCreateService = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
     
     try {
-      const response = await fetch('http://localhost:3001/services', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: serviceForm.title,
-          description: serviceForm.description,
-          pricePerHour: parseInt(serviceForm.price),
-          category: serviceForm.category,
-          duration: parseInt(serviceForm.duration)
-        }),
+      await servicesApi.create({
+        title: serviceForm.title,
+        description: serviceForm.description,
+        pricePerHour: parseFloat(serviceForm.price),
+        category: serviceForm.category,
       });
 
-      if (response.ok) {
-
-        setServiceForm({ title: '', description: '', price: '', category: '', duration: '' });
-        setShowServiceModal(false);
-        fetchData(); // Recharger les données
-      } else {
-        const error = await response.json();
-
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-
+      setServiceForm({ title: '', description: '', price: '', category: '', duration: '' });
+      setShowServiceModal(false);
+      showToast('Service créé avec succès', 'success');
+      fetchData();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Erreur lors de la création du service';
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -351,38 +285,25 @@ export default function DashboardPage() {
   // Fonction pour modifier un service
   const handleUpdateService = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
     
-    if (!token || !editingService) return;
+    if (!editingService) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/services/${editingService.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: editServiceForm.title,
-          description: editServiceForm.description,
-          pricePerHour: parseInt(editServiceForm.pricePerHour),
-          category: editServiceForm.category,
-          duration: parseInt(editServiceForm.duration)
-        }),
+      await servicesApi.update(editingService.id, {
+        title: editServiceForm.title,
+        description: editServiceForm.description,
+        pricePerHour: parseFloat(editServiceForm.pricePerHour),
+        category: editServiceForm.category,
       });
 
-      if (response.ok) {
-        setShowEditServiceModal(false);
-        setEditingService(null);
-        setEditServiceForm({ title: '', description: '', pricePerHour: '', category: '', duration: '' });
-        fetchData();
-        setToast({ message: 'Service modifié avec succès !', type: 'success' });
-      } else {
-        setToast({ message: 'Erreur lors de la modification du service', type: 'error' });
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      setToast({ message: 'Erreur lors de la modification du service', type: 'error' });
+      setShowEditServiceModal(false);
+      setEditingService(null);
+      setEditServiceForm({ title: '', description: '', pricePerHour: '', category: '', duration: '' });
+      showToast('Service modifié avec succès', 'success');
+      fetchData();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Erreur lors de la modification du service';
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -397,33 +318,21 @@ export default function DashboardPage() {
     }
     
     try {
-      const response = await fetch('http://localhost:3001/bookings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          serviceId: selectedService.id,
-          hours: 1, // Par défaut 1 heure
-          notes: bookingForm.message,
-          scheduledAt: bookingForm.preferredDate ? new Date(bookingForm.preferredDate).toISOString() : null
-        }),
+      await bookingsApi.create({
+        serviceId: selectedService.id,
+        hours: 1,
+        notes: bookingForm.message,
+        scheduledAt: bookingForm.preferredDate ? new Date(bookingForm.preferredDate).toISOString() : undefined
       });
 
-      if (response.ok) {
-
-        setBookingForm({ serviceId: '', message: '', preferredDate: '' });
-        setShowBookingModal(false);
-        setSelectedService(null);
-        fetchData(); // Recharger les données
-      } else {
-        const error = await response.json();
-
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-
+      setBookingForm({ serviceId: '', message: '', preferredDate: '' });
+      setShowBookingModal(false);
+      setSelectedService(null);
+      showToast('Réservation créée avec succès', 'success');
+      fetchData();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Erreur lors de la création de la réservation';
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -444,11 +353,9 @@ export default function DashboardPage() {
       setProfileForm({
         username: user.username || '',
         email: user.email || '',
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        bio: user.bio || '',
-        phone: user.phone || '',
-        location: user.location || ''
+        bio: '',
+        phone: '',
+        location: ''
       });
       setAvatarSeed(user.username || '');
     }
@@ -458,22 +365,12 @@ export default function DashboardPage() {
   // Fonction pour sauvegarder les modifications de profil
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
     
     try {
-      const response = await fetch('http://localhost:3001/users/me', {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(profileForm),
-      });
-
-      if (response.ok) {
-
-        setShowProfileModal(false);
-        fetchData(); // Recharger les données
+      await usersApi.updateProfile(profileForm);
+      showToast('Profil mis à jour avec succès', 'success');
+      setShowProfileModal(false);
+      fetchData();
       } else {
         const error = await response.json();
 
@@ -500,28 +397,14 @@ export default function DashboardPage() {
   };
 
   const handleCreateReview = async (data: { rating: number; comment: string; revieweeId: string; serviceId?: string; bookingId?: string }) => {
-    const token = localStorage.getItem('token');
-    
     try {
-      const response = await fetch('http://localhost:3001/reviews', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        showToast('⭐ Avis publié avec succès !', 'success');
-        fetchData(); // Recharger les données
-      } else {
-        const error = await response.json();
-        showToast(`❌ Erreur: ${error.message || 'Impossible de publier l\'avis'}`, 'error');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'avis:', error);
-      showToast('❌ Erreur de connexion', 'error');
+      await reviewsApi.create(data);
+      showToast('Avis publié avec succès', 'success');
+      fetchData();
+      setShowReviewModal(false);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Impossible de publier l\'avis';
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -552,45 +435,41 @@ export default function DashboardPage() {
   // Calculer les statistiques
   const myServices = services.filter(service => service.providerId === user?.id);
   const myBookings = bookings.filter(booking => booking.providerId === user?.id);
-  const completedBookings = myBookings.filter(booking => booking.status === 'COMPLETED');
-  const totalEarned = completedBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
+  const completedBookings = myBookings.filter(booking => {
+    if (booking.status !== 'COMPLETED') return false;
+    // Vérifier si l'utilisateur a déjà donné un avis pour cette réservation
+    const hasReview = reviews.some(review => 
+      review.bookingId === booking.id && review.reviewerId === user?.id
+    );
+    return !hasReview;
+  });
+  const totalEarned = myBookings
+    .filter(booking => booking.status === 'COMPLETED')
+    .reduce((sum, booking) => sum + booking.totalPrice, 0);
+  
+  // Statistiques pour les réservations en tant que client
+  const clientBookings = bookings.filter(booking => booking.clientId === user?.id);
+  const completedClientBookings = clientBookings.filter(booking => {
+    if (booking.status !== 'COMPLETED') return false;
+    // Vérifier si l'utilisateur a déjà donné un avis pour cette réservation
+    const hasReview = reviews.some(review => 
+      review.bookingId === booking.id && review.reviewerId === user?.id
+    );
+    return !hasReview;
+  });
 
   // Fonction pour confirmer une réservation
   const handleConfirmBooking = async (bookingId: string) => {
-    const token = localStorage.getItem('token');
-    
-    // Marquer cette réservation comme en cours de traitement
     setProcessingBookings(prev => new Set(prev).add(bookingId));
     
     try {
-      console.log('🔄 Confirmation de la réservation:', bookingId);
-      
-      const response = await fetch(`http://localhost:3001/bookings/${bookingId}/confirm`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      console.log('📡 Réponse du serveur:', response.status, response.statusText);
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ Réservation confirmée:', result);
-        // Notification de succès plus élégante
-        showToast('✅ Réservation confirmée avec succès !', 'success');
-        fetchData(); // Recharger les données
-      } else {
-        const error = await response.json();
-        console.error('❌ Erreur serveur:', error);
-        showToast(`❌ Erreur: ${error.message || 'Impossible de confirmer la réservation'}`, 'error');
-      }
-    } catch (error) {
-      console.error('❌ Erreur de connexion:', error);
-      showToast('❌ Erreur de connexion. Veuillez réessayer.', 'error');
+      await bookingsApi.confirm(bookingId);
+      showToast('Réservation confirmée avec succès', 'success');
+      fetchData();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Impossible de confirmer la réservation';
+      showToast(errorMessage, 'error');
     } finally {
-      // Retirer cette réservation de la liste des réservations en cours
       setProcessingBookings(prev => {
         const newSet = new Set(prev);
         newSet.delete(bookingId);
@@ -601,32 +480,16 @@ export default function DashboardPage() {
 
   // Fonction pour annuler une réservation
   const handleCancelBooking = async (bookingId: string) => {
-    const token = localStorage.getItem('token');
-    
-    // Marquer cette réservation comme en cours de traitement
     setProcessingBookings(prev => new Set(prev).add(bookingId));
     
     try {
-      const response = await fetch(`http://localhost:3001/bookings/${bookingId}/cancel`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        showToast('❌ Réservation refusée avec succès !', 'success');
-        fetchData(); // Recharger les données
-      } else {
-        const error = await response.json();
-        showToast(`❌ Erreur: ${error.message || 'Impossible de refuser la réservation'}`, 'error');
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      showToast('❌ Erreur de connexion. Veuillez réessayer.', 'error');
+      await bookingsApi.cancel(bookingId);
+      showToast('Réservation refusée avec succès', 'success');
+      fetchData();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Impossible de refuser la réservation';
+      showToast(errorMessage, 'error');
     } finally {
-      // Retirer cette réservation de la liste des réservations en cours
       setProcessingBookings(prev => {
         const newSet = new Set(prev);
         newSet.delete(bookingId);
@@ -637,32 +500,16 @@ export default function DashboardPage() {
 
   // Fonction pour marquer une réservation comme terminée
   const handleCompleteBooking = async (bookingId: string) => {
-    const token = localStorage.getItem('token');
-    
-    // Marquer cette réservation comme en cours de traitement
     setProcessingBookings(prev => new Set(prev).add(bookingId));
     
     try {
-      const response = await fetch(`http://localhost:3001/bookings/${bookingId}/complete`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        showToast('🎉 Réservation terminée avec succès !', 'success');
-        fetchData(); // Recharger les données
-      } else {
-        const error = await response.json();
-        showToast(`❌ Erreur: ${error.message || 'Impossible de terminer la réservation'}`, 'error');
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      showToast('❌ Erreur de connexion. Veuillez réessayer.', 'error');
+      await bookingsApi.complete(bookingId);
+      showToast('Réservation terminée avec succès', 'success');
+      fetchData();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Impossible de terminer la réservation';
+      showToast(errorMessage, 'error');
     } finally {
-      // Retirer cette réservation de la liste des réservations en cours
       setProcessingBookings(prev => {
         const newSet = new Set(prev);
         newSet.delete(bookingId);
@@ -1313,7 +1160,6 @@ export default function DashboardPage() {
                         const count = category.value === 'all' 
                           ? services.filter(service => service.providerId === user?.id).length
                           : services.filter(service => service.providerId === user?.id && service.category === category.value).length;
-                        console.log(`🔍 Compteur ${category.label}: ${count} services`);
                         return (
                           <option key={category.value} value={category.value} className="bg-slate-800">
                             {category.label} ({count})
@@ -1342,6 +1188,11 @@ export default function DashboardPage() {
                           </div>
                         </div>
                         <h4 className="text-white font-bold mb-2">{service.title}</h4>
+                        <ServiceRating 
+                          serviceId={service.id} 
+                          className="mb-2" 
+                          showReviewButton={false}
+                        />
                         <p className="text-gray-300 text-sm mb-3">{service.description}</p>
                         <div className="flex justify-between items-center">
                           <span className="text-[#4A5C6A] font-bold">{service.pricePerHour} crédits/heure</span>
@@ -1427,6 +1278,20 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <h4 className="text-white font-bold mb-2">{service.title}</h4>
+                      <ServiceRating 
+                        serviceId={service.id} 
+                        className="mb-2" 
+                        showReviewButton={completedServiceIds.has(service.id)}
+                        onReviewClick={() => {
+                          setSelectedReviewTarget({
+                            id: service.providerId,
+                            name: service.provider?.username || 'Utilisateur',
+                            serviceId: service.id,
+                            serviceTitle: service.title
+                          });
+                          setShowReviewModal(true);
+                        }}
+                      />
                       <p className="text-gray-300 text-sm mb-3">{service.description}</p>
                       <div className="flex justify-between items-center">
                         <span className="text-[#4A5C6A] font-bold">{service.pricePerHour} crédits/heure</span>
@@ -1473,7 +1338,7 @@ export default function DashboardPage() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-300 text-sm">Réservations reçues</p>
+                      <p className="text-gray-300 text-sm">Réservations en tant que prestataire</p>
                       <p className="text-3xl font-bold text-white">{myBookings.length}</p>
                     </div>
                     <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
@@ -1485,14 +1350,54 @@ export default function DashboardPage() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-300 text-sm">Réservations terminées</p>
+                      <p className="text-gray-300 text-sm">Réservations terminées (prestataire)</p>
                       <p className="text-3xl font-bold text-white">{completedBookings.length}</p>
                     </div>
                     <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-400 text-xl">✅</span>
+                      <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
                     </div>
                   </div>
                 </div>
+
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-300 text-sm">Réservations en tant que client</p>
+                      <p className="text-3xl font-bold text-white">{clientBookings.length}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <span className="text-purple-400 text-xl">🛒</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Indicateur d'avis en attente */}
+                {(completedBookings.length > 0 || completedClientBookings.length > 0) && (
+                  <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/20">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-yellow-300 text-sm font-medium">Avis en attente</p>
+                        <p className="text-2xl font-bold text-white">{completedBookings.length + completedClientBookings.length}</p>
+                        <p className="text-yellow-200 text-xs">Services terminés à évaluer</p>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                          <svg className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        </div>
+                        <button
+                          onClick={() => setActiveTab('bookings')}
+                          className="px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm hover:bg-yellow-500/30 transition-colors border border-yellow-500/30"
+                        >
+                          Donner mes avis
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center justify-between">
@@ -1501,7 +1406,9 @@ export default function DashboardPage() {
                       <p className="text-3xl font-bold text-white">{totalEarned}</p>
                     </div>
                     <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-yellow-400 text-xl">💰</span>
+                      <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
                     </div>
                   </div>
                 </div>
@@ -1517,9 +1424,52 @@ export default function DashboardPage() {
                 <p className="text-gray-300 text-sm md:text-base">Gérez vos réservations de services</p>
               </div>
 
+              {/* Réservations terminées en tant que client avec possibilité d'avis */}
+              {completedClientBookings.length > 0 && (
+                <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 backdrop-blur-sm rounded-xl p-6 border border-green-500/20">
+                  <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 inline text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Évaluez vos services reçus
+                  </h2>
+                  <p className="text-green-200 text-sm mb-4">
+                    Partagez votre expérience pour aider la communauté
+                  </p>
+                  <div className="space-y-3">
+                    {completedClientBookings.map((booking) => (
+                      <div key={booking.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-white font-semibold">{booking.service.title}</h3>
+                            <p className="text-gray-300 text-sm">Prestataire: {booking.provider.username}</p>
+                            <p className="text-gray-300 text-sm">Terminé le {new Date(booking.updatedAt).toLocaleDateString()}</p>
+                          </div>
+                          <button
+                            className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm hover:bg-green-500/30 transition-colors border border-green-500/30"
+                            onClick={() => {
+                              setSelectedReviewTarget({
+                                revieweeId: booking.providerId,
+                                revieweeUsername: booking.provider.username,
+                                serviceId: booking.serviceId,
+                                serviceTitle: booking.service.title,
+                                bookingId: booking.id
+                              });
+                              setShowReviewModal(true);
+                            }}
+                          >
+                            Évaluer le prestataire
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Réservations en tant que client */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <h2 className="text-xl font-bold text-white mb-6">Réservations reçues</h2>
+                <h2 className="text-xl font-bold text-white mb-6">Mes réservations (en tant que client)</h2>
                 <div className="space-y-4">
                   {bookings.filter(booking => booking.clientId === user?.id).length > 0 ? (
                     bookings.filter(booking => booking.clientId === user?.id).map((booking) => (
@@ -1551,14 +1501,57 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-300 text-center py-8">Aucune réservation reçue</p>
+                    <p className="text-gray-300 text-center py-8">Aucune réservation en tant que client</p>
                   )}
                 </div>
               </div>
 
+              {/* Réservations terminées avec possibilité d'avis */}
+              {completedBookings.length > 0 && (
+                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-sm rounded-xl p-6 border border-blue-500/20">
+                  <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                    <svg className="w-4 h-4 mr-2 inline text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    Donnez votre avis sur les services terminés
+                  </h2>
+                  <p className="text-blue-200 text-sm mb-4">
+                    Évaluez vos clients pour améliorer la communauté
+                  </p>
+                  <div className="space-y-3">
+                    {completedBookings.map((booking) => (
+                      <div key={booking.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-white font-semibold">{booking.service.title}</h3>
+                            <p className="text-gray-300 text-sm">Client: {booking.client.username}</p>
+                            <p className="text-gray-300 text-sm">Terminé le {new Date(booking.updatedAt).toLocaleDateString()}</p>
+                          </div>
+                          <button
+                            className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg text-sm hover:bg-blue-500/30 transition-colors border border-blue-500/30"
+                            onClick={() => {
+                              setSelectedReviewTarget({
+                                revieweeId: booking.clientId,
+                                revieweeUsername: booking.client.username,
+                                serviceId: booking.serviceId,
+                                serviceTitle: booking.service.title,
+                                bookingId: booking.id
+                              });
+                              setShowReviewModal(true);
+                            }}
+                          >
+                            Évaluer le client
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Réservations en tant que prestataire */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <h2 className="text-xl font-bold text-white mb-6">Réservations de mes services</h2>
+                <h2 className="text-xl font-bold text-white mb-6">Réservations de mes services (en tant que prestataire)</h2>
                 <div className="space-y-4">
                   {bookings.filter(booking => booking.providerId === user?.id).length > 0 ? (
                     bookings.filter(booking => booking.providerId === user?.id).map((booking) => (
@@ -1588,7 +1581,7 @@ export default function DashboardPage() {
                                       : 'bg-green-500 hover:bg-green-600 text-white'
                                   }`}
                                 >
-                                  {processingBookings.has(booking.id) ? '⏳' : '✅ Confirmer'}
+                                  {processingBookings.has(booking.id) ? 'En cours...' : 'Confirmer'}
                                 </button>
                                 <button 
                                   onClick={() => handleCancelBooking(booking.id)}
@@ -1599,7 +1592,7 @@ export default function DashboardPage() {
                                       : 'bg-red-500 hover:bg-red-600 text-white'
                                   }`}
                                 >
-                                  {processingBookings.has(booking.id) ? '⏳' : '❌ Refuser'}
+                                  {processingBookings.has(booking.id) ? 'En cours...' : 'Refuser'}
                                 </button>
                               </>
                             )}
@@ -1613,7 +1606,7 @@ export default function DashboardPage() {
                                     : 'bg-blue-500 hover:bg-blue-600 text-white'
                                 }`}
                               >
-                                {processingBookings.has(booking.id) ? '⏳' : '🎉 Terminer'}
+                                {processingBookings.has(booking.id) ? 'En cours...' : 'Terminer'}
                               </button>
                             )}
                           </div>
@@ -1621,7 +1614,7 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-300 text-center py-8">Aucune réservation de vos services</p>
+                    <p className="text-gray-300 text-center py-8">Aucune réservation de vos services en tant que prestataire</p>
                   )}
                 </div>
               </div>
@@ -1752,7 +1745,7 @@ export default function DashboardPage() {
                   <div className="text-center sm:text-left">
                     <h3 className="text-white font-bold text-lg">{user?.username}</h3>
                     <p className="text-gray-300 text-sm">{user?.email}</p>
-                    <p className="text-[#4A5C6A] text-xs mt-1">Membre depuis {new Date(user?.createdAt || '').toLocaleDateString('fr-FR')}</p>
+                    <p className="text-[#4A5C6A] text-xs mt-1">Membre depuis {new Date().toLocaleDateString('fr-FR')}</p>
                   </div>
                 </div>
               </div>
@@ -1771,23 +1764,23 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <label className="block text-gray-300 text-sm mb-1">Prénom</label>
-                      <p className="text-white font-medium">{user?.firstName || 'Non renseigné'}</p>
+                      <p className="text-white font-medium">{user?.username || 'Non renseigné'}</p>
                     </div>
                     <div>
                       <label className="block text-gray-300 text-sm mb-1">Nom</label>
-                      <p className="text-white font-medium">{user?.lastName || 'Non renseigné'}</p>
+                      <p className="text-white font-medium">{user?.email || 'Non renseigné'}</p>
                     </div>
                     <div>
                       <label className="block text-gray-300 text-sm mb-1">Bio</label>
-                      <p className="text-white font-medium">{user?.bio || 'Aucune bio'}</p>
+                      <p className="text-white font-medium">Aucune bio</p>
                     </div>
                     <div>
                       <label className="block text-gray-300 text-sm mb-1">Téléphone</label>
-                      <p className="text-white font-medium">{user?.phone || 'Non renseigné'}</p>
+                      <p className="text-white font-medium">Non renseigné</p>
                     </div>
                     <div>
                       <label className="block text-gray-300 text-sm mb-1">Localisation</label>
-                      <p className="text-white font-medium">{user?.location || 'Non renseigné'}</p>
+                      <p className="text-white font-medium">Non renseigné</p>
                     </div>
                     <div>
                       <label className="block text-gray-300 text-sm mb-1">ID utilisateur</label>
@@ -2330,7 +2323,15 @@ export default function DashboardPage() {
         }`}>
           <div className="flex items-center space-x-2">
             <span className="text-lg">
-              {toast.type === 'success' ? '✅' : '❌'}
+              {toast.type === 'success' ? (
+                <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
             </span>
             <span className="font-medium">{toast.message}</span>
           </div>
@@ -2414,27 +2415,27 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Prénom
+                    Nom d'utilisateur
                   </label>
                   <input
                     type="text"
-                    value={profileForm.firstName}
-                    onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
+                    value={profileForm.username}
+                    onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
-                    placeholder="Prénom"
+                    placeholder="Nom d'utilisateur"
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Nom
+                    Email
                   </label>
                   <input
-                    type="text"
-                    value={profileForm.lastName}
-                    onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
+                    type="email"
+                    value={profileForm.email}
+                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
-                    placeholder="Nom"
+                    placeholder="Email"
                   />
                 </div>
               </div>
@@ -2507,8 +2508,8 @@ export default function DashboardPage() {
         isOpen={showReviewModal}
         onClose={() => setShowReviewModal(false)}
         onSubmit={handleCreateReview}
-        revieweeId={selectedReviewTarget?.id || ''}
-        revieweeName={selectedReviewTarget?.name || ''}
+        revieweeId={selectedReviewTarget?.revieweeId || ''}
+        revieweeName={selectedReviewTarget?.revieweeUsername || ''}
         serviceId={selectedReviewTarget?.serviceId}
         serviceTitle={selectedReviewTarget?.serviceTitle}
         bookingId={selectedReviewTarget?.bookingId}

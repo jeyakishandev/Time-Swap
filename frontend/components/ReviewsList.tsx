@@ -2,28 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import ReviewCard from './ReviewCard';
+import { reviewsApi, type Review } from '../lib/api';
 
-interface Review {
-  id: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-  reviewer: {
-    id: string;
-    username: string;
-  };
-  reviewee: {
-    id: string;
-    username: string;
-  };
-  service?: {
-    id: string;
-    title: string;
-  };
-  booking?: {
-    id: string;
-  };
-}
+// Type Review importé depuis lib/api.ts
 
 interface ReviewsListProps {
   userId?: string;
@@ -50,36 +31,19 @@ export default function ReviewsList({
         setLoading(true);
         setError(null);
 
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('Non authentifié');
-          return;
-        }
-
-        let url = 'http://localhost:3001/reviews';
+        let data: Review[];
         if (userId) {
-          url = `http://localhost:3001/reviews/user/${userId}`;
+          data = await reviewsApi.getByUser(userId);
         } else if (serviceId) {
-          url = `http://localhost:3001/reviews/service/${serviceId}`;
+          data = await reviewsApi.getByService(serviceId);
+        } else {
+          data = await reviewsApi.getAll();
         }
 
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Erreur lors du chargement des avis');
-        }
-
-        const data = await response.json();
         const limitedReviews = limit ? data.slice(0, limit) : data;
         setReviews(limitedReviews);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erreur inconnue');
-        console.error('Erreur lors du chargement des avis:', err);
+        setError(err instanceof Error ? err.message : 'Erreur lors du chargement des avis');
       } finally {
         setLoading(false);
       }

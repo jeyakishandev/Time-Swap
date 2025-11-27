@@ -14,7 +14,10 @@ const api = axios.create({
 // Intercepteur pour ajouter le token JWT à chaque requête
 api.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('token');
+    // Utiliser localStorage si disponible, sinon Cookies
+    const token = typeof window !== 'undefined' 
+      ? localStorage.getItem('token') || Cookies.get('token')
+      : Cookies.get('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,10 +34,14 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expiré ou invalide
-      Cookies.remove('token');
-      Cookies.remove('user');
       if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('currentUser');
         window.location.href = '/auth/login';
+      } else {
+        Cookies.remove('token');
+        Cookies.remove('user');
       }
     }
     return Promise.reject(error);
@@ -95,6 +102,63 @@ export const authApi = {
   },
 };
 
+// Types supplémentaires
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  pricePerHour: number;
+  isActive: boolean;
+  providerId: string;
+  provider?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Booking {
+  id: string;
+  clientId: string;
+  serviceId: string;
+  providerId: string;
+  hours: number;
+  totalPrice: number;
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+  notes?: string;
+  scheduledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  client?: User;
+  service?: Service;
+  provider?: User;
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment?: string;
+  reviewerId: string;
+  revieweeId: string;
+  serviceId?: string;
+  bookingId?: string;
+  createdAt: string;
+  updatedAt: string;
+  reviewer?: User;
+  reviewee?: User;
+  service?: Service;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // API Users
 export const usersApi = {
   getProfile: async (): Promise<User> => {
@@ -109,6 +173,11 @@ export const usersApi = {
 
   getTransactions: async (): Promise<Transaction[]> => {
     const { data } = await api.get<Transaction[]>('/users/me/transactions');
+    return data;
+  },
+
+  updateProfile: async (profileData: Partial<User>): Promise<User> => {
+    const { data } = await api.patch<User>('/users/me', profileData);
     return data;
   },
 };
@@ -138,6 +207,126 @@ export const transactionsApi = {
   getOne: async (id: string): Promise<Transaction> => {
     const { data } = await api.get<Transaction>(`/transactions/${id}`);
     return data;
+  },
+};
+
+// API Services
+export const servicesApi = {
+  getAll: async (): Promise<Service[]> => {
+    const { data } = await api.get<Service[]>('/services');
+    return data;
+  },
+
+  getOne: async (id: string): Promise<Service> => {
+    const { data } = await api.get<Service>(`/services/${id}`);
+    return data;
+  },
+
+  create: async (serviceData: {
+    title: string;
+    description: string;
+    pricePerHour: number;
+    category: string;
+  }): Promise<Service> => {
+    const { data } = await api.post<Service>('/services', serviceData);
+    return data;
+  },
+
+  update: async (id: string, serviceData: Partial<Service>): Promise<Service> => {
+    const { data } = await api.patch<Service>(`/services/${id}`, serviceData);
+    return data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/services/${id}`);
+  },
+};
+
+// API Bookings
+export const bookingsApi = {
+  getMyBookings: async (): Promise<Booking[]> => {
+    const { data } = await api.get<Booking[]>('/bookings/my-bookings');
+    return data;
+  },
+
+  create: async (bookingData: {
+    serviceId: string;
+    hours: number;
+    notes?: string;
+    scheduledAt?: string;
+  }): Promise<Booking> => {
+    const { data } = await api.post<Booking>('/bookings', bookingData);
+    return data;
+  },
+
+  confirm: async (id: string): Promise<Booking> => {
+    const { data } = await api.patch<Booking>(`/bookings/${id}/confirm`);
+    return data;
+  },
+
+  cancel: async (id: string): Promise<Booking> => {
+    const { data } = await api.patch<Booking>(`/bookings/${id}/cancel`);
+    return data;
+  },
+
+  complete: async (id: string): Promise<Booking> => {
+    const { data } = await api.patch<Booking>(`/bookings/${id}/complete`);
+    return data;
+  },
+};
+
+// API Reviews
+export const reviewsApi = {
+  getAll: async (): Promise<Review[]> => {
+    const { data } = await api.get<Review[]>('/reviews');
+    return data;
+  },
+
+  getByUser: async (userId: string): Promise<Review[]> => {
+    const { data } = await api.get<Review[]>(`/reviews/user/${userId}`);
+    return data;
+  },
+
+  getByService: async (serviceId: string): Promise<Review[]> => {
+    const { data } = await api.get<Review[]>(`/reviews/service/${serviceId}`);
+    return data;
+  },
+
+  getServiceAverage: async (serviceId: string): Promise<{ average: number; count: number }> => {
+    const { data } = await api.get<{ average: number; count: number }>(`/public/reviews/service/${serviceId}/average`);
+    return data;
+  },
+
+  create: async (reviewData: {
+    revieweeId: string;
+    rating: number;
+    comment?: string;
+    serviceId?: string;
+    bookingId?: string;
+  }): Promise<Review> => {
+    const { data } = await api.post<Review>('/reviews', reviewData);
+    return data;
+  },
+};
+
+// API Notifications
+export const notificationsApi = {
+  getAll: async (): Promise<Notification[]> => {
+    const { data } = await api.get<Notification[]>('/notifications');
+    return data;
+  },
+
+  markAsRead: async (id: string): Promise<Notification> => {
+    const { data } = await api.patch<Notification>(`/notifications/${id}/read`);
+    return data;
+  },
+
+  markAllAsRead: async (): Promise<void> => {
+    await api.patch('/notifications/mark-all-read');
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/notifications/${id}`);
   },
 };
 

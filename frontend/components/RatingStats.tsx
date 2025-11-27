@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import RatingStars from './RatingStars';
+import { reviewsApi } from '../lib/api';
 
 interface RatingStatsProps {
   userId?: string;
@@ -37,25 +38,14 @@ export default function RatingStats({ userId, serviceId, className = '' }: Ratin
           return;
         }
 
-        let url = 'http://localhost:3001/reviews';
+        let reviews;
         if (userId) {
-          url = `http://localhost:3001/reviews/user/${userId}`;
+          reviews = await reviewsApi.getByUser(userId);
         } else if (serviceId) {
-          url = `http://localhost:3001/reviews/service/${serviceId}`;
+          reviews = await reviewsApi.getByService(serviceId);
+        } else {
+          reviews = await reviewsApi.getAll();
         }
-
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Erreur lors du chargement des statistiques');
-        }
-
-        const reviews = await response.json();
         
         if (reviews.length === 0) {
           setStats({
@@ -67,12 +57,12 @@ export default function RatingStats({ userId, serviceId, className = '' }: Ratin
         }
 
         // Calculer la moyenne
-        const averageRating = reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length;
+        const averageRating = reviews.reduce((sum: number, review) => sum + review.rating, 0) / reviews.length;
         
         // Calculer la distribution
         const distribution = [5, 4, 3, 2, 1].map(rating => ({
           rating,
-          count: reviews.filter((review: any) => review.rating === rating).length
+          count: reviews.filter((review) => review.rating === rating).length
         }));
 
         setStats({
@@ -81,8 +71,7 @@ export default function RatingStats({ userId, serviceId, className = '' }: Ratin
           distribution
         });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erreur inconnue');
-        console.error('Erreur lors du chargement des statistiques:', err);
+        setError(err instanceof Error ? err.message : 'Erreur lors du chargement des statistiques');
       } finally {
         setLoading(false);
       }

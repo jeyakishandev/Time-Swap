@@ -11,7 +11,7 @@ export class ReviewsController {
 
   @Post()
   create(@Body() createReviewDto: CreateReviewDto, @Request() req) {
-    return this.reviewsService.create(createReviewDto, req.user.id);
+    return this.reviewsService.create(createReviewDto, req.user.sub);
   }
 
   @Get()
@@ -46,11 +46,11 @@ export class ReviewsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto, @Request() req) {
-    return this.reviewsService.update(id, updateReviewDto, req.user.id);
+    return this.reviewsService.update(id, updateReviewDto, req.user.sub);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Request() req) {
-    return this.reviewsService.remove(id, req.user.id);
+    return this.reviewsService.remove(id, req.user.sub);
   }
 }
