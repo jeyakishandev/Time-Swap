@@ -703,7 +703,7 @@ export default function DashboardPage() {
               {/* Menu Mobile Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
+                className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -711,14 +711,14 @@ export default function DashboardPage() {
               </button>
               
               <Link href="/" className="flex items-center space-x-3 group">
-                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-[#4A5C6A] to-[#9BA8AB] rounded-lg flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-[#4A5C6A] to-[#5a6c7a] rounded-lg flex items-center justify-center shadow-md">
                   <svg className="w-6 h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="hidden sm:block">
-                  <span className="text-white text-lg lg:text-xl font-semibold tracking-tight">Time-Swap Bank</span>
-                  <p className="text-gray-400 text-xs lg:text-sm font-light">Portail bancaire</p>
+                  <span className="text-gray-900 text-lg lg:text-xl font-semibold tracking-tight">Time-Swap Bank</span>
+                  <p className="text-gray-600 text-xs lg:text-sm font-light">Portail bancaire</p>
                 </div>
               </Link>
             </div>
@@ -896,12 +896,12 @@ export default function DashboardPage() {
         </aside>
 
         {/* Sidebar - Mobile */}
-        <aside className={`fixed top-0 left-0 h-full w-80 bg-white/10 backdrop-blur-md border-r border-white/20 transform transition-transform duration-300 z-50 md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside className={`fixed top-0 left-0 h-full w-80 bg-white border-r border-gray-200 transform transition-transform duration-300 z-50 md:hidden shadow-xl ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <nav className="p-6 pt-20">
             {/* Close Button */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
+              className="absolute top-4 right-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -909,7 +909,7 @@ export default function DashboardPage() {
             </button>
 
             {/* User Info */}
-            <div className="mb-8 p-4 bg-white/5 rounded-lg">
+            <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
                   <img 
@@ -919,8 +919,8 @@ export default function DashboardPage() {
                   />
                 </div>
                 <div>
-                  <p className="text-white font-semibold">{user?.username}</p>
-                  <p className="text-gray-400 text-sm">{user?.credits?.toFixed(2)} crédits</p>
+                  <p className="text-gray-900 font-semibold">{user?.username}</p>
+                  <p className="text-gray-600 text-sm">{user?.credits?.toFixed(2)} crédits</p>
                 </div>
               </div>
             </div>
