@@ -693,14 +693,14 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#06141B] via-[#11212D] to-[#253745]">
-      {/* Header */}
-      <header className="bg-white/5 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Bancaire Professionnel */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             {/* Logo et Menu Mobile */}
-            <div className="flex items-center space-x-3 md:space-x-6">
-              {/* Menu Mobile Button - Seulement sur mobile */}
+            <div className="flex items-center space-x-4 md:space-x-6">
+              {/* Menu Mobile Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
@@ -711,64 +711,14 @@ export default function DashboardPage() {
               </button>
               
               <Link href="/" className="flex items-center space-x-3 group">
-                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg group-hover:shadow-[#4A5C6A]/25">
-                  <svg 
-                    viewBox="0 0 100 100" 
-                    className="w-full h-full rounded-xl"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    {/* Cercle extérieur avec dégradé */}
-                    <defs>
-                      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#4A5C6A" />
-                        <stop offset="100%" stopColor="#9BA8AB" />
-                      </linearGradient>
-                    </defs>
-                    <circle 
-                      cx="50" 
-                      cy="50" 
-                      r="45" 
-                      fill="url(#logoGradient)" 
-                      stroke="#CCD0CF" 
-                      strokeWidth="2"
-                    />
-                    
-                    {/* Marqueurs d'horloge */}
-                    <line x1="50" y1="10" x2="50" y2="20" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
-                    <line x1="90" y1="50" x2="80" y2="50" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
-                    <line x1="50" y1="90" x2="50" y2="80" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
-                    <line x1="10" y1="50" x2="20" y2="50" stroke="#CCD0CF" strokeWidth="3" strokeLinecap="round"/>
-                    
-                    {/* Symbole central - T */}
-                    <text 
-                      x="50" 
-                      y="45" 
-                      textAnchor="middle" 
-                      fontSize="24" 
-                      fontWeight="bold" 
-                      fill="#CCD0CF"
-                      fontFamily="Arial, sans-serif"
-                    >
-                      T
-                    </text>
-                    
-                    {/* Symbole central - S */}
-                    <text 
-                      x="50" 
-                      y="70" 
-                      textAnchor="middle" 
-                      fontSize="24" 
-                      fontWeight="bold" 
-                      fill="#CCD0CF"
-                      fontFamily="Arial, sans-serif"
-                    >
-                      S
-                    </text>
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-[#4A5C6A] to-[#9BA8AB] rounded-lg flex items-center justify-center shadow-md">
+                  <svg className="w-6 h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="hidden sm:block">
-                  <span className="text-white text-lg lg:text-xl font-bold group-hover:text-[#9BA8AB] transition-colors">Time-Swap</span>
-                  <p className="text-gray-400 text-xs lg:text-sm">Tableau de bord</p>
+                  <span className="text-white text-lg lg:text-xl font-semibold tracking-tight">Time-Swap Bank</span>
+                  <p className="text-gray-400 text-xs lg:text-sm font-light">Portail bancaire</p>
                 </div>
               </Link>
             </div>
@@ -782,7 +732,7 @@ export default function DashboardPage() {
               <div className="relative dropdown-menu">
                 <button 
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 md:space-x-3 bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-all duration-300 dropdown-trigger"
+                  className="flex items-center space-x-2 md:space-x-3 bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-all duration-300 dropdown-trigger border border-gray-200"
                 >
                   <div className="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
                     <img 
@@ -792,17 +742,17 @@ export default function DashboardPage() {
                     />
                   </div>
                   <div className="text-left hidden md:block">
-                    <p className="text-white font-semibold text-sm">{user?.username}</p>
-                    <p className="text-gray-400 text-xs">{user?.credits?.toFixed(2)} crédits</p>
+                    <p className="text-gray-900 font-semibold text-sm">{user?.username}</p>
+                    <p className="text-gray-500 text-xs">{user?.credits?.toFixed(2)} crédits</p>
                   </div>
-                  <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
                 {/* Dropdown Menu */}
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-2 shadow-xl dropdown-menu">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg border border-gray-200 p-2 shadow-xl dropdown-menu">
                     <div className="space-y-1">
                       <button 
                         onClick={() => {
@@ -828,7 +778,7 @@ export default function DashboardPage() {
                           handleLogout();
                           setShowUserMenu(false);
                         }}
-                        className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm flex items-center space-x-2"
+                        className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm flex items-center space-x-2"
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -851,25 +801,25 @@ export default function DashboardPage() {
       )}
 
       <div className="flex">
-        {/* Sidebar - Desktop et Tablet */}
-        <aside className="hidden md:block w-64 lg:w-72 bg-white/5 backdrop-blur-sm border-r border-white/10 min-h-screen">
+        {/* Sidebar - Desktop et Tablet - Design Bancaire */}
+        <aside className="hidden md:block w-64 lg:w-72 bg-gradient-to-b from-[#1a2332] to-[#253745] border-r border-[#4A5C6A]/30 min-h-screen shadow-xl">
           <nav className="p-6">
-            <div className="space-y-2">
+            <div className="space-y-1">
               {[
-                { id: 'overview', label: 'Vue d\'ensemble' },
-                { id: 'transfer', label: 'Transfert' },
-                { id: 'services', label: 'Services' },
-                { id: 'bookings', label: 'Réservations' },
-                { id: 'history', label: 'Historique' },
-                { id: 'reviews', label: 'Avis' },
-                { id: 'profile', label: 'Profil' }
+                { id: 'overview', label: 'Tableau de bord', icon: 'dashboard' },
+                { id: 'transfer', label: 'Virements', icon: 'transfer' },
+                { id: 'services', label: 'Services', icon: 'services' },
+                { id: 'bookings', label: 'Réservations', icon: 'bookings' },
+                { id: 'history', label: 'Historique', icon: 'history' },
+                { id: 'reviews', label: 'Avis', icon: 'reviews' },
+                { id: 'profile', label: 'Mon compte', icon: 'profile' }
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'bg-[#4A5C6A] text-white shadow-lg'
+                      ? 'bg-white text-[#253745] shadow-md font-semibold'
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -912,33 +862,33 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="mt-8">
-              <h3 className="text-white font-semibold mb-4">Actions rapides</h3>
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <h3 className="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">Actions rapides</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => setShowTransferModal(true)}
-                  className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
                 >
                   <BiTransfer className="w-4 h-4" />
-                  <span>Transfert rapide</span>
+                  <span className="font-medium">Virement rapide</span>
                 </button>
                 <button
                   onClick={() => setShowUserSearch(true)}
-                  className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                   </svg>
-                  <span>Rechercher utilisateur</span>
+                  <span className="font-medium">Rechercher un compte</span>
                 </button>
                 <Link
                   href="/contact"
-                  className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50 rounded-lg transition-all duration-300 border border-gray-200 hover:border-[#4A5C6A]"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
                   </svg>
-                  <span>Support</span>
+                  <span className="font-medium">Support client</span>
                 </Link>
               </div>
             </div>
@@ -1152,56 +1102,90 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Recent Transactions */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-white">Transactions récentes</h2>
-                  <button
-                    onClick={() => setActiveTab('history')}
-                    className="text-[#4A5C6A] hover:text-[#9BA8AB] transition-colors"
-                  >
-                    Voir tout
-                  </button>
+              {/* Historique des Transactions Bancaires */}
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#1a2332] to-[#253745] px-6 py-4 border-b border-gray-200">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-white">Historique des transactions</h2>
+                    <button
+                      onClick={() => setActiveTab('history')}
+                      className="text-white/80 hover:text-white text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <span>Voir tout</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div className="space-y-4">
+                <div className="divide-y divide-gray-100">
                   {transactions.slice(0, 5).map((transaction) => (
                     <div
                       key={transaction.id}
-                      className="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300"
+                      className="px-6 py-4 hover:bg-gray-50 transition-colors"
                     >
-                      <div className="flex items-center space-x-4">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          transaction.receiverId === user?.id
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'bg-red-500/20 text-red-400'
-                        }`}>
-                          {transaction.receiverId === user?.id ? (
-                            <GiReceiveMoney className="w-5 h-5" />
-                          ) : (
-                            <TbSend className="w-5 h-5" />
-                          )}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                            transaction.receiverId === user?.id
+                              ? 'bg-green-50'
+                              : 'bg-red-50'
+                          }`}>
+                            {transaction.receiverId === user?.id ? (
+                              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                            ) : (
+                              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                              </svg>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-gray-900 font-semibold">
+                              {transaction.receiverId === user?.id
+                                ? `Crédit reçu de ${transaction.sender?.username || 'Utilisateur'}`
+                                : `Débit envoyé à ${transaction.receiver?.username || 'Utilisateur'}`}
+                            </p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <p className="text-gray-500 text-sm">
+                                {new Date(transaction.createdAt).toLocaleDateString('fr-FR', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                              {transaction.description && (
+                                <>
+                                  <span className="text-gray-300">•</span>
+                                  <p className="text-gray-500 text-sm truncate max-w-xs">{transaction.description}</p>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-white font-medium">
-                            {transaction.receiverId === user?.id
-                              ? `Reçu de ${transaction.sender.username}`
-                              : `Envoyé à ${transaction.receiver.username}`}
+                        <div className="text-right">
+                          <p className={`text-lg font-bold ${
+                            transaction.receiverId === user?.id ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {transaction.receiverId === user?.id ? '+' : '-'}{transaction.amount.toFixed(2)}
                           </p>
-                          <p className="text-gray-400 text-sm">
-                            {new Date(transaction.createdAt).toLocaleDateString('fr-FR')}
-                          </p>
+                          <p className="text-gray-400 text-xs mt-1">Crédits</p>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`font-bold ${
-                          transaction.receiverId === user?.id ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {transaction.receiverId === user?.id ? '+' : '-'}{transaction.amount.toFixed(2)}
-                        </p>
-                        <p className="text-gray-400 text-sm">crédits</p>
                       </div>
                     </div>
                   ))}
+                  {transactions.length === 0 && (
+                    <div className="px-6 py-12 text-center">
+                      <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <p className="text-gray-500 text-lg font-medium">Aucune transaction</p>
+                      <p className="text-gray-400 text-sm mt-2">Vos transactions apparaîtront ici</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1218,64 +1202,69 @@ export default function DashboardPage() {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20 max-w-2xl mx-auto">
                 <form onSubmit={handleTransfer} className="space-y-6">
                   <div>
-                    <label className="block text-white font-medium mb-2">Destinataire</label>
+                    <label className="block text-gray-700 font-semibold mb-2">Bénéficiaire</label>
                     <select
                       value={transferForm.receiverId}
                       onChange={(e) => {
                         setTransferForm({ ...transferForm, receiverId: e.target.value });
                         if (transferErrors.receiverId) setTransferErrors({ ...transferErrors, receiverId: '' });
                       }}
-                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
-                        transferErrors.receiverId ? 'border-red-500' : 'border-white/20'
+                      className={`w-full px-4 py-3 bg-gray-50 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] ${
+                        transferErrors.receiverId ? 'border-red-500' : 'border-gray-300'
                       }`}
                       required
                     >
-                      <option value="" className="bg-slate-800">Sélectionner un utilisateur</option>
+                      <option value="">Sélectionner un bénéficiaire</option>
                       {users.filter(u => u.id !== user?.id).map((u) => (
-                        <option key={u.id} value={u.id} className="bg-slate-800">
-                          {u.username} ({u.email})
+                        <option key={u.id} value={u.id}>
+                          {u.username} - {u.email}
                         </option>
                       ))}
                     </select>
                     {transferErrors.receiverId && (
-                      <p className="text-red-400 text-sm mt-1">{transferErrors.receiverId}</p>
+                      <p className="text-red-600 text-sm mt-1">{transferErrors.receiverId}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-white font-medium mb-2">Montant</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      max={user?.credits}
-                      value={transferForm.amount}
-                      onChange={(e) => {
-                        setTransferForm({ ...transferForm, amount: e.target.value });
-                        if (transferErrors.amount) setTransferErrors({ ...transferErrors, amount: '' });
-                      }}
-                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
-                        transferErrors.amount ? 'border-red-500' : 'border-white/20'
-                      }`}
-                      placeholder="0.00"
-                      required
-                    />
+                    <label className="block text-gray-700 font-semibold mb-2">Montant</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">Crédits</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        max={user?.credits}
+                        value={transferForm.amount}
+                        onChange={(e) => {
+                          setTransferForm({ ...transferForm, amount: e.target.value });
+                          if (transferErrors.amount) setTransferErrors({ ...transferErrors, amount: '' });
+                        }}
+                        className={`w-full pl-20 pr-4 py-3 bg-gray-50 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A] ${
+                          transferErrors.amount ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="0.00"
+                        required
+                      />
+                    </div>
                     {transferErrors.amount && (
-                      <p className="text-red-400 text-sm mt-1">{transferErrors.amount}</p>
+                      <p className="text-red-600 text-sm mt-1">{transferErrors.amount}</p>
                     )}
-                    <p className="text-gray-400 text-sm mt-1">
-                      Solde disponible: {user?.credits.toFixed(2)} crédits
-                    </p>
+                    <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-gray-700 text-sm">
+                        <span className="font-semibold">Solde disponible:</span> {user?.credits.toFixed(2)} crédits
+                      </p>
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-white font-medium mb-2">Description (optionnel)</label>
+                    <label className="block text-gray-700 font-semibold mb-2">Libellé du virement (optionnel)</label>
                     <input
                       type="text"
                       value={transferForm.description}
                       onChange={(e) => setTransferForm({ ...transferForm, description: e.target.value })}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
-                      placeholder="Raison du transfert..."
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-[#4A5C6A]"
+                      placeholder="Ex: Paiement de service, Remboursement..."
                     />
                   </div>
 
