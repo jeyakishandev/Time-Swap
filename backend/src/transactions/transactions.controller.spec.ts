@@ -66,59 +66,79 @@ describe('TransactionsController', () => {
   });
 
   describe('findAll', () => {
-    it('should return all transactions', async () => {
+    it('should return all transactions with pagination', async () => {
       // Arrange
-      const expectedTransactions = [
-        {
-          id: 'tx1',
-          amount: 25,
-          status: 'COMPLETED',
-          senderId: 'user1',
-          receiverId: 'user2',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          sender: { id: 'user1', username: 'alice', email: 'alice@test.com' },
-          receiver: { id: 'user2', username: 'bob', email: 'bob@test.com' },
+      const expectedResponse = {
+        data: [
+          {
+            id: 'tx1',
+            amount: 25,
+            status: 'COMPLETED',
+            senderId: 'user1',
+            receiverId: 'user2',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            sender: { id: 'user1', username: 'alice', email: 'alice@test.com' },
+            receiver: { id: 'user2', username: 'bob', email: 'bob@test.com' },
+          },
+        ],
+        meta: {
+          page: 1,
+          limit: 10,
+          total: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
         },
-      ];
+      };
 
-      (transactionsService.findAll as jest.Mock).mockResolvedValue(expectedTransactions);
+      (transactionsService.findAll as jest.Mock).mockResolvedValue(expectedResponse);
 
       // Act
-      const result = await controller.findAll();
+      const result = await controller.findAll({});
 
       // Assert
-      expect(result).toEqual(expectedTransactions);
-      expect(transactionsService.findAll).toHaveBeenCalled();
+      expect(result).toEqual(expectedResponse);
+      expect(transactionsService.findAll).toHaveBeenCalledWith({});
     });
   });
 
   describe('findByUser', () => {
-    it('should return transactions for a specific user', async () => {
+    it('should return transactions for a specific user with pagination', async () => {
       // Arrange
       const userId = 'user1';
-      const expectedTransactions = [
-        {
-          id: 'tx1',
-          amount: 25,
-          status: 'COMPLETED',
-          senderId: 'user1',
-          receiverId: 'user2',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          sender: { id: 'user1', username: 'alice', email: 'alice@test.com' },
-          receiver: { id: 'user2', username: 'bob', email: 'bob@test.com' },
+      const expectedResponse = {
+        data: [
+          {
+            id: 'tx1',
+            amount: 25,
+            status: 'COMPLETED',
+            senderId: 'user1',
+            receiverId: 'user2',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            sender: { id: 'user1', username: 'alice', email: 'alice@test.com' },
+            receiver: { id: 'user2', username: 'bob', email: 'bob@test.com' },
+          },
+        ],
+        meta: {
+          page: 1,
+          limit: 10,
+          total: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
         },
-      ];
+      };
 
-      (transactionsService.findByUser as jest.Mock).mockResolvedValue(expectedTransactions);
+      (transactionsService.findByUser as jest.Mock).mockResolvedValue(expectedResponse);
 
       // Act
-      const result = await controller.findByUser(userId);
+      const result = await controller.findByUser(userId, {});
 
       // Assert
-      expect(result).toEqual(expectedTransactions);
-      expect(transactionsService.findByUser).toHaveBeenCalledWith(userId);
+      expect(result).toEqual(expectedResponse);
+      expect(transactionsService.findByUser).toHaveBeenCalledWith(userId, {});
     });
   });
 

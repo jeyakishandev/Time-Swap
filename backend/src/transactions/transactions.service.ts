@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { PaginatedResponse, PaginationQuery } from '../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class TransactionsService {
@@ -13,12 +14,14 @@ export class TransactionsService {
   async transferCredits(createTransactionDto: CreateTransactionDto) {
     const { senderId, receiverId, amount, description } = createTransactionDto;
 
-    // Transfert de crédits - J'ai découvert les transactions atomiques !
-    // Avant j'avais des bugs bizarres où l'argent disparaissait parfois
-    // Maintenant avec $transaction, tout est cohérent
+    // Vérifier que l'expéditeur et le destinataire sont différents
+    if (senderId === receiverId) {
+      throw new BadRequestException('Vous ne pouvez pas transférer des crédits à vous-même');
+    }
+
+    // Transfert de crédits avec transaction atomique pour garantir la cohérence des données
     return this.prisma.$transaction(async (tx) => {
-      // TRANSACTION ATOMIQUE - J'ai appris que c'est super important !
-      // Si une étape échoue, tout est annulé (ROLLBACK)
+      // TRANSACTION ATOMIQUE - Si une étape échoue, tout est annulé (ROLLBACK)
 
       // Vérifier que l'expéditeur existe et a assez de crédits
       const sender = await tx.user.findUnique({
@@ -93,58 +96,106 @@ export class TransactionsService {
     });
   }
 
-  async findAll() {
-    return this.prisma.creditTransaction.findMany({
-      include: {
-        sender: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
+  async findAll(pagination?: PaginationQuery): Promise<PaginatedResponse<any>> {
+    const page = pagination?.page || 1;
+    const limit = Math.min(100, Math.max(1, pagination?.limit || 10));
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.creditTransaction.findMany({
+        skip,
+        take: limit,
+        include: {
+          sender: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
           },
         },
-        receiver: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
-          },
+        orderBy: {
+          createdAt: 'desc',
         },
+      }),
+      this.prisma.creditTransaction.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    };
   }
 
-  async findByUser(userId: string) {
-    return this.prisma.creditTransaction.findMany({
-      where: {
-        OR: [
-          { senderId: userId },
-          { receiverId: userId },
-        ],
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
+  async findByUser(userId: string, pagination?: PaginationQuery): Promise<PaginatedResponse<any>> {
+    const page = pagination?.page || 1;
+    const limit = Math.min(100, Math.max(1, pagination?.limit || 10));
+    const skip = (page - 1) * limit;
+
+    const where = {
+      OR: [
+        { senderId: userId },
+        { receiverId: userId },
+      ],
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.creditTransaction.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          sender: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
           },
         },
-        receiver: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
-          },
+        orderBy: {
+          createdAt: 'desc',
         },
+      }),
+      this.prisma.creditTransaction.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    };
   }
 
   async findOne(id: string) {

@@ -3,6 +3,7 @@ import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PaginationQuery } from '../common/interfaces/paginated-response.interface';
 
 @Controller('services')
 export class ServicesController {
@@ -15,11 +16,11 @@ export class ServicesController {
   }
 
   @Get()
-  findAll(@Query('category') category?: string) {
+  findAll(@Query('category') category?: string, @Query() pagination?: PaginationQuery) {
     if (category) {
-      return this.servicesService.findByCategory(category);
+      return this.servicesService.findByCategory(category, pagination);
     }
-    return this.servicesService.findAll();
+    return this.servicesService.findAll(pagination);
   }
 
   @Get('my-services')

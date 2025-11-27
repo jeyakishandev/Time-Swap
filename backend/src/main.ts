@@ -35,5 +35,6 @@ async function bootstrap() {
 
   logger.log(`🚀 Backend Time-Swap Network démarré sur http://localhost:${port}`);
   logger.log(`🔒 Sécurité renforcée : bcrypt, rate limiting, headers sécurisés`);
+  logger.log(`📊 Gestion d'erreurs améliorée avec filtres globaux et logging structuré`);
 }
 bootstrap();
