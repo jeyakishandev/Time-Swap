@@ -519,14 +519,6 @@ export default function DashboardPage() {
     } finally {
       setIsUpdatingProfile(false);
     }
-      } else {
-        const error = await response.json();
-
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-
-    }
   };
 
   // Fonction pour générer un nouvel avatar
