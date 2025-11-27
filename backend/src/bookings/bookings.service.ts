@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
@@ -7,6 +7,8 @@ import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class BookingsService {
+  private readonly logger = new Logger(BookingsService.name);
+
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
@@ -228,7 +230,7 @@ export class BookingsService {
         await this.notificationsGateway.sendNotificationToUser(confirmedBooking.clientId, clientNotification);
         await this.notificationsGateway.sendNotificationToUser(confirmedBooking.providerId, providerNotification);
       } catch (notificationError) {
-        console.error('Erreur lors de l\'envoi des notifications:', notificationError);
+        this.logger.error(`Error sending notifications for booking ${confirmedBooking.id}: ${notificationError.message}`, notificationError.stack);
         // Ne pas faire échouer la confirmation si les notifications échouent
       }
 
@@ -342,7 +344,7 @@ export class BookingsService {
       await this.notificationsGateway.sendNotificationToUser(completedBooking.clientId, clientNotification);
       await this.notificationsGateway.sendNotificationToUser(completedBooking.providerId, providerNotification);
     } catch (notificationError) {
-      console.error('Erreur lors de l\'envoi des notifications d\'avis:', notificationError);
+      this.logger.error(`Error sending review notifications for booking ${id}: ${notificationError.message}`, notificationError.stack);
       // Ne pas faire échouer la completion si les notifications échouent
     }
 

@@ -90,7 +90,7 @@ export class ServicesService {
   }
 
   async findOne(id: string) {
-    return this.prisma.service.findUnique({
+    const service = await this.prisma.service.findUnique({
       where: { id },
       include: {
         provider: {
@@ -102,6 +102,12 @@ export class ServicesService {
         },
       },
     });
+
+    if (!service) {
+      throw new NotFoundException('Service non trouvé');
+    }
+
+    return service;
   }
 
   async update(id: string, updateServiceDto: UpdateServiceDto, providerId: string) {

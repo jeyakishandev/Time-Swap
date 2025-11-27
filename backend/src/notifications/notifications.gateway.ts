@@ -7,7 +7,7 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { NotificationsService } from './notifications.service';
 
@@ -22,6 +22,7 @@ interface AuthenticatedSocket extends Socket {
   },
 })
 export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger = new Logger(NotificationsGateway.name);
   private connectedUsers = new Map<string, AuthenticatedSocket>();
 
   constructor(
@@ -43,13 +44,10 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       
       if (client.userId) {
         this.connectedUsers.set(client.userId, client);
-      }
-      
-      if (client.userId) {
-        console.log(`User ${client.userId} connected to notifications`);
+        this.logger.log(`User ${client.userId} connected to notifications`);
       }
     } catch (error) {
-      console.log('Invalid token for WebSocket connection');
+      this.logger.warn('Invalid token for WebSocket connection');
       client.disconnect();
     }
   }
@@ -57,7 +55,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
   handleDisconnect(client: AuthenticatedSocket) {
     if (client.userId) {
       this.connectedUsers.delete(client.userId);
-      console.log(`User ${client.userId} disconnected from notifications`);
+      this.logger.log(`User ${client.userId} disconnected from notifications`);
     }
   }
 
@@ -66,7 +64,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     const client = this.connectedUsers.get(userId);
     if (client) {
       client.emit('new-notification', notification);
-      console.log(`Notification sent to user ${userId}: ${notification.title}`);
+      this.logger.debug(`Notification sent to user ${userId}: ${notification.title}`);
     }
   }
 
@@ -75,14 +73,14 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     this.connectedUsers.forEach((client, userId) => {
       client.emit('new-notification', notification);
     });
-    console.log(`Broadcast notification: ${notification.title}`);
+    this.logger.log(`Broadcast notification: ${notification.title} to ${this.connectedUsers.size} users`);
   }
 
   @SubscribeMessage('join-notifications')
   async handleJoinNotifications(@ConnectedSocket() client: AuthenticatedSocket) {
     if (client.userId) {
       client.join(`user-${client.userId}`);
-      console.log(`User ${client.userId} joined notifications room`);
+      this.logger.debug(`User ${client.userId} joined notifications room`);
     }
   }
 

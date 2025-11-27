@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, ForbiddenException, Optional } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException, Optional, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
@@ -7,6 +7,8 @@ import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class ReviewsService {
+  private readonly logger = new Logger(ReviewsService.name);
+
   constructor(
     private prisma: PrismaService,
     @Optional() private notificationsService?: NotificationsService,
@@ -14,7 +16,7 @@ export class ReviewsService {
   ) {}
 
   async create(createReviewDto: CreateReviewDto, reviewerId: string) {
-    console.log('🔍 ReviewsService.create appelé avec:', { createReviewDto, reviewerId });
+    this.logger.debug(`Creating review for reviewee ${createReviewDto.revieweeId} by reviewer ${reviewerId}`);
     
     try {
       const { revieweeId, bookingId, serviceId, rating, comment } = createReviewDto;
@@ -56,10 +58,10 @@ export class ReviewsService {
         },
       });
 
-      console.log('✅ Avis créé avec succès:', review.id);
+      this.logger.log(`Review created successfully: ${review.id}`);
       return review;
     } catch (error) {
-      console.error('❌ Erreur dans ReviewsService.create:', error);
+      this.logger.error(`Error creating review: ${error.message}`, error.stack);
       
       // Gérer l'erreur de contrainte unique (avis déjà existant)
       if (error.code === 'P2002' && error.meta?.target?.includes('reviewerId') && error.meta?.target?.includes('bookingId')) {

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -6,6 +6,8 @@ import { PaginatedResponse, PaginationQuery } from '../common/interfaces/paginat
 
 @Injectable()
 export class TransactionsService {
+  private readonly logger = new Logger(TransactionsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
@@ -88,9 +90,7 @@ export class TransactionsService {
         },
       });
 
-      // TODO: Améliorer les notifications plus tard
-      // Pour l'instant, juste un console.log
-      console.log(`Transaction ${result.id} completed: ${result.amount} credits transferred`);
+      this.logger.log(`Transaction completed: ${result.id} - ${result.amount} credits transferred from ${senderId} to ${receiverId}`);
 
       return result;
     });
