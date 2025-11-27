@@ -97,9 +97,8 @@ export default function DashboardPage() {
   const [profileForm, setProfileForm] = useState({
     username: '',
     email: '',
-    bio: '',
-    phone: '',
-    location: ''
+    password: '',
+    confirmPassword: ''
   });
   const [editServiceForm, setEditServiceForm] = useState({
     title: '',
@@ -497,15 +496,29 @@ export default function DashboardPage() {
     
     // Validation
     setProfileErrors({});
-    const validationResult = profileSchema.safeParse(profileForm);
     
-    if (!validationResult.success) {
-      const errors: Record<string, string> = {};
-      validationResult.error.issues.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0].toString()] = err.message;
-        }
-      });
+    // Validation manuelle
+    const errors: Record<string, string> = {};
+    
+    if (profileForm.username && profileForm.username.length < 3) {
+      errors.username = 'Le nom d\'utilisateur doit contenir au moins 3 caractères';
+    }
+    
+    if (profileForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileForm.email)) {
+      errors.email = 'Email invalide';
+    }
+    
+    if (profileForm.password) {
+      if (profileForm.password.length < 6) {
+        errors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(profileForm.password)) {
+        errors.password = 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre';
+      } else if (profileForm.password !== profileForm.confirmPassword) {
+        errors.confirmPassword = 'Les mots de passe ne correspondent pas';
+      }
+    }
+    
+    if (Object.keys(errors).length > 0) {
       setProfileErrors(errors);
       return;
     }
@@ -513,10 +526,33 @@ export default function DashboardPage() {
     setIsUpdatingProfile(true);
 
     try {
-      await usersApi.updateProfile(profileForm);
+      // Préparer les données à envoyer (seulement les champs modifiés)
+      const updateData: { email?: string; username?: string; password?: string } = {};
+      
+      if (profileForm.email && profileForm.email !== user?.email) {
+        updateData.email = profileForm.email;
+      }
+      
+      if (profileForm.username && profileForm.username !== user?.username) {
+        updateData.username = profileForm.username;
+      }
+      
+      if (profileForm.password) {
+        updateData.password = profileForm.password;
+      }
+      
+      if (Object.keys(updateData).length === 0) {
+        showToast('Aucune modification détectée', 'error');
+        setIsUpdatingProfile(false);
+        return;
+      }
+      
+      await usersApi.updateProfile(updateData);
       showToast('Profil mis à jour avec succès', 'success');
       setProfileErrors({});
       setShowProfileModal(false);
+      // Réinitialiser le formulaire
+      setProfileForm({ username: '', email: '', password: '', confirmPassword: '' });
       fetchData();
     } catch (error: unknown) {
       const errorMessage = error instanceof Error 
@@ -2740,47 +2776,55 @@ export default function DashboardPage() {
               </div>
 
 
-              {/* Téléphone et localisation */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Téléphone
-                  </label>
-                  <input
-                    type="tel"
-                    value={profileForm.phone}
-                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
-                    placeholder="Téléphone"
-                  />
+              {/* Changement de mot de passe */}
+              <div className="border-t border-white/10 pt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Changer le mot de passe</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Nouveau mot de passe
+                    </label>
+                    <input
+                      type="password"
+                      value={profileForm.password}
+                      onChange={(e) => {
+                        setProfileForm({ ...profileForm, password: e.target.value });
+                        if (profileErrors.password) setProfileErrors({ ...profileErrors, password: '' });
+                      }}
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                        profileErrors.password ? 'border-red-500' : 'border-white/20'
+                      }`}
+                      placeholder="Laisser vide pour ne pas changer"
+                    />
+                    {profileErrors.password && (
+                      <p className="text-red-400 text-sm mt-1">{profileErrors.password}</p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-1">
+                      Minimum 6 caractères, avec majuscule, minuscule et chiffre
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Confirmer le mot de passe
+                    </label>
+                    <input
+                      type="password"
+                      value={profileForm.confirmPassword}
+                      onChange={(e) => {
+                        setProfileForm({ ...profileForm, confirmPassword: e.target.value });
+                        if (profileErrors.confirmPassword) setProfileErrors({ ...profileErrors, confirmPassword: '' });
+                      }}
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${
+                        profileErrors.confirmPassword ? 'border-red-500' : 'border-white/20'
+                      }`}
+                      placeholder="Confirmer le nouveau mot de passe"
+                    />
+                    {profileErrors.confirmPassword && (
+                      <p className="text-red-400 text-sm mt-1">{profileErrors.confirmPassword}</p>
+                    )}
+                  </div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Localisation
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.location}
-                    onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
-                    placeholder="Ville, Pays"
-                  />
-                </div>
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Bio
-                </label>
-                <textarea
-                  value={profileForm.bio}
-                  onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent resize-none"
-                  rows={3}
-                  placeholder="Parlez-nous de vous..."
-                />
               </div>
               
               <div className="flex space-x-4 pt-4">

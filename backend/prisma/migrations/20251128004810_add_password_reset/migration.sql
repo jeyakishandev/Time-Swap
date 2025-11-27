@@ -1,0 +1,9 @@
+CREATE TABLE "password_reset_tokens" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "token" TEXT NOT NULL UNIQUE,
+    "userId" TEXT NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    "used" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);

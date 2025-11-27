@@ -100,6 +100,21 @@ export const authApi = {
     });
     return data;
   },
+
+  forgotPassword: async (email: string): Promise<{ message: string; resetLink?: string }> => {
+    const { data } = await api.post<{ message: string; resetLink?: string }>('/auth/forgot-password', {
+      email,
+    });
+    return data;
+  },
+
+  resetPassword: async (token: string, newPassword: string): Promise<{ message: string }> => {
+    const { data } = await api.post<{ message: string }>('/auth/reset-password', {
+      token,
+      newPassword,
+    });
+    return data;
+  },
 };
 
 // Types supplémentaires
@@ -208,7 +223,11 @@ export const usersApi = {
     return data;
   },
 
-  updateProfile: async (profileData: Partial<User>): Promise<User> => {
+  updateProfile: async (profileData: {
+    email?: string;
+    username?: string;
+    password?: string;
+  }): Promise<User> => {
     const { data } = await api.patch<User>('/users/me', profileData);
     return data;
   },
