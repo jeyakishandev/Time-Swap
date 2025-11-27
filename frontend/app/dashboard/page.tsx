@@ -1103,16 +1103,17 @@ export default function DashboardPage() {
               </div>
 
               {/* Historique des Transactions Bancaires */}
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-[#1a2332] to-[#253745] px-6 py-4 border-b border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-white">Historique des transactions</h2>
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#1a2332] to-[#253745] px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                  <div className="flex justify-between items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-bold text-white">Historique des transactions</h2>
                     <button
                       onClick={() => setActiveTab('history')}
-                      className="text-white/80 hover:text-white text-sm font-medium transition-colors flex items-center space-x-1"
+                      className="text-white/80 hover:text-white text-xs sm:text-sm font-medium transition-colors flex items-center space-x-1 flex-shrink-0"
                     >
-                      <span>Voir tout</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span className="hidden sm:inline">Voir tout</span>
+                      <span className="sm:hidden">Tout</span>
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
@@ -1122,33 +1123,33 @@ export default function DashboardPage() {
                   {transactions.slice(0, 5).map((transaction) => (
                     <div
                       key={transaction.id}
-                      className="px-6 py-4 hover:bg-gray-50 transition-colors"
+                      className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                      <div className="flex items-center justify-between gap-2 sm:gap-4">
+                        <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0 flex-1">
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
                             transaction.receiverId === user?.id
                               ? 'bg-green-50'
                               : 'bg-red-50'
                           }`}>
                             {transaction.receiverId === user?.id ? (
-                              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                               </svg>
                             ) : (
-                              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                               </svg>
                             )}
                           </div>
-                          <div>
-                            <p className="text-gray-900 font-semibold">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-gray-900 font-semibold text-sm sm:text-base truncate">
                               {transaction.receiverId === user?.id
                                 ? `Crédit reçu de ${transaction.sender?.username || 'Utilisateur'}`
                                 : `Débit envoyé à ${transaction.receiver?.username || 'Utilisateur'}`}
                             </p>
-                            <div className="flex items-center space-x-2 mt-1">
-                              <p className="text-gray-500 text-sm">
+                            <div className="flex items-center space-x-1 sm:space-x-2 mt-0.5 sm:mt-1 flex-wrap">
+                              <p className="text-gray-500 text-xs sm:text-sm">
                                 {new Date(transaction.createdAt).toLocaleDateString('fr-FR', {
                                   day: 'numeric',
                                   month: 'short',
@@ -1159,31 +1160,31 @@ export default function DashboardPage() {
                               </p>
                               {transaction.description && (
                                 <>
-                                  <span className="text-gray-300">•</span>
-                                  <p className="text-gray-500 text-sm truncate max-w-xs">{transaction.description}</p>
+                                  <span className="text-gray-300 hidden sm:inline">•</span>
+                                  <p className="text-gray-500 text-xs sm:text-sm truncate max-w-[150px] sm:max-w-xs">{transaction.description}</p>
                                 </>
                               )}
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className={`text-lg font-bold ${
+                        <div className="text-right flex-shrink-0">
+                          <p className={`text-base sm:text-lg font-bold ${
                             transaction.receiverId === user?.id ? 'text-green-600' : 'text-red-600'
                           }`}>
                             {transaction.receiverId === user?.id ? '+' : '-'}{transaction.amount.toFixed(2)}
                           </p>
-                          <p className="text-gray-400 text-xs mt-1">Crédits</p>
+                          <p className="text-gray-400 text-xs mt-0.5 sm:mt-1">Crédits</p>
                         </div>
                       </div>
                     </div>
                   ))}
                   {transactions.length === 0 && (
-                    <div className="px-6 py-12 text-center">
-                      <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="px-4 sm:px-6 py-8 sm:py-12 text-center">
+                      <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <p className="text-gray-500 text-lg font-medium">Aucune transaction</p>
-                      <p className="text-gray-400 text-sm mt-2">Vos transactions apparaîtront ici</p>
+                      <p className="text-gray-500 text-base sm:text-lg font-medium">Aucune transaction</p>
+                      <p className="text-gray-400 text-xs sm:text-sm mt-2">Vos transactions apparaîtront ici</p>
                     </div>
                   )}
                 </div>
@@ -1293,32 +1294,32 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Services Tab */}
+          {/* Services Tab - Mobile First */}
           {activeTab === 'services' && (
-            <div className="space-y-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="space-y-4 sm:space-y-6 md:space-y-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                 <div>
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Marketplace des Services</h1>
-                  <p className="text-gray-300 text-sm md:text-base">Découvrez et proposez des services Time-Swap</p>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">Marketplace des Services</h1>
+                  <p className="text-gray-300 text-xs sm:text-sm md:text-base">Découvrez et proposez des services Time-Swap</p>
                 </div>
                 <button
                   onClick={() => setShowServiceModal(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25 flex items-center space-x-2"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25 flex items-center justify-center space-x-2 text-sm sm:text-base"
                 >
-                  <MdWork className="w-5 h-5" />
+                  <MdWork className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Ajouter un service</span>
                 </button>
               </div>
 
               {/* Mes Services */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-white">Mes Services</h2>
-                  <div className="flex space-x-2">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+                  <h2 className="text-lg sm:text-xl font-bold text-white">Mes Services</h2>
+                  <div className="w-full sm:w-auto">
                     <select 
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                      className="w-full sm:w-auto bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                     >
                       {categories.map(category => {
                         const count = category.value === 'all' 
@@ -1333,38 +1334,40 @@ export default function DashboardPage() {
                     </select>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {/* Services de l'utilisateur */}
                   {filteredServices.filter(service => service.providerId === user?.id).length > 0 ? (
                     filteredServices.filter(service => service.providerId === user?.id).map((service) => (
-                      <div key={service.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <div className="flex items-center space-x-3 mb-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
+                      <div key={service.id} className="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10">
+                        <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                             <img 
                               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
                               alt="Avatar"
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          <div>
-                            <h3 className="text-white font-semibold">{user?.username || 'Utilisateur'}</h3>
-                            <p className="text-gray-400 text-sm">{categories.find(cat => cat.value === service.category)?.label || service.category}</p>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-white font-semibold text-sm sm:text-base truncate">{user?.username || 'Utilisateur'}</h3>
+                            <p className="text-gray-400 text-xs sm:text-sm truncate">{categories.find(cat => cat.value === service.category)?.label || service.category}</p>
                           </div>
                         </div>
-                        <h4 className="text-white font-bold mb-2">{service.title}</h4>
-                        <ServiceRating 
-                          serviceId={service.id} 
-                          className="mb-2" 
-                          showReviewButton={false}
-                        />
-                        <p className="text-gray-300 text-sm mb-3">{service.description}</p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-[#4A5C6A] font-bold">{service.pricePerHour} crédits/heure</span>
-                          <div className="flex space-x-2">
-                            <span className="text-green-400 text-sm">✓ Actif</span>
+                        <h4 className="text-white font-bold mb-1 sm:mb-2 text-sm sm:text-base">{service.title}</h4>
+                        <div className="mb-2">
+                          <ServiceRating 
+                            serviceId={service.id} 
+                            className="mb-2" 
+                            showReviewButton={false}
+                          />
+                        </div>
+                        <p className="text-gray-300 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{service.description}</p>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <span className="text-[#4A5C6A] font-bold text-xs sm:text-sm">{service.pricePerHour} crédits/heure</span>
+                          <div className="flex items-center space-x-2 w-full sm:w-auto">
+                            <span className="text-green-400 text-xs sm:text-sm">✓ Actif</span>
                             <button 
                               onClick={() => handleEditService(service)}
-                              className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-3 py-1 rounded text-xs transition-colors"
+                              className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-2 sm:px-3 py-1 rounded text-xs transition-colors flex-shrink-0"
                             >
                               Modifier
                             </button>
@@ -1373,12 +1376,12 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <div className="col-span-full text-center py-8">
-                      <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <MdWork className="w-8 h-8 text-gray-400" />
+                    <div className="col-span-full text-center py-6 sm:py-8">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <MdWork className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                       </div>
-                      <h3 className="text-white font-semibold mb-2">Aucun service trouvé</h3>
-                      <p className="text-gray-400 text-sm mb-4">
+                      <h3 className="text-white font-semibold mb-1 sm:mb-2 text-base sm:text-lg">Aucun service trouvé</h3>
+                      <p className="text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4 px-4">
                         {selectedCategory === 'all' 
                           ? "Vous n'avez pas encore créé de services." 
                           : "Aucun service dans cette catégorie."
@@ -1386,7 +1389,7 @@ export default function DashboardPage() {
                       </p>
                       <button 
                         onClick={() => setShowServiceModal(true)}
-                        className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-6 py-2 rounded-lg transition-colors"
+                        className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-4 sm:px-6 py-2 rounded-lg transition-colors text-sm sm:text-base"
                       >
                         Créer un service
                       </button>
@@ -1396,14 +1399,14 @@ export default function DashboardPage() {
               </div>
 
               {/* Services Disponibles */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-white">Services Disponibles</h2>
-                  <div className="flex space-x-2">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+                  <h2 className="text-lg sm:text-xl font-bold text-white">Services Disponibles</h2>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <select 
                       value={selectedAvailableCategory}
                       onChange={(e) => setSelectedAvailableCategory(e.target.value)}
-                      className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent"
+                      className="w-full sm:w-auto bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
                     >
                       {categories.map(category => {
                         const count = category.value === 'all' 
@@ -1419,49 +1422,51 @@ export default function DashboardPage() {
                     <input
                       type="text"
                       placeholder="Rechercher un service..."
-                      className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400"
+                      className="w-full sm:w-auto bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 text-sm sm:text-base"
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {/* Services d'autres utilisateurs */}
                   {filteredAvailableServices.filter(service => service.providerId !== user?.id).length > 0 ? (
                     filteredAvailableServices.filter(service => service.providerId !== user?.id).slice(0, 6).map((service) => (
-                    <div key={service.id} className="bg-white/5 rounded-lg p-4 border border-white/10 hover:border-[#4A5C6A]/50 transition-all duration-300 cursor-pointer">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
+                    <div key={service.id} className="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10 hover:border-[#4A5C6A]/50 transition-all duration-300 cursor-pointer">
+                      <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                           <img 
                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${service.provider?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
                             alt={service.provider?.username || 'Utilisateur'}
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div>
-                          <h3 className="text-white font-semibold">{service.provider?.username || 'Utilisateur'}</h3>
-                          <p className="text-gray-400 text-sm">{service.category}</p>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-white font-semibold text-sm sm:text-base truncate">{service.provider?.username || 'Utilisateur'}</h3>
+                          <p className="text-gray-400 text-xs sm:text-sm truncate">{service.category}</p>
                         </div>
                       </div>
-                      <h4 className="text-white font-bold mb-2">{service.title}</h4>
-                      <ServiceRating 
-                        serviceId={service.id} 
-                        className="mb-2" 
-                        showReviewButton={completedServiceIds.has(service.id)}
-                        onReviewClick={() => {
-                          setSelectedReviewTarget({
-                            id: service.providerId,
-                            name: service.provider?.username || 'Utilisateur',
-                            serviceId: service.id,
-                            serviceTitle: service.title
-                          });
-                          setShowReviewModal(true);
-                        }}
-                      />
-                      <p className="text-gray-300 text-sm mb-3">{service.description}</p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[#4A5C6A] font-bold">{service.pricePerHour} crédits/heure</span>
+                      <h4 className="text-white font-bold mb-1 sm:mb-2 text-sm sm:text-base">{service.title}</h4>
+                      <div className="mb-2">
+                        <ServiceRating 
+                          serviceId={service.id} 
+                          className="mb-2" 
+                          showReviewButton={completedServiceIds.has(service.id)}
+                          onReviewClick={() => {
+                            setSelectedReviewTarget({
+                              id: service.providerId,
+                              name: service.provider?.username || 'Utilisateur',
+                              serviceId: service.id,
+                              serviceTitle: service.title
+                            });
+                            setShowReviewModal(true);
+                          }}
+                        />
+                      </div>
+                      <p className="text-gray-300 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{service.description}</p>
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <span className="text-[#4A5C6A] font-bold text-xs sm:text-sm">{service.pricePerHour} crédits/heure</span>
                         <button 
                           onClick={() => openBookingModal(service)}
-                          className="bg-[#4A5C6A] hover:bg-[#253745] text-white px-3 py-1 rounded text-sm transition-colors transform hover:scale-105"
+                          className="w-full sm:w-auto bg-[#4A5C6A] hover:bg-[#253745] text-white px-3 py-1.5 rounded text-xs sm:text-sm transition-colors transform hover:scale-105"
                         >
                           Réserver
                         </button>
@@ -1469,12 +1474,12 @@ export default function DashboardPage() {
                     </div>
                   ))
                   ) : (
-                    <div className="col-span-full text-center py-8">
-                      <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <MdWork className="w-8 h-8 text-gray-400" />
+                    <div className="col-span-full text-center py-6 sm:py-8">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <MdWork className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                       </div>
-                      <h3 className="text-white font-semibold mb-2">Aucun service disponible</h3>
-                      <p className="text-gray-400 text-sm">
+                      <h3 className="text-white font-semibold mb-1 sm:mb-2 text-base sm:text-lg">Aucun service disponible</h3>
+                      <p className="text-gray-400 text-xs sm:text-sm px-4">
                         {selectedAvailableCategory === 'all' 
                           ? "Aucun service disponible pour le moment." 
                           : "Aucun service disponible dans cette catégorie."
@@ -1486,75 +1491,77 @@ export default function DashboardPage() {
               </div>
 
               {/* Statistiques des Services */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 md:p-6 border border-white/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-300 text-sm">Services proposés</p>
-                      <p className="text-3xl font-bold text-white">{myServices.length}</p>
+                      <p className="text-gray-300 text-xs sm:text-sm">Services proposés</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-white">{myServices.length}</p>
                     </div>
-                    <div className="w-12 h-12 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center">
-                      <MdWork className="w-6 h-6 text-[#4A5C6A]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#4A5C6A]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <MdWork className="w-5 h-5 sm:w-6 sm:h-6 text-[#4A5C6A]" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 md:p-6 border border-white/20">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-300 text-sm">Réservations en tant que prestataire</p>
-                      <p className="text-3xl font-bold text-white">{myBookings.length}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-gray-300 text-xs sm:text-sm">Réservations en tant que prestataire</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-white">{myBookings.length}</p>
                     </div>
-                    <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <GiReceiveMoney className="w-6 h-6 text-green-400" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                      <GiReceiveMoney className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 md:p-6 border border-white/20">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-300 text-sm">Réservations terminées (prestataire)</p>
-                      <p className="text-3xl font-bold text-white">{completedBookings.length}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-gray-300 text-xs sm:text-sm">Réservations terminées (prestataire)</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-white">{completedBookings.length}</p>
                     </div>
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 md:p-6 border border-white/20">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-300 text-sm">Réservations en tant que client</p>
-                      <p className="text-3xl font-bold text-white">{clientBookings.length}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-gray-300 text-xs sm:text-sm">Réservations en tant que client</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-white">{clientBookings.length}</p>
                     </div>
-                    <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-purple-400 text-xl">🛒</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
                     </div>
                   </div>
                 </div>
 
                 {/* Indicateur d'avis en attente */}
                 {(completedBookings.length > 0 || completedClientBookings.length > 0) && (
-                  <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/20">
-                    <div className="flex items-center justify-between">
+                  <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 md:p-6 border border-yellow-500/20 col-span-full sm:col-span-1 lg:col-span-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                       <div>
-                        <p className="text-yellow-300 text-sm font-medium">Avis en attente</p>
-                        <p className="text-2xl font-bold text-white">{completedBookings.length + completedClientBookings.length}</p>
+                        <p className="text-yellow-300 text-xs sm:text-sm font-medium">Avis en attente</p>
+                        <p className="text-xl sm:text-2xl font-bold text-white">{completedBookings.length + completedClientBookings.length}</p>
                         <p className="text-yellow-200 text-xs">Services terminés à évaluer</p>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                          <svg className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                           </svg>
                         </div>
                         <button
                           onClick={() => setActiveTab('bookings')}
-                          className="px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm hover:bg-yellow-500/30 transition-colors border border-yellow-500/30"
+                          className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg text-xs sm:text-sm hover:bg-yellow-500/30 transition-colors border border-yellow-500/30"
                         >
                           Donner mes avis
                         </button>
@@ -1563,14 +1570,14 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-5 md:p-6 border border-white/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-300 text-sm">Crédits gagnés</p>
-                      <p className="text-3xl font-bold text-white">{totalEarned}</p>
+                      <p className="text-gray-300 text-xs sm:text-sm">Crédits gagnés</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-white">{totalEarned}</p>
                     </div>
-                    <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
                     </div>
@@ -1580,12 +1587,12 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Bookings Tab */}
+          {/* Bookings Tab - Mobile First */}
           {activeTab === 'bookings' && (
-            <div className="space-y-8">
+            <div className="space-y-4 sm:space-y-6 md:space-y-8">
               <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Mes Réservations</h1>
-                <p className="text-gray-300 text-sm md:text-base">Gérez vos réservations de services</p>
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2">Mes Réservations</h1>
+                <p className="text-gray-300 text-xs sm:text-sm md:text-base">Gérez vos réservations de services</p>
               </div>
 
               {/* Réservations terminées en tant que client avec possibilité d'avis */}
