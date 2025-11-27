@@ -10,6 +10,7 @@ describe('ServicesController', () => {
     const mockServicesService = {
       create: jest.fn(),
       findAll: jest.fn(),
+      findByCategory: jest.fn(),
       findOne: jest.fn(),
       update: jest.fn(),
       remove: jest.fn(),

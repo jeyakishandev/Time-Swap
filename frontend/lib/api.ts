@@ -159,6 +159,38 @@ export interface Notification {
   updatedAt: string;
 }
 
+// Types pour la pagination
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
+}
+
+// Type pour les paramètres de pagination
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
+// Fonction utilitaire pour extraire les données d'une réponse (paginée ou non)
+export function extractData<T>(response: T[] | PaginatedResponse<T>): T[] {
+  if (Array.isArray(response)) {
+    return response;
+  }
+  if (response && typeof response === 'object' && 'data' in response) {
+    return (response as PaginatedResponse<T>).data;
+  }
+  return [];
+}
+
 // API Users
 export const usersApi = {
   getProfile: async (): Promise<User> => {
@@ -199,8 +231,18 @@ export const transactionsApi = {
     return data;
   },
 
-  getAll: async (): Promise<Transaction[]> => {
-    const { data } = await api.get<Transaction[]>('/transactions');
+  getAll: async (pagination?: PaginationParams): Promise<Transaction[] | PaginatedResponse<Transaction>> => {
+    const { data } = await api.get<PaginatedResponse<Transaction>>('/transactions', {
+      params: pagination,
+    });
+    // Retourner directement la réponse paginée
+    return data;
+  },
+
+  getByUser: async (userId: string, pagination?: PaginationParams): Promise<Transaction[] | PaginatedResponse<Transaction>> => {
+    const { data } = await api.get<PaginatedResponse<Transaction>>(`/transactions/user/${userId}`, {
+      params: pagination,
+    });
     return data;
   },
 
@@ -212,8 +254,14 @@ export const transactionsApi = {
 
 // API Services
 export const servicesApi = {
-  getAll: async (): Promise<Service[]> => {
-    const { data } = await api.get<Service[]>('/services');
+  getAll: async (category?: string, pagination?: PaginationParams): Promise<Service[] | PaginatedResponse<Service>> => {
+    const params: any = { ...pagination };
+    if (category) {
+      params.category = category;
+    }
+    const { data } = await api.get<PaginatedResponse<Service>>('/services', {
+      params,
+    });
     return data;
   },
 

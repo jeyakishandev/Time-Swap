@@ -18,6 +18,7 @@ import {
   servicesApi, 
   bookingsApi, 
   reviewsApi,
+  extractData,
   type User,
   type Transaction,
   type Service,
@@ -195,9 +196,10 @@ export default function DashboardPage() {
         setUsers(usersData.value);
       }
 
-      // Traiter les transactions
+      // Traiter les transactions (peut être paginé)
       if (transactionsData.status === 'fulfilled') {
-        setTransactions(transactionsData.value);
+        const transactions = extractData(transactionsData.value);
+        setTransactions(transactions);
       }
 
       // Traiter les réservations
@@ -209,9 +211,10 @@ export default function DashboardPage() {
         setCompletedServiceIds(new Set(completedServiceIds));
       }
 
-      // Traiter les services
+      // Traiter les services (peut être paginé)
       if (servicesData.status === 'fulfilled') {
-        setServices(servicesData.value);
+        const services = extractData(servicesData.value);
+        setServices(services);
       }
 
       // Traiter les avis
