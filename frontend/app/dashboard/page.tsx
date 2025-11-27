@@ -819,8 +819,8 @@ export default function DashboardPage() {
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'bg-white text-[#253745] shadow-md font-semibold'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                      ? 'bg-[#4A5C6A] text-white shadow-md font-semibold'
+                      : 'text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50'
                   }`}
                 >
                   <div className="w-5 h-5">
@@ -945,7 +945,7 @@ export default function DashboardPage() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                     activeTab === tab.id
                       ? 'bg-[#4A5C6A] text-white shadow-lg'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                      : 'text-gray-700 hover:text-[#4A5C6A] hover:bg-gray-50'
                   }`}
                 >
                   <div className="w-5 h-5">
