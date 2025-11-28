@@ -53,7 +53,10 @@ export interface User {
   id: string;
   email: string;
   username: string;
+  avatarSeed?: string;
   credits: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {
@@ -227,6 +230,7 @@ export const usersApi = {
     email?: string;
     username?: string;
     password?: string;
+    avatarSeed?: string;
   }): Promise<User> => {
     const { data } = await api.patch<User>('/users/me', profileData);
     return data;

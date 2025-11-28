@@ -19,6 +19,7 @@ export class ServicesService {
           select: {
             id: true,
             username: true,
+            avatarSeed: true,
             email: true,
           },
         },
@@ -79,6 +80,7 @@ export class ServicesService {
           select: {
             id: true,
             username: true,
+            avatarSeed: true,
             email: true,
           },
         },
@@ -97,6 +99,7 @@ export class ServicesService {
           select: {
             id: true,
             username: true,
+            avatarSeed: true,
             email: true,
           },
         },
@@ -132,6 +135,7 @@ export class ServicesService {
           select: {
             id: true,
             username: true,
+            avatarSeed: true,
             email: true,
           },
         },

@@ -22,6 +22,7 @@ export class UsersService {
         id: true,
         email: true,
         username: true,
+        avatarSeed: true,
         credits: true,
         createdAt: true,
       },
@@ -35,6 +36,7 @@ export class UsersService {
         id: true,
         email: true,
         username: true,
+        avatarSeed: true,
         credits: true,
         createdAt: true,
       },
@@ -73,6 +75,7 @@ export class UsersService {
           select: {
             id: true,
             username: true,
+            avatarSeed: true,
             email: true,
           },
         },
@@ -80,6 +83,7 @@ export class UsersService {
           select: {
             id: true,
             username: true,
+            avatarSeed: true,
             email: true,
           },
         },
@@ -133,6 +137,11 @@ export class UsersService {
       updateData.password = await bcrypt.hash(updateProfileDto.password, saltRounds);
     }
 
+    // Mettre à jour l'avatarSeed si fourni
+    if (updateProfileDto.avatarSeed !== undefined) {
+      updateData.avatarSeed = updateProfileDto.avatarSeed;
+    }
+
     // Mettre à jour l'utilisateur
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
@@ -141,6 +150,7 @@ export class UsersService {
         id: true,
         email: true,
         username: true,
+        avatarSeed: true,
         credits: true,
         createdAt: true,
         updatedAt: true,

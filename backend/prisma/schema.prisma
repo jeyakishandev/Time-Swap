@@ -11,13 +11,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
-  password  String
-  credits   Float    @default(100.0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  email      String   @unique
+  username   String   @unique
+  password   String
+  avatarSeed String?
+  credits    Float    @default(100.0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   sentTransactions     CreditTransaction[] @relation("SentTransactions")
   receivedTransactions CreditTransaction[] @relation("ReceivedTransactions")

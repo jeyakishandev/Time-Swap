@@ -186,6 +186,8 @@ export default function DashboardPage() {
       // Traiter le profil
       if (profileData.status === 'fulfilled') {
         setUser(profileData.value);
+        // Initialiser avatarSeed avec la valeur de la base de données
+        setAvatarSeed(profileData.value.avatarSeed || profileData.value.username || '');
         localStorage.setItem('currentUser', profileData.value.id);
       } else if (profileData.reason?.response?.status === 401) {
         localStorage.removeItem('token');
@@ -478,14 +480,13 @@ export default function DashboardPage() {
   // Fonction pour ouvrir le modal de modification de profil
   const openProfileModal = () => {
     if (user) {
-      setProfileForm({
-        username: user.username || '',
-        email: user.email || '',
-        bio: '',
-        phone: '',
-        location: ''
-      });
-      setAvatarSeed(user.username || '');
+        setProfileForm({
+          username: user.username || '',
+          email: user.email || '',
+          password: '',
+          confirmPassword: ''
+        });
+      setAvatarSeed(user.avatarSeed || user.username || '');
     }
     setShowProfileModal(true);
   };
@@ -565,10 +566,27 @@ export default function DashboardPage() {
   };
 
   // Fonction pour générer un nouvel avatar
-  const generateNewAvatar = () => {
+  const generateNewAvatar = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const newSeed = Math.random().toString(36).substring(7);
     setAvatarSeed(newSeed);
-    setProfileForm({ ...profileForm, username: newSeed });
+    
+    try {
+      // Sauvegarder le nouveau seed dans la base de données
+      const updatedUser = await usersApi.updateProfile({ avatarSeed: newSeed });
+      setUser(updatedUser);
+      showToast('Avatar changé avec succès', 'success');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors de la mise à jour de l\'avatar';
+      showToast(errorMessage, 'error');
+      // Revenir à l'ancien seed en cas d'erreur
+      setAvatarSeed(user?.avatarSeed || user?.username || '');
+    }
   };
 
   // Fonction pour afficher des toasts
@@ -776,7 +794,7 @@ export default function DashboardPage() {
                 >
                   <div className="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
                     <img 
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.avatarSeed || user?.username}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
                       alt={user?.username}
                       className="w-full h-full object-cover"
                     />
@@ -1382,7 +1400,7 @@ export default function DashboardPage() {
                         <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                             <img 
-                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.avatarSeed || user?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
                               alt="Avatar"
                               className="w-full h-full object-cover"
                             />
@@ -1474,7 +1492,7 @@ export default function DashboardPage() {
                       <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                           <img 
-                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${service.provider?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${service.provider?.avatarSeed || service.provider?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
                             alt={service.provider?.username || 'Utilisateur'}
                             className="w-full h-full object-cover"
                           />
@@ -1972,122 +1990,333 @@ export default function DashboardPage() {
 
           {/* Profile Tab */}
           {activeTab === 'profile' && (
-            <div className="space-y-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Mon profil</h1>
-                  <p className="text-gray-300 text-sm md:text-base">Gérez vos informations personnelles</p>
-                </div>
-                <button
-                  onClick={openProfileModal}
-                  className="px-6 py-3 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] text-white rounded-lg font-semibold hover:from-[#253745] hover:to-[#4A5C6A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-[#4A5C6A]/25 flex items-center space-x-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  <span>Modifier le profil</span>
-                </button>
-              </div>
-
-              {/* Section Avatar */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <h2 className="text-xl font-bold text-white mb-6">Avatar</h2>
-                <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                  <div className="relative">
-                    <div className="w-24 h-24 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden shadow-lg">
-                      <img 
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
-                        alt={user?.username}
-                        className="w-full h-full object-cover"
-                      />
+            <div className="space-y-4 sm:space-y-6">
+              {/* Header avec carte de compte style bancaire */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-[#1a2332] via-[#253745] to-[#2d3f52] rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border border-white/10 shadow-2xl">
+                <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 bg-gradient-to-br from-[#4A5C6A]/20 to-transparent rounded-full blur-3xl"></div>
+                <div className="relative z-10">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
+                    <div className="flex items-center space-x-3 sm:space-x-4 w-full sm:w-auto">
+                      <div className="relative flex-shrink-0">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#4A5C6A] to-[#9BA8AB] rounded-xl sm:rounded-2xl flex items-center justify-center overflow-hidden shadow-xl ring-2 sm:ring-4 ring-white/10">
+                          <img 
+                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed || user?.avatarSeed || user?.username}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                            alt={user?.username}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-4 h-4 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-[#1a2332]"></div>
+                        <button
+                          type="button"
+                          onClick={(e) => generateNewAvatar(e)}
+                          className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-5 h-5 sm:w-7 sm:h-7 bg-[#4A5C6A] hover:bg-[#253745] text-white rounded-full flex items-center justify-center transition-colors shadow-lg border-2 border-[#1a2332]"
+                          title="Changer l'avatar"
+                        >
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-0.5 sm:mb-1 truncate">{user?.username}</h1>
+                        <p className="text-gray-300 text-xs sm:text-sm truncate">{user?.email}</p>
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-2">
+                          <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-green-500/20 text-green-400 text-[10px] sm:text-xs font-semibold rounded-full border border-green-500/30 whitespace-nowrap">
+                            ✓ Compte vérifié
+                          </span>
+                          <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-500/20 text-blue-400 text-[10px] sm:text-xs font-semibold rounded-full border border-blue-500/30 whitespace-nowrap">
+                            Membre depuis {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }) : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                     <button
-                      onClick={generateNewAvatar}
-                      className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#4A5C6A] hover:bg-[#253745] text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
-                      title="Générer un nouvel avatar"
+                      onClick={openProfileModal}
+                      className="w-full sm:w-auto mt-4 sm:mt-0 px-4 sm:px-6 py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-300 border border-white/20 hover:border-white/30 flex items-center justify-center space-x-2 shadow-lg text-sm sm:text-base"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
+                      <span>Modifier</span>
                     </button>
                   </div>
-                  <div className="text-center sm:text-left">
-                    <h3 className="text-white font-bold text-lg">{user?.username}</h3>
-                    <p className="text-gray-300 text-sm">{user?.email}</p>
-                    <p className="text-[#4A5C6A] text-xs mt-1">Membre depuis {new Date().toLocaleDateString('fr-FR')}</p>
+
+                  {/* Carte de compte style bancaire */}
+                  <div className="bg-gradient-to-r from-[#4A5C6A]/30 to-[#9BA8AB]/30 backdrop-blur-md rounded-lg sm:rounded-xl p-4 sm:p-6 border border-white/20 shadow-xl mt-4 sm:mt-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start gap-3 sm:gap-0 mb-3 sm:mb-4">
+                      <div className="flex-1">
+                        <p className="text-gray-300 text-xs sm:text-sm mb-1">Solde disponible</p>
+                        <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white break-words">
+                          {user?.credits.toFixed(2)} <span className="text-base sm:text-lg md:text-xl text-gray-400">crédits</span>
+                        </p>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <p className="text-gray-300 text-[10px] sm:text-xs mb-1">ID Compte</p>
+                        <p className="text-white font-mono text-xs sm:text-sm break-all">{user?.id.slice(0, 8).toUpperCase()}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 sm:space-x-4 pt-3 sm:pt-4 border-t border-white/10">
+                      <div className="flex-1 text-center sm:text-left">
+                        <p className="text-gray-400 text-[10px] sm:text-xs mb-0.5 sm:mb-1">Transactions</p>
+                        <p className="text-white font-semibold text-sm sm:text-base">{transactions.length}</p>
+                      </div>
+                      <div className="w-px h-6 sm:h-8 bg-white/20"></div>
+                      <div className="flex-1 text-center sm:text-left">
+                        <p className="text-gray-400 text-[10px] sm:text-xs mb-0.5 sm:mb-1">Services actifs</p>
+                        <p className="text-white font-semibold text-sm sm:text-base">{services.filter(s => s.providerId === user?.id && s.isActive).length}</p>
+                      </div>
+                      <div className="w-px h-6 sm:h-8 bg-white/20"></div>
+                      <div className="flex-1 text-center sm:text-left">
+                        <p className="text-gray-400 text-[10px] sm:text-xs mb-0.5 sm:mb-1">Réservations</p>
+                        <p className="text-white font-semibold text-sm sm:text-base">{bookings.length}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                  <h2 className="text-xl font-bold text-white mb-6">Informations personnelles</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-gray-300 text-sm mb-1">Nom d'utilisateur</label>
-                      <p className="text-white font-medium">{user?.username}</p>
+              {/* Statistiques détaillées */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 border border-white/10 hover:border-white/20 transition-all">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <GiReceiveMoney className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
                     </div>
-                    <div>
-                      <label className="block text-gray-300 text-sm mb-1">Email</label>
-                      <p className="text-white font-medium">{user?.email}</p>
+                  </div>
+                  <p className="text-gray-400 text-xs sm:text-sm mb-1">Crédits reçus</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-white break-words">
+                    {transactions
+                      .filter(t => t.receiverId === user?.id)
+                      .reduce((sum, t) => sum + t.amount, 0)
+                      .toFixed(2)}
+                  </p>
+                  <p className="text-gray-500 text-[10px] sm:text-xs mt-1 sm:mt-2">Total des entrées</p>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 border border-white/10 hover:border-white/20 transition-all">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
+                      <TbSend className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
                     </div>
-                    <div>
-                      <label className="block text-gray-300 text-sm mb-1">Prénom</label>
-                      <p className="text-white font-medium">{user?.username || 'Non renseigné'}</p>
+                  </div>
+                  <p className="text-gray-400 text-xs sm:text-sm mb-1">Crédits envoyés</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-white break-words">
+                    {transactions
+                      .filter(t => t.senderId === user?.id)
+                      .reduce((sum, t) => sum + t.amount, 0)
+                      .toFixed(2)}
+                  </p>
+                  <p className="text-gray-500 text-[10px] sm:text-xs mt-1 sm:mt-2">Total des sorties</p>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 border border-white/10 hover:border-white/20 transition-all">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <BiTransfer className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
                     </div>
-                    <div>
-                      <label className="block text-gray-300 text-sm mb-1">Nom</label>
-                      <p className="text-white font-medium">{user?.email || 'Non renseigné'}</p>
+                  </div>
+                  <p className="text-gray-400 text-xs sm:text-sm mb-1">Transactions</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">{transactions.length}</p>
+                  <p className="text-gray-500 text-[10px] sm:text-xs mt-1 sm:mt-2">Toutes transactions</p>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 border border-white/10 hover:border-white/20 transition-all">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <MdWork className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
                     </div>
-                    <div>
-                      <label className="block text-gray-300 text-sm mb-1">Bio</label>
-                      <p className="text-white font-medium">Aucune bio</p>
+                  </div>
+                  <p className="text-gray-400 text-xs sm:text-sm mb-1">Services</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">{services.filter(s => s.providerId === user?.id).length}</p>
+                  <p className="text-gray-500 text-[10px] sm:text-xs mt-1 sm:mt-2">Mes services</p>
+                </div>
+              </div>
+
+              {/* Informations et historique */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                {/* Informations personnelles */}
+                <div className="lg:col-span-2 bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 border border-white/10">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h2 className="text-lg sm:text-xl font-bold text-white">Informations du compte</h2>
+                    <button
+                      onClick={openProfileModal}
+                      className="text-[#4A5C6A] hover:text-[#9BA8AB] transition-colors text-xs sm:text-sm font-medium"
+                    >
+                      Modifier
+                    </button>
+                  </div>
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex items-center justify-between py-2 sm:py-3 border-b border-white/10">
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-gray-400 text-[10px] sm:text-xs">Nom d'utilisateur</p>
+                          <p className="text-white font-medium text-sm sm:text-base truncate">{user?.username}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-gray-300 text-sm mb-1">Téléphone</label>
-                      <p className="text-white font-medium">Non renseigné</p>
+                    <div className="flex items-center justify-between py-2 sm:py-3 border-b border-white/10">
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-gray-400 text-[10px] sm:text-xs">Email</p>
+                          <p className="text-white font-medium text-sm sm:text-base truncate">{user?.email}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-gray-300 text-sm mb-1">Localisation</label>
-                      <p className="text-white font-medium">Non renseigné</p>
+                    <div className="flex items-center justify-between py-2 sm:py-3 border-b border-white/10">
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-gray-400 text-[10px] sm:text-xs">ID Utilisateur</p>
+                          <p className="text-white font-mono text-xs sm:text-sm break-all">{user?.id}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-gray-300 text-sm mb-1">ID utilisateur</label>
-                      <p className="text-white font-medium font-mono text-sm">{user?.id}</p>
+                    <div className="flex items-center justify-between py-2 sm:py-3">
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-gray-400 text-[10px] sm:text-xs">Date d'inscription</p>
+                          <p className="text-white font-medium text-xs sm:text-sm">
+                            {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { 
+                              day: 'numeric', 
+                              month: 'long', 
+                              year: 'numeric' 
+                            }) : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                  <h2 className="text-xl font-bold text-white mb-6">Statistiques</h2>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Solde actuel</span>
-                      <span className="text-white font-bold">{user?.credits.toFixed(2)} crédits</span>
+                {/* Sécurité et activité */}
+                <div className="bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 border border-white/10">
+                  <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Sécurité</h2>
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex items-center justify-between p-2.5 sm:p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white text-xs sm:text-sm font-medium">Compte sécurisé</p>
+                          <p className="text-gray-400 text-[10px] sm:text-xs">2FA activé</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Transactions totales</span>
-                      <span className="text-white font-bold">{transactions.length}</span>
+                    <div className="flex items-center justify-between p-2.5 sm:p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white text-xs sm:text-sm font-medium">Mot de passe</p>
+                          <p className="text-gray-400 text-[10px] sm:text-xs">Fort et sécurisé</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Crédits envoyés</span>
-                      <span className="text-white font-bold">
-                        {transactions
-                          .filter(t => t.senderId === user?.id)
-                          .reduce((sum, t) => sum + t.amount, 0)
-                          .toFixed(2)} crédits
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Crédits reçus</span>
-                      <span className="text-white font-bold">
-                        {transactions
-                          .filter(t => t.receiverId === user?.id)
-                          .reduce((sum, t) => sum + t.amount, 0)
-                          .toFixed(2)} crédits
-                      </span>
+                    <div className="pt-3 sm:pt-4 border-t border-white/10">
+                      <p className="text-gray-400 text-[10px] sm:text-xs mb-2 sm:mb-3">Activité récente</p>
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <div className="flex items-center space-x-2 text-[10px] sm:text-xs text-gray-400">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full flex-shrink-0"></div>
+                          <span className="truncate">Dernière connexion: Aujourd'hui</span>
+                        </div>
+                        <div className="flex items-center space-x-2 text-[10px] sm:text-xs text-gray-400">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-400 rounded-full flex-shrink-0"></div>
+                          <span className="truncate">{transactions.length} transactions ce mois</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Transactions récentes */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 border border-white/10">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-lg sm:text-xl font-bold text-white">Transactions récentes</h2>
+                  <button
+                    onClick={() => setActiveTab('history')}
+                    className="text-[#4A5C6A] hover:text-[#9BA8AB] transition-colors text-xs sm:text-sm font-medium"
+                  >
+                    Voir tout →
+                  </button>
+                </div>
+                <div className="space-y-2 sm:space-y-3">
+                  {transactions.slice(0, 5).map((transaction) => {
+                    const isSent = transaction.senderId === user?.id;
+                    const otherUser = isSent 
+                      ? users.find(u => u.id === transaction.receiverId)
+                      : users.find(u => u.id === transaction.senderId);
+                    
+                    return (
+                      <div key={transaction.id} className="flex items-center justify-between p-3 sm:p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-all gap-2 sm:gap-4">
+                        <div className="flex items-center space-x-2 sm:space-x-3 sm:space-x-4 min-w-0 flex-1">
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                            isSent ? 'bg-red-500/20' : 'bg-green-500/20'
+                          }`}>
+                            {isSent ? (
+                              <TbSend className={`w-5 h-5 sm:w-6 sm:h-6 ${isSent ? 'text-red-400' : 'text-green-400'}`} />
+                            ) : (
+                              <GiReceiveMoney className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-white font-medium text-sm sm:text-base truncate">
+                              {isSent ? 'Envoyé à' : 'Reçu de'} {otherUser?.username || 'Utilisateur'}
+                            </p>
+                            <p className="text-gray-400 text-xs sm:text-sm truncate">
+                              {transaction.description || 'Transaction'}
+                            </p>
+                            <p className="text-gray-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1">
+                              {new Date(transaction.createdAt).toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className={`font-bold text-base sm:text-lg ${
+                            isSent ? 'text-red-400' : 'text-green-400'
+                          }`}>
+                            {isSent ? '-' : '+'}{transaction.amount.toFixed(2)}
+                          </p>
+                          <p className="text-gray-500 text-[10px] sm:text-xs">crédits</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {transactions.length === 0 && (
+                    <div className="text-center py-6 sm:py-8 text-gray-400 text-sm sm:text-base">
+                      <p>Aucune transaction pour le moment</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -2223,7 +2452,7 @@ export default function DashboardPage() {
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden">
                       <img 
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.avatarSeed || u.username}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
                         alt={u.username}
                         className="w-full h-full object-cover"
                       />
@@ -2715,7 +2944,7 @@ export default function DashboardPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={generateNewAvatar}
+                    onClick={(e) => generateNewAvatar(e)}
                     className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#4A5C6A] hover:bg-[#253745] text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
                     title="Générer un nouvel avatar"
                   >
@@ -2738,7 +2967,7 @@ export default function DashboardPage() {
                     value={profileForm.username}
                     onChange={(e) => {
                       setProfileForm({ ...profileForm, username: e.target.value });
-                      setAvatarSeed(e.target.value);
+                      // Ne pas changer l'avatar quand on modifie le username
                       if (profileErrors.username) setProfileErrors({ ...profileErrors, username: '' });
                     }}
                     className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent ${

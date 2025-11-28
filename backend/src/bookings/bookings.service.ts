@@ -64,9 +64,9 @@ export class BookingsService {
         scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
       },
       include: {
-        client: { select: { id: true, username: true, email: true } },
+        client: { select: { id: true, username: true, avatarSeed: true, email: true } },
         service: { select: { id: true, title: true, description: true } },
-        provider: { select: { id: true, username: true, email: true } }
+        provider: { select: { id: true, username: true, avatarSeed: true, email: true } }
       }
     });
 
@@ -86,9 +86,9 @@ export class BookingsService {
   async findAll() {
     return this.prisma.booking.findMany({
       include: {
-        client: { select: { id: true, username: true, email: true } },
+        client: { select: { id: true, username: true, avatarSeed: true, email: true } },
         service: { select: { id: true, title: true, description: true } },
-        provider: { select: { id: true, username: true, email: true } }
+        provider: { select: { id: true, username: true, avatarSeed: true, email: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -98,9 +98,9 @@ export class BookingsService {
     const booking = await this.prisma.booking.findUnique({
       where: { id },
       include: {
-        client: { select: { id: true, username: true, email: true } },
+        client: { select: { id: true, username: true, avatarSeed: true, email: true } },
         service: { select: { id: true, title: true, description: true } },
-        provider: { select: { id: true, username: true, email: true } }
+        provider: { select: { id: true, username: true, avatarSeed: true, email: true } }
       }
     });
 
@@ -120,9 +120,9 @@ export class BookingsService {
         ]
       },
       include: {
-        client: { select: { id: true, username: true, email: true } },
+        client: { select: { id: true, username: true, avatarSeed: true, email: true } },
         service: { select: { id: true, title: true, description: true } },
-        provider: { select: { id: true, username: true, email: true } }
+        provider: { select: { id: true, username: true, avatarSeed: true, email: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -140,9 +140,9 @@ export class BookingsService {
       where: { id },
       data: updateBookingDto,
       include: {
-        client: { select: { id: true, username: true, email: true } },
+        client: { select: { id: true, username: true, avatarSeed: true, email: true } },
         service: { select: { id: true, title: true, description: true } },
-        provider: { select: { id: true, username: true, email: true } }
+        provider: { select: { id: true, username: true, avatarSeed: true, email: true } }
       }
     });
 
@@ -294,9 +294,9 @@ export class BookingsService {
       where: { id },
       data: { status: 'CANCELLED' },
       include: {
-        client: { select: { id: true, username: true, email: true } },
+        client: { select: { id: true, username: true, avatarSeed: true, email: true } },
         service: { select: { id: true, title: true, description: true } },
-        provider: { select: { id: true, username: true, email: true } }
+        provider: { select: { id: true, username: true, avatarSeed: true, email: true } }
       }
     });
   }
@@ -316,9 +316,9 @@ export class BookingsService {
       where: { id },
       data: { status: 'COMPLETED' },
       include: {
-        client: { select: { id: true, username: true, email: true } },
+        client: { select: { id: true, username: true, avatarSeed: true, email: true } },
         service: { select: { id: true, title: true, description: true } },
-        provider: { select: { id: true, username: true, email: true } }
+        provider: { select: { id: true, username: true, avatarSeed: true, email: true } }
       }
     });
 

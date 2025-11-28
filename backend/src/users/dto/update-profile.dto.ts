@@ -17,5 +17,9 @@ export class UpdateProfileDto {
     message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre',
   })
   password?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Le seed de l\'avatar doit être une chaîne de caractères' })
+  avatarSeed?: string;
 }
 

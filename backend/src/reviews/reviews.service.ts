@@ -41,12 +41,14 @@ export class ReviewsService {
             select: {
               id: true,
               username: true,
+              avatarSeed: true,
             },
           },
           reviewee: {
             select: {
               id: true,
               username: true,
+              avatarSeed: true,
             },
           },
           service: {
