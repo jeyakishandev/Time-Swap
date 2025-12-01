@@ -15,7 +15,7 @@
    - **Runtime** : `Node`
    - **Build Command** : 
      ```bash
-     cd backend && npm install && npx nest build && npx prisma generate
+     cd backend && npm install --include=dev && npm run build && npx prisma generate
      ```
    - **Start Command** :
      ```bash
