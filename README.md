@@ -246,9 +246,9 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 **Développeur Full Stack**
 
-- 🌐 **Portfolio** : [Votre Portfolio](https://votre-portfolio.com) *(à remplacer par votre lien)*
+- 🌐 **Portfolio** : [Time-Swap Network](https://timeswap-frontend-mu5v.onrender.com/)
 - 💼 **GitHub** : [@jeyakishandev](https://github.com/jeyakishandev)
-- 📦 **Projet** : [Time-Swap Network](https://github.com/jeyakishandev/Time-Swap)
+- 📦 **Repository** : [Time-Swap Network](https://github.com/jeyakishandev/Time-Swap)
 
 ---
 
