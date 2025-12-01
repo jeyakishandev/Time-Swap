@@ -110,7 +110,9 @@ Le projet est configuré pour être déployé sur **Render** (backend + frontend
 Consultez les fichiers suivants pour les instructions détaillées :
 
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Guide complet de déploiement
+- **[GUIDE_DEPLOIEMENT_ETAPE_PAR_ETAPE.md](./GUIDE_DEPLOIEMENT_ETAPE_PAR_ETAPE.md)** - Guide étape par étape détaillé
 - **[PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md)** - Checklist de préparation production
+- **[SEED_PRODUCTION.md](./SEED_PRODUCTION.md)** - Guide pour importer les données de test en production
 
 ### ⚡ Déploiement Rapide
 

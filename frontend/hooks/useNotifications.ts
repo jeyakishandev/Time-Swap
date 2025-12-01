@@ -40,14 +40,12 @@ export const useNotifications = (): UseNotificationsReturn => {
     });
 
     newSocket.on('connect', () => {
-      console.log('[useNotifications] WebSocket connecté');
       setSocket(newSocket);
     });
 
-    newSocket.on('connect_error', (error) => {
-      console.warn('[useNotifications] Erreur de connexion WebSocket:', error.message);
+    newSocket.on('connect_error', () => {
       // Ne pas bloquer l'application si WebSocket échoue
-      setError(null); // Réinitialiser l'erreur pour ne pas bloquer l'UI
+      setError(null);
     });
 
     newSocket.on('new-notification', (notification: Notification) => {
@@ -56,7 +54,7 @@ export const useNotifications = (): UseNotificationsReturn => {
     });
 
     newSocket.on('disconnect', () => {
-      console.log('[useNotifications] WebSocket déconnecté');
+      // Gestion silencieuse de la déconnexion
     });
 
     // Charger les notifications existantes

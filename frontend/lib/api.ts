@@ -3,12 +3,6 @@ import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-// Log pour déboguer en production (sera supprimé après)
-if (typeof window !== 'undefined') {
-  console.log('[API] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
-  console.log('[API] API_URL utilisée:', API_URL);
-}
-
 // Instance Axios configurée
 const api = axios.create({
   baseURL: API_URL,
@@ -17,29 +11,9 @@ const api = axios.create({
   },
 });
 
-// Fonction pour logger de manière persistante
-const logToStorage = (message: string, data?: any) => {
-  if (typeof window !== 'undefined') {
-    const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] ${message}${data ? ' ' + JSON.stringify(data) : ''}`;
-    const existingLogs = localStorage.getItem('debug_logs') || '';
-    localStorage.setItem('debug_logs', existingLogs + '\n' + logEntry);
-  }
-  console.log(message, data || '');
-};
-
 // Intercepteur pour ajouter le token JWT à chaque requête
 api.interceptors.request.use(
   (config) => {
-    // Log pour déboguer
-    const fullUrl = (config.baseURL || API_URL) + (config.url || '');
-    logToStorage('[API Request]', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      fullUrl: fullUrl,
-    });
-    
-    // Utiliser localStorage si disponible, sinon Cookies
     const token = typeof window !== 'undefined' 
       ? localStorage.getItem('token') || Cookies.get('token')
       : Cookies.get('token');
@@ -49,7 +23,6 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    logToStorage('[API Request Error]', error);
     return Promise.reject(error);
   },
 );
@@ -57,37 +30,16 @@ api.interceptors.request.use(
 // Intercepteur pour gérer les erreurs de réponse
 api.interceptors.response.use(
   (response) => {
-    logToStorage('[API Response]', {
-      status: response.status,
-      url: response.config.url,
-    });
     return response;
   },
   (error) => {
-    const fullUrl = error.config 
-      ? (error.config.baseURL || API_URL) + (error.config.url || '')
-      : 'unknown';
-    
-    const errorDetails = {
-      message: error.message,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      url: error.config?.url,
-      fullUrl: fullUrl,
-      data: error.response?.data,
-      code: error.code,
-    };
-    
-    logToStorage('[API Error]', errorDetails);
-    
     if (error.response?.status === 401) {
       // Token expiré ou invalide
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('currentUser');
-        // Ne pas rediriger automatiquement pour voir les logs
-        // window.location.href = '/auth/login';
+        window.location.href = '/auth/login';
       } else {
         Cookies.remove('token');
         Cookies.remove('user');
