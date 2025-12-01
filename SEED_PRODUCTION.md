@@ -1,6 +1,6 @@
 # 🌱 Importer les données de test en production (Supabase)
 
-## Méthode 1 : Via la ligne de commande (recommandé)
+## Méthode 1 : Script automatique (⭐ Recommandé)
 
 ### Prérequis
 1. Avoir Node.js installé localement
@@ -12,6 +12,31 @@
    - Allez sur Supabase Dashboard > Settings > Database
    - Copiez la connection string (Transaction Pooler, port 6543)
    - Format : `postgresql://postgres.xxxxx:VotreMotDePasse@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true`
+
+2. **Exécuter le script de seed**
+   ```bash
+   cd backend
+   DATABASE_URL="votre_connection_string_supabase" ./seed-production.sh
+   ```
+   
+   Ou si vous préférez définir la variable d'environnement séparément :
+   ```bash
+   cd backend
+   export DATABASE_URL="votre_connection_string_supabase"
+   ./seed-production.sh
+   ```
+
+3. **Vérifier que les utilisateurs ont été créés**
+   Vous devriez voir dans la console :
+   ```
+   ✅ Users created: { alice: 'alice', bob: 'bob', charlie: 'charlie', diana: 'diana' }
+   ```
+
+## Méthode 2 : Via npm directement
+
+Si vous préférez utiliser npm directement :
+
+1. **Récupérer votre DATABASE_URL de Supabase** (voir Méthode 1)
 
 2. **Créer un fichier `.env` temporaire dans le dossier backend**
    ```bash
@@ -25,10 +50,9 @@
    npm run prisma:seed
    ```
 
-4. **Vérifier que les utilisateurs ont été créés**
-   Vous devriez voir dans la console :
-   ```
-   ✅ Users created: { alice: 'alice', bob: 'bob', charlie: 'charlie', diana: 'diana' }
+4. **Nettoyer le fichier `.env` après** (optionnel, pour éviter de l'envoyer par erreur)
+   ```bash
+   rm .env
    ```
 
 ## Méthode 2 : Via Render (si vous avez accès SSH)
