@@ -1,0 +1,36 @@
+services:
+  # Backend API
+  - type: web
+    name: timeswap-backend
+    env: node
+    plan: starter
+    buildCommand: cd backend && npm ci && npm run build && npx prisma generate
+    startCommand: cd backend && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_PORT
+        value: 3001
+    healthCheckPath: /health
+
+  # Frontend
+  - type: web
+    name: timeswap-frontend
+    env: node
+    plan: starter
+    buildCommand: cd frontend && npm ci && npm run build
+    startCommand: cd frontend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: PORT
+        value: 3000
+
