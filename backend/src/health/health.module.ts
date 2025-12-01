@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { HealthController } from './health.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
@@ -6,5 +6,12 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [HealthController],
 })
-export class HealthModule {}
+export class HealthModule {
+  private readonly logger = new Logger(HealthModule.name);
+
+  constructor() {
+    this.logger.log('HealthModule chargé');
+    this.logger.log('HealthController enregistré dans HealthModule');
+  }
+}
 

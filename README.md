@@ -101,6 +101,38 @@ docker-compose up --build
 # API Docs: http://localhost:3001/api/docs
 ```
 
+## 🚀 Déploiement en Production
+
+Le projet est configuré pour être déployé sur **Render** (backend + frontend) et **Supabase** (base de données PostgreSQL).
+
+### 📚 Documentation de Déploiement
+
+Consultez les fichiers suivants pour les instructions détaillées :
+
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Guide complet de déploiement
+- **[PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md)** - Checklist de préparation production
+
+### ⚡ Déploiement Rapide
+
+1. **Supabase** : Créer un projet et récupérer la connection string PostgreSQL
+2. **Render Backend** : Créer un Web Service avec les variables d'environnement
+3. **Render Frontend** : Créer un Web Service avec `NEXT_PUBLIC_API_URL` pointant vers le backend
+4. **Migrations** : Appliquer les migrations Prisma sur Supabase
+
+### 🔧 Configuration Requise
+
+**Backend (Render)**
+- `DATABASE_URL` (Supabase PostgreSQL)
+- `JWT_SECRET` (clé secrète forte)
+- `FRONTEND_URL` (URL du frontend)
+- `NODE_ENV=production`
+
+**Frontend (Render)**
+- `NEXT_PUBLIC_API_URL` (URL du backend)
+- `NODE_ENV=production`
+
+Voir les fichiers `backend/env.example` et `frontend/env.example` pour la liste complète.
+
 ## 🧪 Tests
 
 ```bash
