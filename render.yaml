@@ -4,7 +4,7 @@ services:
     name: timeswap-backend
     env: node
     plan: starter
-    buildCommand: cd backend && npm install && npm run build && npx prisma generate
+    buildCommand: cd backend && npm install && npx nest build && npx prisma generate
     startCommand: cd backend && npm run start:prod
     envVars:
       - key: NODE_ENV
