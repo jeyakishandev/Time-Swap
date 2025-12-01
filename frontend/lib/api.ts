@@ -20,6 +20,10 @@ const api = axios.create({
 // Intercepteur pour ajouter le token JWT à chaque requête
 api.interceptors.request.use(
   (config) => {
+    // Log pour déboguer
+    console.log('[API Request]', config.method?.toUpperCase(), config.url);
+    console.log('[API Request] Full URL:', config.baseURL + config.url);
+    
     // Utiliser localStorage si disponible, sinon Cookies
     const token = typeof window !== 'undefined' 
       ? localStorage.getItem('token') || Cookies.get('token')
@@ -30,14 +34,27 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('[API Request Error]', error);
     return Promise.reject(error);
   },
 );
 
 // Intercepteur pour gérer les erreurs de réponse
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('[API Response]', response.status, response.config.url);
+    return response;
+  },
   (error) => {
+    console.error('[API Error]', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url,
+      fullUrl: error.config?.baseURL + error.config?.url,
+      data: error.response?.data,
+    });
+    
     if (error.response?.status === 401) {
       // Token expiré ou invalide
       if (typeof window !== 'undefined') {
