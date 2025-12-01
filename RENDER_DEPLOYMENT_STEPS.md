@@ -60,7 +60,7 @@ Dans **Advanced Settings** :
    - **Runtime** : `Node`
    - **Build Command** :
      ```bash
-     cd frontend && npm install && npm run build
+     cd frontend && npm install --include=dev && npm run build
      ```
    - **Start Command** :
      ```bash
