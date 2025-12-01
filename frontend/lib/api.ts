@@ -3,6 +3,12 @@ import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+// Log pour déboguer en production (sera supprimé après)
+if (typeof window !== 'undefined') {
+  console.log('[API] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+  console.log('[API] API_URL utilisée:', API_URL);
+}
+
 // Instance Axios configurée
 const api = axios.create({
   baseURL: API_URL,

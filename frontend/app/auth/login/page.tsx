@@ -21,7 +21,9 @@ export default function LoginPage() {
     setError('');
 
     try {
+      console.log('[Login] Tentative de connexion avec:', formData.email);
       const data = await authApi.login(formData.email, formData.password);
+      console.log('[Login] Connexion réussie');
       
       // Stocker le token et les infos utilisateur dans localStorage
       localStorage.setItem('token', data.token);
@@ -30,10 +32,21 @@ export default function LoginPage() {
       // Rediriger vers le dashboard
       router.push('/dashboard');
     } catch (err: unknown) {
+      console.error('[Login] Erreur de connexion:', err);
       const errorMessage = err instanceof Error 
         ? err.message 
-        : (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Erreur lors de la connexion';
+        : (err as { response?: { data?: { message?: string; error?: string } } })?.response?.data?.message 
+        || (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        || (err as { message?: string })?.message
+        || 'Erreur lors de la connexion';
       setError(errorMessage);
+      
+      // Log détaillé pour déboguer
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response?: { status?: number; data?: any } };
+        console.error('[Login] Status:', axiosError.response?.status);
+        console.error('[Login] Data:', axiosError.response?.data);
+      }
     } finally {
       setIsLoading(false);
     }
