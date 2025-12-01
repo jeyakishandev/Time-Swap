@@ -246,8 +246,9 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 **Développeur Full Stack**
 
-- GitHub : [@jeyakishandev](https://github.com/jeyakishandev)
-- Projet : [Time-Swap Network](https://github.com/jeyakishandev/Time-Swap)
+- 🌐 **Portfolio** : [Votre Portfolio](https://votre-portfolio.com) *(à remplacer par votre lien)*
+- 💼 **GitHub** : [@jeyakishandev](https://github.com/jeyakishandev)
+- 📦 **Projet** : [Time-Swap Network](https://github.com/jeyakishandev/Time-Swap)
 
 ---
 
