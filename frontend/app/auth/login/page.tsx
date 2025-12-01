@@ -20,34 +20,56 @@ export default function LoginPage() {
     setIsLoading(true);
     setError('');
 
+    // Stocker les logs dans localStorage pour qu'ils persistent
+    const logToStorage = (message: string, data?: any) => {
+      const timestamp = new Date().toISOString();
+      const logEntry = `[${timestamp}] ${message}${data ? ' ' + JSON.stringify(data) : ''}`;
+      const existingLogs = localStorage.getItem('debug_logs') || '';
+      localStorage.setItem('debug_logs', existingLogs + '\n' + logEntry);
+      console.log(message, data || '');
+    };
+
     try {
-      console.log('[Login] Tentative de connexion avec:', formData.email);
+      logToStorage('[Login] Début tentative de connexion', { email: formData.email });
+      
+      logToStorage('[Login] Appel authApi.login...');
       const data = await authApi.login(formData.email, formData.password);
-      console.log('[Login] Connexion réussie');
+      logToStorage('[Login] Connexion réussie', { userId: data.user.id });
       
       // Stocker le token et les infos utilisateur dans localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      // Rediriger vers le dashboard
-      router.push('/dashboard');
+      logToStorage('[Login] Token stocké, redirection vers dashboard');
+      
+      // Attendre un peu avant de rediriger pour voir les logs
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
     } catch (err: unknown) {
-      console.error('[Login] Erreur de connexion:', err);
+      logToStorage('[Login] ERREUR de connexion', err);
+      
       const errorMessage = err instanceof Error 
         ? err.message 
         : (err as { response?: { data?: { message?: string; error?: string } } })?.response?.data?.message 
         || (err as { response?: { data?: { error?: string } } })?.response?.data?.error
         || (err as { message?: string })?.message
         || 'Erreur lors de la connexion';
+      
+      logToStorage('[Login] Message d\'erreur:', errorMessage);
       setError(errorMessage);
       
       // Log détaillé pour déboguer
       if (err && typeof err === 'object' && 'response' in err) {
-        const axiosError = err as { response?: { status?: number; data?: any } };
-        console.error('[Login] Status:', axiosError.response?.status);
-        console.error('[Login] Data:', axiosError.response?.data);
+        const axiosError = err as { response?: { status?: number; data?: any; statusText?: string } };
+        logToStorage('[Login] Status HTTP:', axiosError.response?.status);
+        logToStorage('[Login] Status Text:', axiosError.response?.statusText);
+        logToStorage('[Login] Response Data:', axiosError.response?.data);
+      } else if (err && typeof err === 'object' && 'message' in err) {
+        logToStorage('[Login] Error message:', (err as { message: string }).message);
+        logToStorage('[Login] Error stack:', (err as Error).stack);
       }
-    } finally {
+      
       setIsLoading(false);
     }
   };
@@ -127,6 +149,36 @@ export default function LoginPage() {
           {error && (
             <div className="bg-red-500/20 border border-red-500/30 text-red-200 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">
               {error}
+            </div>
+          )}
+
+          {/* Bouton pour voir les logs de debug */}
+          {typeof window !== 'undefined' && localStorage.getItem('debug_logs') && (
+            <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
+              <button
+                type="button"
+                onClick={() => {
+                  const logs = localStorage.getItem('debug_logs');
+                  if (logs) {
+                    console.log('=== TOUS LES LOGS ===');
+                    console.log(logs);
+                    alert('Logs affichés dans la console (F12)');
+                  }
+                }}
+                className="text-xs text-blue-300 hover:text-blue-200 underline"
+              >
+                Voir les logs de debug (console)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem('debug_logs');
+                  window.location.reload();
+                }}
+                className="text-xs text-red-300 hover:text-red-200 underline ml-4"
+              >
+                Effacer les logs
+              </button>
             </div>
           )}
 
