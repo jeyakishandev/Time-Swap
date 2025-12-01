@@ -1,5 +1,4 @@
-import { Controller, Get, Head, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Controller, Get, Head } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Controller()
@@ -8,13 +7,13 @@ export class HealthController {
 
   @Get()
   @Head()
-  async root(@Res() res: Response) {
+  root() {
     // Route racine pour les health checks de Render
-    res.status(200).json({
+    return {
       status: 'ok',
       service: 'Time-Swap Backend API',
       timestamp: new Date().toISOString(),
-    });
+    };
   }
 
   @Get('health')
