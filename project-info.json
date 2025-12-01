@@ -1,0 +1,56 @@
+{
+  "id": "time-swap-network",
+  "title": "Time-Swap Network",
+  "description": "Plateforme d'échange de crédits temps avec authentification sécurisée, marketplace de services et système de transactions atomiques",
+  "fullDescription": "Time-Swap Network est mon premier projet Full Stack ambitieux. Il s'agit d'une plateforme bancaire sécurisée permettant aux utilisateurs d'échanger des crédits temps entre eux, de créer et réserver des services, et de gérer leurs transactions de manière sécurisée.\n\nLe projet combine plusieurs concepts avancés : authentification JWT avec cookies HTTP-only, transactions atomiques avec Prisma pour garantir la cohérence des données, système de notifications en temps réel avec Socket.io, messagerie en temps réel, et une interface utilisateur moderne avec Next.js 14 et Tailwind CSS.\n\nJ'ai appris énormément sur ce projet : les transactions atomiques qui résolvent les problèmes de cohérence des données, l'authentification sécurisée avec JWT, l'architecture modulaire de NestJS, l'importance des tests unitaires (71% de couverture sur les services critiques), et la gestion des WebSockets pour les fonctionnalités temps réel.",
+  "image": "/time-swap.png",
+  "video": "/api/placeholder/video",
+  "technologies": [
+    "Next.js 14",
+    "TypeScript",
+    "NestJS",
+    "Prisma",
+    "PostgreSQL",
+    "SQLite",
+    "JWT",
+    "Tailwind CSS",
+    "Socket.io",
+    "Docker",
+    "Jest",
+    "bcrypt",
+    "Axios",
+    "Recharts",
+    "Zod"
+  ],
+  "github": "https://github.com/votre-username/Time-Swap",
+  "githubBackend": "https://github.com/votre-username/Time-Swap",
+  "features": [
+    "Authentification sécurisée avec JWT et cookies HTTP-only",
+    "Système de réinitialisation de mot de passe avec tokens sécurisés",
+    "Transfert de crédits temps entre utilisateurs avec transactions atomiques",
+    "Marketplace de services avec catégories et recherche avancée",
+    "Système de réservation de services avec gestion des statuts (PENDING, CONFIRMED, COMPLETED, CANCELLED)",
+    "Système d'avis et de notation (1-5 étoiles) avec calcul de moyennes",
+    "Notifications en temps réel avec Socket.io",
+    "Messagerie en temps réel entre utilisateurs",
+    "Tableau de bord complet avec statistiques et historique",
+    "Graphiques et visualisations de données avec Recharts",
+    "API REST documentée avec Swagger",
+    "Tests unitaires avec 71% de couverture sur les services critiques",
+    "Déploiement Docker avec docker-compose",
+    "Health checks pour monitoring",
+    "Rate limiting avec Throttler pour la sécurité",
+    "Validation des données avec class-validator et Zod",
+    "Gestion des erreurs centralisée avec filtres personnalisés"
+  ],
+  "stats": {
+    "duration": "2-3 mois",
+    "team": "Solo",
+    "linesOfCode": "~12 400 lignes",
+    "endpoints": "55+ routes API",
+    "components": "20+ composants React",
+    "testCoverage": "71%",
+    "database": "PostgreSQL (production) / SQLite (développement)"
+  }
+}
+
