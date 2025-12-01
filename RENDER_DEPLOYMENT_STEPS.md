@@ -15,7 +15,7 @@
    - **Runtime** : `Node`
    - **Build Command** : 
      ```bash
-     cd backend && npm ci && npm run build && npx prisma generate
+     cd backend && npm install && npm run build && npx prisma generate
      ```
    - **Start Command** :
      ```bash
@@ -60,7 +60,7 @@ Dans **Advanced Settings** :
    - **Runtime** : `Node`
    - **Build Command** :
      ```bash
-     cd frontend && npm ci && npm run build
+     cd frontend && npm install && npm run build
      ```
    - **Start Command** :
      ```bash
