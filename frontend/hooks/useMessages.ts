@@ -80,11 +80,17 @@ export const useMessages = (): UseMessagesReturn => {
     }
 
     // Initialiser la connexion WebSocket pour les messages
+    // Render ne supporte pas bien les WebSockets, donc on utilise polling en production
+    const isProduction = process.env.NODE_ENV === 'production';
     console.log('[useMessages] Connexion à:', `${API_URL}/messages`);
     const newSocket = io(`${API_URL}/messages`, {
       auth: {
         token: token,
       },
+      transports: isProduction ? ['polling'] : ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     newSocket.on('connect', () => {
@@ -93,7 +99,10 @@ export const useMessages = (): UseMessagesReturn => {
     });
 
     newSocket.on('connect_error', (err) => {
-      console.error('[useMessages] Erreur de connexion WebSocket:', err);
+      console.warn('[useMessages] Erreur de connexion WebSocket:', err.message);
+      // Ne pas bloquer l'application si WebSocket échoue
+      // L'application fonctionnera toujours via l'API REST
+      setError(null); // Réinitialiser l'erreur pour ne pas bloquer l'UI
     });
 
     newSocket.on('new-message', (message: Message) => {

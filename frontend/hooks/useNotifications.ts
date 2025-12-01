@@ -26,15 +26,28 @@ export const useNotifications = (): UseNotificationsReturn => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    // Initialiser la connexion WebSocket
+    // Initialiser la connexion WebSocket avec polling uniquement en production
+    // Render ne supporte pas bien les WebSockets, donc on utilise polling
+    const isProduction = process.env.NODE_ENV === 'production';
     const newSocket = io(API_URL, {
       auth: {
         token: token,
       },
+      transports: isProduction ? ['polling'] : ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     newSocket.on('connect', () => {
+      console.log('[useNotifications] WebSocket connecté');
       setSocket(newSocket);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.warn('[useNotifications] Erreur de connexion WebSocket:', error.message);
+      // Ne pas bloquer l'application si WebSocket échoue
+      setError(null); // Réinitialiser l'erreur pour ne pas bloquer l'UI
     });
 
     newSocket.on('new-notification', (notification: Notification) => {
@@ -43,7 +56,7 @@ export const useNotifications = (): UseNotificationsReturn => {
     });
 
     newSocket.on('disconnect', () => {
-      // Gestion silencieuse de la déconnexion
+      console.log('[useNotifications] WebSocket déconnecté');
     });
 
     // Charger les notifications existantes
