@@ -1,84 +1,117 @@
-# 🌟 Time-Swap Network
+# 💼 Time-Swap Network
 
-> **Mon premier projet Full Stack ambitieux**
+> Plateforme Full Stack d'échange de crédits temps avec marketplace de services
 
-Une plateforme d'échange de crédits temps que j'ai développée pour apprendre les technologies modernes. L'idée m'est venue en pensant à un système d'échange de services entre amis.
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
-## 🎯 Pourquoi ce projet ?
+## 📋 Description
 
-Après avoir fait quelques projets simples (todo list, blog basique), j'ai voulu créer quelque chose de plus complexe. L'idée des crédits temps m'a plu car ça combine plusieurs concepts intéressants : l'authentification, les transactions, et une interface utilisateur moderne.
+**Time-Swap Network** est une plateforme complète permettant aux utilisateurs d'échanger des crédits temps entre eux, de créer et réserver des services, et de gérer leurs transactions de manière sécurisée. Le projet intègre un système d'authentification robuste, une marketplace de services, un système de messagerie en temps réel, et un tableau de bord analytique.
 
-## 📚 Ce que j'ai appris
+### 🌐 Liens
 
-### **Next.js 14**
-- L'App Router est vraiment différent de ce que je connaissais
-- Les Server Components, c'est génial mais il faut s'habituer
-- Tailwind CSS c'est pratique mais il faut une bonne organisation
+- **Application en production** : [https://timeswap-frontend-mu5v.onrender.com](https://timeswap-frontend-mu5v.onrender.com)
+- **API Backend** : [https://timeswap-backend-1x1j.onrender.com](https://timeswap-backend-1x1j.onrender.com)
+- **Documentation API** : [https://timeswap-backend-1x1j.onrender.com/api/docs](https://timeswap-backend-1x1j.onrender.com/api/docs)
+- **Repository GitHub** : [https://github.com/jeyakishandev/Time-Swap](https://github.com/jeyakishandev/Time-Swap)
 
-### **NestJS**
-- Premier framework backend que j'utilise (avant j'utilisais Express)
-- L'injection de dépendances, c'est magique !
-- Les Guards pour l'authentification, j'ai mis du temps à comprendre
+## ✨ Fonctionnalités Principales
 
-### **Prisma**
-- Les transactions atomiques, j'ai eu des bugs bizarres avant de comprendre
-- Maintenant je vois pourquoi c'est si important pour la cohérence des données
-- SQLite pour commencer, PostgreSQL plus tard
+### 🔐 Authentification & Sécurité
+- Authentification JWT avec tokens sécurisés
+- Système de réinitialisation de mot de passe avec tokens temporaires
+- Hashage des mots de passe avec bcrypt (12 rounds)
+- Rate limiting pour protéger contre les attaques par force brute
+- Headers de sécurité (CORS, XSS Protection, etc.)
 
-## 🚀 Stack Technique
+### 💳 Système de Transactions
+- Transfert de crédits temps entre utilisateurs
+- Transactions atomiques garantissant la cohérence des données
+- Historique complet des transactions
+- Gestion des statuts (PENDING, COMPLETED, FAILED, CANCELLED)
+
+### 🛒 Marketplace de Services
+- Création et gestion de services avec catégories
+- Recherche avancée avec filtres (prix, catégorie, note)
+- Système de réservation avec gestion des statuts
+- Calendrier de disponibilités
+
+### ⭐ Système d'Avis & Notes
+- Notation sur 5 étoiles
+- Commentaires détaillés
+- Calcul automatique des moyennes
+- Affichage des statistiques de notation
+
+### 💬 Communication en Temps Réel
+- Messagerie instantanée entre utilisateurs
+- Notifications en temps réel via WebSocket (Socket.io)
+- Indicateurs de messages non lus
+- Conversations persistantes
+
+### 📊 Tableau de Bord Analytique
+- Statistiques de transactions (revenus, dépenses)
+- Graphiques de visualisation (Recharts)
+- Historique des réservations
+- Rapports mensuels
+
+## 🛠️ Stack Technique
 
 ### Frontend
-- **Next.js 14** - J'ai découvert l'App Router, c'est génial !
-- **TypeScript** - J'apprends à bien typer, c'est pas toujours évident
-- **Tailwind CSS** - Pratique mais il faut s'organiser
+- **Next.js 14** - Framework React avec App Router
+- **TypeScript** - Typage statique
+- **Tailwind CSS** - Framework CSS utilitaire
+- **Axios** - Client HTTP
+- **Socket.io Client** - Communication WebSocket
+- **Recharts** - Bibliothèque de graphiques
+- **Zod** - Validation de schémas
 
 ### Backend
-- **NestJS** - Mon premier framework backend sérieux
-- **Prisma** - J'ai galéré avec les transactions mais maintenant je comprends
-- **JWT** - L'authentification, j'ai appris l'importance de la sécurité
-- **SQLite** - Pour commencer, PostgreSQL plus tard
+- **NestJS** - Framework Node.js progressif
+- **Prisma** - ORM moderne pour PostgreSQL/SQLite
+- **PostgreSQL** - Base de données relationnelle (production)
+- **SQLite** - Base de données pour le développement
+- **JWT** - Authentification par tokens
+- **bcrypt** - Hashage des mots de passe
+- **Socket.io** - WebSockets pour le temps réel
+- **Swagger** - Documentation API automatique
+- **Jest** - Framework de tests
 
-## 🐛 Problèmes rencontrés
+### DevOps & Déploiement
+- **Docker** - Containerisation
+- **Render** - Hébergement backend et frontend
+- **Supabase** - Base de données PostgreSQL managée
+- **GitHub Actions** - CI/CD (optionnel)
 
-### **Authentification JWT**
-- J'ai eu du mal à comprendre le flow complet au début
-- Les tokens qui expiraient trop vite (j'ai mis 1h au lieu de 1 jour)
-- Les cookies HTTP-only, c'est plus sécurisé mais plus complexe
+## 🚀 Installation & Démarrage
 
-### **Transactions Prisma**
-- J'avais des bugs bizarres : l'argent disparaissait parfois
-- J'ai découvert les transactions atomiques et maintenant c'est stable
-- Les types Decimal vs Number, j'ai galéré avec SQLite
+### Prérequis
 
-### **Docker**
-- Docker ne marchait pas sur mon PC au début
-- J'ai appris à utiliser SQLite en local pour développer plus facilement
-- Les variables d'environnement, c'est important !
-- J'ai créé des Dockerfiles simples pour le déploiement
+- Node.js 18+ et npm
+- PostgreSQL (pour la production) ou SQLite (pour le développement)
 
-### **Tests**
-- J'ai découvert Jest et les tests unitaires
-- C'est super important pour éviter les régressions
-- J'ai testé les services critiques (Auth et Transactions)
-- Couverture à 33% pour l'instant, je vais l'améliorer !
-
-## 🚀 Démarrage Rapide
-
-### Installation automatique (Recommandé)
+### Installation Rapide
 
 ```bash
-# Installation complète en une commande
+# Cloner le repository
+git clone https://github.com/jeyakishandev/Time-Swap.git
+cd Time-Swap
+
+# Installation automatique (recommandé)
 ./start.sh
 ```
 
-### Installation manuelle
+### Installation Manuelle
 
 ```bash
 # Backend
 cd backend
-export DATABASE_URL="file:./dev.db"
-export JWT_SECRET="your-secret-key"
 npm install
+cp env.example .env
+# Configurer DATABASE_URL et JWT_SECRET dans .env
 npm run prisma:migrate
 npm run prisma:seed
 npm run start:dev
@@ -86,59 +119,53 @@ npm run start:dev
 # Frontend (dans un autre terminal)
 cd frontend
 npm install
+cp env.example .env
+# Configurer NEXT_PUBLIC_API_URL dans .env
 npm run dev
 ```
 
-### Avec Docker (Production)
+### Avec Docker
 
 ```bash
-# Lancer toute l'application
 docker-compose up --build
-
-# Accéder à l'application
-# Frontend: http://localhost:3000
-# Backend: http://localhost:3001
-# API Docs: http://localhost:3001/api/docs
 ```
 
-## 🚀 Déploiement en Production
+L'application sera accessible sur :
+- Frontend : http://localhost:3000
+- Backend : http://localhost:3001
+- API Docs : http://localhost:3001/api/docs
 
-Le projet est configuré pour être déployé sur **Render** (backend + frontend) et **Supabase** (base de données PostgreSQL).
+## 📁 Structure du Projet
 
-### 📚 Documentation de Déploiement
-
-Consultez les fichiers suivants pour les instructions détaillées :
-
-- **[GUIDE_DEPLOIEMENT_ETAPE_PAR_ETAPE.md](./GUIDE_DEPLOIEMENT_ETAPE_PAR_ETAPE.md)** - Guide complet étape par étape pour déployer sur Render et Supabase
-- **[SEED_PRODUCTION.md](./SEED_PRODUCTION.md)** - Guide pour importer les données de test en production
-- **[SECURITY.md](./SECURITY.md)** - Guide de sécurité et bonnes pratiques
-
-### ⚡ Déploiement Rapide
-
-1. **Supabase** : Créer un projet et récupérer la connection string PostgreSQL
-2. **Render Backend** : Créer un Web Service avec les variables d'environnement
-3. **Render Frontend** : Créer un Web Service avec `NEXT_PUBLIC_API_URL` pointant vers le backend
-4. **Migrations** : Appliquer les migrations Prisma sur Supabase
-
-### 🔧 Configuration Requise
-
-**Backend (Render)**
-- `DATABASE_URL` (Supabase PostgreSQL)
-- `JWT_SECRET` (clé secrète forte)
-- `FRONTEND_URL` (URL du frontend)
-- `NODE_ENV=production`
-
-**Frontend (Render)**
-- `NEXT_PUBLIC_API_URL` (URL du backend)
-- `NODE_ENV=production`
-
-Voir les fichiers `backend/env.example` et `frontend/env.example` pour la liste complète.
+```
+Time-Swap/
+├── backend/                 # API NestJS
+│   ├── src/
+│   │   ├── auth/           # Module d'authentification
+│   │   ├── users/          # Gestion des utilisateurs
+│   │   ├── transactions/   # Système de transactions
+│   │   ├── services/       # Marketplace de services
+│   │   ├── bookings/       # Système de réservations
+│   │   ├── reviews/        # Système d'avis
+│   │   ├── messages/       # Messagerie
+│   │   ├── notifications/  # Notifications temps réel
+│   │   └── common/         # Utilitaires partagés
+│   ├── prisma/             # Schéma et migrations Prisma
+│   └── test/               # Tests unitaires
+├── frontend/                # Application Next.js
+│   ├── app/                # Pages et routes
+│   ├── components/         # Composants React
+│   ├── hooks/              # Hooks personnalisés
+│   └── lib/                # Utilitaires et API client
+└── docker-compose.yml       # Configuration Docker
+```
 
 ## 🧪 Tests
 
 ```bash
-# Lancer les tests
 cd backend
+
+# Lancer tous les tests
 npm test
 
 # Tests avec couverture
@@ -148,18 +175,80 @@ npm run test:cov
 npm run test:watch
 ```
 
-**Couverture actuelle :** 71% (Services critiques : Auth 100%, Transactions 89%, Users 100%)
+**Couverture actuelle :** 71%
+- Services critiques : Auth 100%, Transactions 89%, Users 100%
+
+## 🔧 Configuration
+
+### Variables d'Environnement Backend
+
+```env
+DATABASE_URL="postgresql://user:password@host:5432/database"
+JWT_SECRET="your-super-secret-jwt-key"
+JWT_EXPIRES_IN="1d"
+FRONTEND_URL="http://localhost:3000"
+NODE_ENV="development"
+BACKEND_PORT=3001
+```
+
+### Variables d'Environnement Frontend
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:3001"
+PORT=3000
+NODE_ENV="development"
+```
+
+Voir `backend/env.example` et `frontend/env.example` pour plus de détails.
+
+## 📚 API Documentation
+
+La documentation complète de l'API est disponible via Swagger :
+- **Local** : http://localhost:3001/api/docs
+- **Production** : https://timeswap-backend-1x1j.onrender.com/api/docs
+
+## 🚀 Déploiement
+
+Le projet est déployé sur :
+- **Render** : Backend et Frontend
+- **Supabase** : Base de données PostgreSQL
+
+### Déploiement Rapide
+
+1. Créer un projet Supabase et récupérer la connection string
+2. Créer un service Web sur Render pour le backend
+3. Créer un service Web sur Render pour le frontend
+4. Configurer les variables d'environnement
+5. Appliquer les migrations Prisma : `npx prisma migrate deploy`
+
+## 📊 Statistiques du Projet
+
+- **Lignes de code** : ~12 400
+- **Endpoints API** : 55+
+- **Composants React** : 20+
+- **Couverture de tests** : 71%
+- **Durée de développement** : 2-3 mois
+
+## 🎯 Points Techniques Remarquables
+
+- **Transactions atomiques** : Garantie de cohérence des données lors des transferts de crédits
+- **Architecture modulaire** : Code organisé avec NestJS (modules, services, controllers)
+- **Temps réel** : WebSockets pour les notifications et la messagerie
+- **Sécurité renforcée** : Rate limiting, validation des données, headers de sécurité
+- **Type safety** : TypeScript strict sur tout le projet
+- **Tests unitaires** : Couverture importante sur les services critiques
 
 ## 📄 Licence
 
-MIT License - Voir le fichier LICENSE pour plus de détails.
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
-## 👤 Auteur
+## 👨‍💻 Auteur
 
-**Développeur Junior Full Stack en apprentissage**
+**Développeur Full Stack**
 
-Ce projet montre ma progression :
-- ✅ Premier projet Full Stack complet
-- ✅ Découverte des transactions atomiques
-- ✅ Apprentissage de l'authentification JWT
-- ✅ Premiers pas avec les tests unitaires
+- GitHub : [@jeyakishandev](https://github.com/jeyakishandev)
+- Projet : [Time-Swap Network](https://github.com/jeyakishandev/Time-Swap)
+
+---
+
+⭐ Si ce projet vous intéresse, n'hésitez pas à le star sur GitHub !
