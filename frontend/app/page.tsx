@@ -5,6 +5,8 @@ import Link from 'next/link';
 import AuthLink from '../components/AuthLink';
 
 export default function HomePage() {
+  console.log('[HomePage] Page d\'accueil chargée');
+  
   const [isScrolled, setIsScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 

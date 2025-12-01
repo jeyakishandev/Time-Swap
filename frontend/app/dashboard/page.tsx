@@ -16,6 +16,7 @@ import AnalyticsStats, { calculateAnalytics } from '../../components/AnalyticsSt
 import RevenueExpenseChart from '../../components/RevenueExpenseChart';
 import TransactionDistributionChart from '../../components/TransactionDistributionChart';
 import MonthlyReport from '../../components/MonthlyReport';
+import MessagesInterface from '../../components/MessagesInterface';
 import { 
   usersApi, 
   transactionsApi, 
@@ -27,7 +28,9 @@ import {
   type Transaction,
   type Service,
   type Booking,
-  type Review
+  type Review,
+  type ServiceWithRating,
+  type SearchServicesParams
 } from '../../lib/api';
 import { 
   transferSchema, 
@@ -63,7 +66,7 @@ export default function DashboardPage() {
   const [serviceErrors, setServiceErrors] = useState<Record<string, string>>({});
   const [bookingErrors, setBookingErrors] = useState<Record<string, string>>({});
   const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'transfer' | 'services' | 'bookings' | 'history' | 'profile' | 'analytics' | 'messages'>('overview');
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -115,6 +118,21 @@ export default function DashboardPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedAvailableCategory, setSelectedAvailableCategory] = useState<string>('all');
   const [completedServiceIds, setCompletedServiceIds] = useState<Set<string>>(new Set());
+  // États pour la recherche avancée
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<ServiceWithRating[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchFilters, setSearchFilters] = useState<SearchServicesParams>({
+    category: undefined,
+    minPrice: undefined,
+    maxPrice: undefined,
+    minRating: undefined,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    page: 1,
+    limit: 20,
+  });
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -635,6 +653,34 @@ export default function DashboardPage() {
     ? services 
     : services.filter(service => service.category === selectedAvailableCategory);
 
+  // Fonction de recherche avancée
+  const handleSearch = async () => {
+    if (!searchQuery.trim() && !searchFilters.category && !searchFilters.minPrice && !searchFilters.maxPrice && !searchFilters.minRating) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const searchParams: SearchServicesParams = {
+        ...searchFilters,
+        search: searchQuery.trim() || undefined,
+      };
+      
+      const response = await servicesApi.search(searchParams);
+      const results = extractData(response);
+      setSearchResults(results as ServiceWithRating[]);
+    } catch (error) {
+      console.error('Erreur lors de la recherche:', error);
+      showToast('Erreur lors de la recherche', 'error');
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Pas de recherche automatique - seulement sur clic du bouton
+
   // Calculer les statistiques
   const myServices = services.filter(service => service.providerId === user?.id);
   const myBookings = bookings.filter(booking => booking.providerId === user?.id);
@@ -869,6 +915,7 @@ export default function DashboardPage() {
                 { id: 'services', label: 'Services', icon: 'services' },
                 { id: 'bookings', label: 'Réservations', icon: 'bookings' },
                 { id: 'history', label: 'Historique', icon: 'history' },
+                { id: 'messages', label: 'Messages', icon: 'messages' },
                 { id: 'analytics', label: 'Analytics', icon: 'analytics' },
                 { id: 'profile', label: 'Mon compte', icon: 'profile' }
               ].map((tab) => (
@@ -906,6 +953,12 @@ export default function DashboardPage() {
                     {tab.id === 'history' && (
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                    {tab.id === 'messages' && (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                        <path d="M15 7v2a4 4 0 01-4 4H9.828l-3 3v-3H6a3 3 0 01-3-3V7h3a4 4 0 014 4h2a4 4 0 004-4V7h-3z" />
                       </svg>
                     )}
                     {tab.id === 'analytics' && (
@@ -1036,6 +1089,12 @@ export default function DashboardPage() {
                     {tab.id === 'history' && (
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                    {tab.id === 'messages' && (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                        <path d="M15 7v2a4 4 0 01-4 4H9.828l-3 3v-3H6a3 3 0 01-3-3V7h3a4 4 0 014 4h2a4 4 0 004-4V7h-3z" />
                       </svg>
                     )}
                     {tab.id === 'analytics' && (
@@ -1470,34 +1529,148 @@ export default function DashboardPage() {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
                   <h2 className="text-lg sm:text-xl font-bold text-white">Services Disponibles</h2>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <select 
-                      value={selectedAvailableCategory}
-                      onChange={(e) => setSelectedAvailableCategory(e.target.value)}
-                      className="w-full sm:w-auto bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
+                </div>
+
+                {/* Barre de recherche avancée */}
+                <div className="mb-4 sm:mb-6 space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            handleSearch();
+                          }
+                        }}
+                        placeholder="Rechercher un service (titre, description)..."
+                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2.5 pl-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] focus:border-transparent text-sm sm:text-base"
+                      />
+                      <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <button
+                      onClick={handleSearch}
+                      disabled={isSearching}
+                      className="px-4 py-2.5 bg-[#4A5C6A] hover:bg-[#253745] text-white rounded-lg transition-colors text-sm sm:text-base flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {categories.map(category => {
-                        const count = category.value === 'all' 
-                          ? services.filter(service => service.providerId !== user?.id).length
-                          : services.filter(service => service.providerId !== user?.id && service.category === category.value).length;
-                        return (
-                          <option key={category.value} value={category.value} className="bg-slate-800">
-                            {category.label} ({count})
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="Rechercher un service..."
-                      className="w-full sm:w-auto bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 text-sm sm:text-base"
-                    />
+                      {isSearching ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Recherche...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <span>Rechercher</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                      className="px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors text-sm sm:text-base flex items-center space-x-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                      </svg>
+                      <span>Filtres</span>
+                    </button>
                   </div>
+
+                  {/* Filtres avancés */}
+                  {showAdvancedFilters && (
+                    <div className="bg-white/5 rounded-lg p-4 border border-white/10 space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div>
+                          <label className="block text-gray-300 text-xs sm:text-sm mb-1">Catégorie</label>
+                          <select
+                            value={searchFilters.category || ''}
+                            onChange={(e) => setSearchFilters({ ...searchFilters, category: e.target.value || undefined })}
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] text-sm"
+                          >
+                            <option value="" className="bg-slate-800">Toutes</option>
+                            {categories.filter(c => c.value !== 'all').map(cat => (
+                              <option key={cat.value} value={cat.value} className="bg-slate-800">{cat.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-gray-300 text-xs sm:text-sm mb-1">Prix min (crédits)</label>
+                          <input
+                            type="number"
+                            value={searchFilters.minPrice || ''}
+                            onChange={(e) => setSearchFilters({ ...searchFilters, minPrice: e.target.value ? Number(e.target.value) : undefined })}
+                            placeholder="0"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-gray-300 text-xs sm:text-sm mb-1">Prix max (crédits)</label>
+                          <input
+                            type="number"
+                            value={searchFilters.maxPrice || ''}
+                            onChange={(e) => setSearchFilters({ ...searchFilters, maxPrice: e.target.value ? Number(e.target.value) : undefined })}
+                            placeholder="∞"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-gray-300 text-xs sm:text-sm mb-1">Note minimale</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="5"
+                            step="0.1"
+                            value={searchFilters.minRating || ''}
+                            onChange={(e) => setSearchFilters({ ...searchFilters, minRating: e.target.value ? Number(e.target.value) : undefined })}
+                            placeholder="0"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-gray-300 text-xs sm:text-sm mb-1">Trier par</label>
+                          <select
+                            value={searchFilters.sortBy || 'createdAt'}
+                            onChange={(e) => setSearchFilters({ ...searchFilters, sortBy: e.target.value as any })}
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] text-sm"
+                          >
+                            <option value="createdAt" className="bg-slate-800">Date de création</option>
+                            <option value="price" className="bg-slate-800">Prix</option>
+                            <option value="rating" className="bg-slate-800">Note</option>
+                            <option value="title" className="bg-slate-800">Titre</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-gray-300 text-xs sm:text-sm mb-1">Ordre</label>
+                          <select
+                            value={searchFilters.sortOrder || 'desc'}
+                            onChange={(e) => setSearchFilters({ ...searchFilters, sortOrder: e.target.value as any })}
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#4A5C6A] text-sm"
+                          >
+                            <option value="desc" className="bg-slate-800">Décroissant</option>
+                            <option value="asc" className="bg-slate-800">Croissant</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {/* Services d'autres utilisateurs */}
-                  {filteredAvailableServices.filter(service => service.providerId !== user?.id).length > 0 ? (
-                    filteredAvailableServices.filter(service => service.providerId !== user?.id).slice(0, 6).map((service) => (
+                  {/* Afficher les résultats de recherche ou les services disponibles */}
+                  {(searchQuery || searchFilters.category || searchFilters.minPrice || searchFilters.maxPrice || searchFilters.minRating) ? (
+                    // Mode recherche active
+                    searchResults.length > 0 ? (
+                      // Résultats de recherche
+                      searchResults.filter(service => service.providerId !== user?.id).map((service) => (
                     <div key={service.id} className="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10 hover:border-[#4A5C6A]/50 transition-all duration-300 cursor-pointer">
                       <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -1514,20 +1687,40 @@ export default function DashboardPage() {
                       </div>
                       <h4 className="text-white font-bold mb-1 sm:mb-2 text-sm sm:text-base">{service.title}</h4>
                       <div className="mb-2">
-                        <ServiceRating 
-                          serviceId={service.id} 
-                          className="mb-2" 
-                          showReviewButton={completedServiceIds.has(service.id)}
-                          onReviewClick={() => {
-                            setSelectedReviewTarget({
-                              revieweeId: service.providerId,
-                              revieweeUsername: service.provider?.username || 'Utilisateur',
-                              serviceId: service.id,
-                              serviceTitle: service.title
-                            });
-                            setShowReviewModal(true);
-                          }}
-                        />
+                        {service.averageRating !== undefined ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="flex items-center">
+                              {[...Array(5)].map((_, i) => (
+                                <svg
+                                  key={i}
+                                  className={`w-4 h-4 ${i < Math.round(service.averageRating || 0) ? 'text-yellow-400' : 'text-gray-400'}`}
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                              ))}
+                            </div>
+                            <span className="text-gray-300 text-xs">
+                              {service.averageRating?.toFixed(1)} ({service.reviewCount || 0} avis)
+                            </span>
+                          </div>
+                        ) : (
+                          <ServiceRating 
+                            serviceId={service.id} 
+                            className="mb-2" 
+                            showReviewButton={completedServiceIds.has(service.id)}
+                            onReviewClick={() => {
+                              setSelectedReviewTarget({
+                                revieweeId: service.providerId,
+                                revieweeUsername: service.provider?.username || 'Utilisateur',
+                                serviceId: service.id,
+                                serviceTitle: service.title
+                              });
+                              setShowReviewModal(true);
+                            }}
+                          />
+                        )}
                       </div>
                       <p className="text-gray-300 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{service.description}</p>
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -1540,20 +1733,101 @@ export default function DashboardPage() {
                         </button>
                       </div>
                     </div>
-                  ))
-                  ) : (
-                    <div className="col-span-full text-center py-6 sm:py-8">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                        <MdWork className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                      ))
+                    ) : (
+                      // Aucun résultat de recherche
+                      <div className="col-span-full text-center py-6 sm:py-8">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                          <svg className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-white font-semibold mb-1 sm:mb-2 text-base sm:text-lg">Aucun résultat trouvé</h3>
+                        <p className="text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4 px-4">
+                          Essayez de modifier vos critères de recherche.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setSearchQuery('');
+                            setSearchFilters({
+                              category: undefined,
+                              minPrice: undefined,
+                              maxPrice: undefined,
+                              minRating: undefined,
+                              sortBy: 'createdAt',
+                              sortOrder: 'desc',
+                              page: 1,
+                              limit: 20,
+                            });
+                            setSearchResults([]);
+                          }}
+                          className="bg-[#4A5C6A] hover:bg-[#4A5C6A]/80 text-white px-4 sm:px-6 py-2 rounded-lg transition-colors text-sm sm:text-base"
+                        >
+                          Réinitialiser les filtres
+                        </button>
                       </div>
-                      <h3 className="text-white font-semibold mb-1 sm:mb-2 text-base sm:text-lg">Aucun service disponible</h3>
-                      <p className="text-gray-400 text-xs sm:text-sm px-4">
-                        {selectedAvailableCategory === 'all' 
-                          ? "Aucun service disponible pour le moment." 
-                          : "Aucun service disponible dans cette catégorie."
-                        }
-                      </p>
-                    </div>
+                    )
+                  ) : (
+                    // Mode normal - afficher les services disponibles
+                    filteredAvailableServices.filter(service => service.providerId !== user?.id).length > 0 ? (
+                      filteredAvailableServices.filter(service => service.providerId !== user?.id).slice(0, 6).map((service) => (
+                        <div key={service.id} className="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10 hover:border-[#4A5C6A]/50 transition-all duration-300 cursor-pointer">
+                          <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#4A5C6A] to-[#9BA8AB] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                              <img 
+                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${service.provider?.avatarSeed || service.provider?.username || 'user'}&backgroundColor=4A5C6A,9BA8AB&backgroundType=gradientLinear`}
+                                alt={service.provider?.username || 'Utilisateur'}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-white font-semibold text-sm sm:text-base truncate">{service.provider?.username || 'Utilisateur'}</h3>
+                              <p className="text-gray-400 text-xs sm:text-sm truncate">{service.category}</p>
+                            </div>
+                          </div>
+                          <h4 className="text-white font-bold mb-1 sm:mb-2 text-sm sm:text-base">{service.title}</h4>
+                          <div className="mb-2">
+                            <ServiceRating 
+                              serviceId={service.id} 
+                              className="mb-2" 
+                              showReviewButton={completedServiceIds.has(service.id)}
+                              onReviewClick={() => {
+                                setSelectedReviewTarget({
+                                  revieweeId: service.providerId,
+                                  revieweeUsername: service.provider?.username || 'Utilisateur',
+                                  serviceId: service.id,
+                                  serviceTitle: service.title
+                                });
+                                setShowReviewModal(true);
+                              }}
+                            />
+                          </div>
+                          <p className="text-gray-300 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{service.description}</p>
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <span className="text-[#4A5C6A] font-bold text-xs sm:text-sm">{service.pricePerHour} crédits/heure</span>
+                            <button 
+                              onClick={() => openBookingModal(service)}
+                              className="w-full sm:w-auto bg-[#4A5C6A] hover:bg-[#253745] text-white px-3 py-1.5 rounded text-xs sm:text-sm transition-colors transform hover:scale-105"
+                            >
+                              Réserver
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-6 sm:py-8">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                          <MdWork className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                        </div>
+                        <h3 className="text-white font-semibold mb-1 sm:mb-2 text-base sm:text-lg">Aucun service disponible</h3>
+                        <p className="text-gray-400 text-xs sm:text-sm px-4">
+                          {selectedAvailableCategory === 'all' 
+                            ? "Aucun service disponible pour le moment." 
+                            : "Aucun service disponible dans cette catégorie."
+                          }
+                        </p>
+                      </div>
+                    )
                   )}
                 </div>
               </div>
@@ -1995,6 +2269,13 @@ export default function DashboardPage() {
                   </>
                 );
               })()}
+            </div>
+          )}
+
+          {/* Messages Tab */}
+          {activeTab === 'messages' && (
+            <div className="h-[calc(100vh-200px)] min-h-[600px]">
+              <MessagesInterface />
             </div>
           )}
 

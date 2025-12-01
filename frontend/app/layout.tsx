@@ -11,6 +11,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  console.log('[RootLayout] Layout rendu');
   return (
     <html lang="fr">
       <body>{children}</body>

@@ -10,6 +10,7 @@ import { ServicesModule } from './services/services.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { MessagesModule } from './messages/messages.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 @Module({
@@ -33,6 +34,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     BookingsModule,
     NotificationsModule,
     ReviewsModule,
+    MessagesModule,
   ],
   providers: [
     {

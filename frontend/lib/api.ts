@@ -177,6 +177,29 @@ export interface Notification {
   updatedAt: string;
 }
 
+export interface Message {
+  id: string;
+  content: string;
+  senderId: string;
+  receiverId: string;
+  isRead: boolean;
+  createdAt: string;
+  updatedAt: string;
+  sender?: User;
+  receiver?: User;
+}
+
+export interface Conversation {
+  otherUser: User;
+  lastMessage: Message | null;
+  unreadCount: number;
+}
+
+export interface ConversationDetail {
+  otherUser: User;
+  messages: Message[];
+}
+
 // Types pour la pagination
 export interface PaginationMeta {
   page: number;
@@ -276,6 +299,23 @@ export const transactionsApi = {
 };
 
 // API Services
+export interface SearchServicesParams {
+  search?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  sortBy?: 'price' | 'rating' | 'createdAt' | 'title';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
+export interface ServiceWithRating extends Service {
+  averageRating?: number;
+  reviewCount?: number;
+}
+
 export const servicesApi = {
   getAll: async (category?: string, pagination?: PaginationParams): Promise<Service[] | PaginatedResponse<Service>> => {
     const params: any = { ...pagination };
@@ -284,6 +324,13 @@ export const servicesApi = {
     }
     const { data } = await api.get<PaginatedResponse<Service>>('/services', {
       params,
+    });
+    return data;
+  },
+
+  search: async (searchParams: SearchServicesParams): Promise<PaginatedResponse<ServiceWithRating>> => {
+    const { data } = await api.get<PaginatedResponse<ServiceWithRating>>('/services/search', {
+      params: searchParams,
     });
     return data;
   },
@@ -398,6 +445,45 @@ export const notificationsApi = {
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/notifications/${id}`);
+  },
+};
+
+// API Messages
+export const messagesApi = {
+  create: async (receiverId: string, content: string): Promise<Message> => {
+    const { data } = await api.post<Message>('/messages', {
+      receiverId,
+      content,
+    });
+    return data;
+  },
+
+  getConversations: async (): Promise<Conversation[]> => {
+    const { data } = await api.get<Conversation[]>('/messages/conversations');
+    return data;
+  },
+
+  getConversation: async (userId: string): Promise<ConversationDetail> => {
+    const { data } = await api.get<ConversationDetail>(`/messages/conversations/${userId}`);
+    return data;
+  },
+
+  getUnreadCount: async (): Promise<{ count: number }> => {
+    const { data } = await api.get<{ count: number }>('/messages/unread-count');
+    return data;
+  },
+
+  markAsRead: async (messageId: string): Promise<Message> => {
+    const { data } = await api.patch<Message>(`/messages/${messageId}/read`);
+    return data;
+  },
+
+  markConversationAsRead: async (userId: string): Promise<void> => {
+    await api.patch(`/messages/conversations/${userId}/read`);
+  },
+
+  delete: async (messageId: string): Promise<void> => {
+    await api.delete(`/messages/${messageId}`);
   },
 };
 

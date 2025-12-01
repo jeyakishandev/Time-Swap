@@ -4,6 +4,7 @@ import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PaginationQuery } from '../common/interfaces/paginated-response.interface';
+import { SearchServicesDto } from './dto/search-services.dto';
 
 @Controller('services')
 export class ServicesController {
@@ -13,6 +14,11 @@ export class ServicesController {
   @UseGuards(JwtAuthGuard)
   create(@Body() createServiceDto: CreateServiceDto, @Request() req) {
     return this.servicesService.create(createServiceDto, req.user.userId);
+  }
+
+  @Get('search')
+  search(@Query() searchDto: SearchServicesDto) {
+    return this.servicesService.search(searchDto);
   }
 
   @Get()
