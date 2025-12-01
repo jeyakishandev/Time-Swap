@@ -63,28 +63,8 @@ async function bootstrap() {
   const port = process.env.BACKEND_PORT || 3001;
   await app.listen(port);
 
-  // Log toutes les routes enregistrées
-  const server = app.getHttpServer();
-  const router = app.getHttpAdapter().getInstance();
   logger.log(`Backend Time-Swap Network démarré sur http://localhost:${port}`);
   logger.log(`Sécurité renforcée : bcrypt, rate limiting, headers sécurisés`);
   logger.log(`Gestion d'erreurs améliorée avec filtres globaux et logging structuré`);
-  
-  // Debug: Vérifier les routes enregistrées
-  logger.log('=== DEBUG: Routes enregistrées ===');
-  const routes: string[] = [];
-  router._router?.stack?.forEach((middleware: any) => {
-    if (middleware.route) {
-      routes.push(`${Object.keys(middleware.route.methods).join(',').toUpperCase()} ${middleware.route.path}`);
-    } else if (middleware.name === 'router') {
-      middleware.handle?.stack?.forEach((handler: any) => {
-        if (handler.route) {
-          routes.push(`${Object.keys(handler.route.methods).join(',').toUpperCase()} ${handler.route.path}`);
-        }
-      });
-    }
-  });
-  routes.forEach(route => logger.log(`Route: ${route}`));
-  logger.log('=== FIN DEBUG ===');
 }
 bootstrap();
