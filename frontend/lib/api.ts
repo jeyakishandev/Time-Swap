@@ -22,7 +22,8 @@ api.interceptors.request.use(
   (config) => {
     // Log pour déboguer
     console.log('[API Request]', config.method?.toUpperCase(), config.url);
-    console.log('[API Request] Full URL:', config.baseURL + config.url);
+    const fullUrl = (config.baseURL || API_URL) + (config.url || '');
+    console.log('[API Request] Full URL:', fullUrl);
     
     // Utiliser localStorage si disponible, sinon Cookies
     const token = typeof window !== 'undefined' 
@@ -46,12 +47,15 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    const fullUrl = error.config 
+      ? (error.config.baseURL || API_URL) + (error.config.url || '')
+      : 'unknown';
     console.error('[API Error]', {
       message: error.message,
       status: error.response?.status,
       statusText: error.response?.statusText,
       url: error.config?.url,
-      fullUrl: error.config?.baseURL + error.config?.url,
+      fullUrl: fullUrl,
       data: error.response?.data,
     });
     
