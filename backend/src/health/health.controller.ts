@@ -1,17 +1,12 @@
-import { Controller, Get, Head, All, Logger } from '@nestjs/common';
+import { Controller, Get, All } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Controller()
 export class HealthController {
-  private readonly logger = new Logger(HealthController.name);
-
-  constructor(private readonly prisma: PrismaService) {
-    this.logger.log('HealthController initialisé');
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   @All()
   root() {
-    this.logger.log('Route racine / appelée');
     // Route racine pour les health checks de Render (toutes les méthodes HTTP)
     return {
       status: 'ok',
